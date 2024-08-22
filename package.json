@@ -1,0 +1,7 @@
+{
+  "name": "hathor-demo",
+  "packageManager": "yarn@4.2.2",
+  "workspaces": [
+    "packages/bet-dapp"
+  ]
+}
