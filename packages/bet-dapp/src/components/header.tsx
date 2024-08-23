@@ -7,7 +7,7 @@ export interface HeaderProps {
 
 const Header = () => {
   return (
-    <div className='container pl-0 pr-0 p-8 justify-between flex max-w-6xl'>
+    <div className='container pl-0 pr-0 p-8 justify-between flex max-w-4xl'>
       <Image alt="Hathor" width={100} height={25} src="/logo-hathor.svg" />
       <WalletConnect />
     </div>
