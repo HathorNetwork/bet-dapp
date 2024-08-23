@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -26,7 +27,9 @@ export default function Home() {
 
           <div className="text-left">
             <Button className="rounded-sm bg-hathor-purple-500 text-white px-6 py-3">
-              Start now!
+              <Link href='/create'>
+                Start now!
+              </Link>
             </Button>
           </div>
         </div>
