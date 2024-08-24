@@ -1271,6 +1271,7 @@ __metadata:
     date-fns: "npm:^3.6.0"
     eslint: "npm:^8"
     eslint-config-next: "npm:14.2.6"
+    highlight.js: "npm:^11.10.0"
     lucide-react: "npm:^0.435.0"
     next: "npm:14.2.6"
     postcss: "npm:^8"
@@ -2560,6 +2561,13 @@ __metadata:
   resolution: "hathor-demo@workspace:."
   languageName: unknown
   linkType: soft
+
+"highlight.js@npm:^11.10.0":
+  version: 11.10.0
+  resolution: "highlight.js@npm:11.10.0"
+  checksum: 10c0/cd8bf7ef06cbd72ddb83580ecabe769f08f062be8bb82d2eb492d31c17f7480d1f8d14a66fc81deee0601645435f19f04c470510563f847242a41ccff0ab873e
+  languageName: node
+  linkType: hard
 
 "http-cache-semantics@npm:^4.1.1":
   version: 4.1.1

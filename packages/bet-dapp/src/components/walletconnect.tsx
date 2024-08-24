@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
-import { CreditCard } from 'lucide-react';
+import { CreditCard, ChevronDown } from 'lucide-react';
 
 export interface WalletConnectProps {
 }
@@ -11,13 +11,14 @@ const WalletConnect = () => {
 
   return (
     <Card>
-      <CardContent className='flex justify-between p-4 items-center space-x-4'>
-        <CreditCard />
+      <CardContent className='flex justify-between p-2 items-center space-x-4'>
+        <CreditCard size={16} />
         { !connected && (
-          <Button className='bg-hathor-purple-700 hover:bg-hathor-purple-600 text-white rounded-full outline outline-1 outline-hathor-purple-600'>
-            Connect wallet
+          <Button className='bg-hathor-purple-700 hover:bg-hathor-purple-600 text-white rounded-full outline outline-1 outline-hathor-purple-600 text-xs'>
+            Wallet not connected
           </Button>
         )}
+        <ChevronDown size={16} />
       </CardContent>
     </Card>
   )

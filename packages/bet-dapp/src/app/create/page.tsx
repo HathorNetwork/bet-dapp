@@ -37,6 +37,7 @@ const formSchema = z.object({
 export default function CreateNanoContractLayout() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    mode: 'onChange',
     defaultValues: {
       name: '',
       description: '',
@@ -52,7 +53,7 @@ export default function CreateNanoContractLayout() {
   const oracleTypeValue = form.watch('oracleType');
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-6 flex-col">
+    <main className="flex min-h-screen items-center p-6 flex-col">
       <Header />
       <Card className="relative flex items-center bg-cover bg-center rounded-lg shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">
         <CardContent className="w-full flex items-center justify-center flex-col">
@@ -154,7 +155,9 @@ export default function CreateNanoContractLayout() {
                       <Input
                         type="datetime-local"
                         value={field.value ? formatLocalDateTime(field.value) : ""}
-                        onChange={(e) => field.onChange(new Date(e.target.value))}
+                        onChange={(e) => field.onChange(
+                          new Date(e.target.value || new Date().getTime())
+                        )}
                         className="w-full h-12"
                       />
                     </FormControl>
@@ -174,7 +177,11 @@ export default function CreateNanoContractLayout() {
               </FormItem>
 
               <div className='flex justify-center items-center pt-8'>
-                <Button className="bg-hathor-purple-500 text-white w-40" type="submit">
+                <Button
+                  className="bg-hathor-purple-500 text-white w-40 disabled:bg-[#21262D] disabled:text-[#484F58]"
+                  type="submit"
+                  disabled={!form.formState.isValid}
+                >
                   Create your bet
                 </Button>
               </div>

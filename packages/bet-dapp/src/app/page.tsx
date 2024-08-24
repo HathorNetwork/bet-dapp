@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { HathorGradient } from '@/components/hathor-gradient';
 
 export default function Home() {
   return (
@@ -14,9 +15,7 @@ export default function Home() {
             <Image alt="Hathor" width={150} height={100} src="/logo-hathor.svg" />
           </div>
 
-          <h1 className="text-4xl text-left font-semibold bg-gradient-to-r from-hathor-purple-700 via-hathor-purple-400 to-hathor-green-500 text-transparent bg-clip-text mb-4">
-            Welcome to <br /> Hathor Play DEMO!
-          </h1>
+          <HathorGradient text={(<>Welcome to <br /> Hathor Play DEMO!</>)} />
 
           <p className="text-base leading-relaxed mb-6 text-left">
             Here you will easily create your own 1 to 1 <br />
@@ -26,7 +25,7 @@ export default function Home() {
           </p>
 
           <div className="text-left">
-            <Button className="rounded-sm bg-hathor-purple-500 text-white px-6 py-3">
+            <Button className="rounded-sm text-white px-6 py-3">
               <Link href='/create'>
                 Start now!
               </Link>
