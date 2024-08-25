@@ -6,18 +6,19 @@ import { Header } from '@/components/header';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
+import { TotalBets } from '@/components/total-bets';
 
 const formSchema = z.object({
   bet: z.string().min(5),
   amount: z.coerce.number(),
 });
 
-export default function CreateNanoContractLayout() {
+export default function BetPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     mode: 'onChange',
@@ -86,10 +87,7 @@ export default function CreateNanoContractLayout() {
 
             <div className="flex-grow border-t border-[#484F58] w-full max-w-md mt-12 mb-12"></div>
 
-            <div className='flex justify-between w-full max-w-md'>
-              <p className='text-md subpixel-antialiased'>Total bet</p>
-              <p className='text-md subpixel-antialiased'>2000 EVC</p>
-            </div>
+            <TotalBets />
 
             <Button className="bg-hathor-purple-500 w-full text-white max-w-md mt-12 h-12 text-md">
               Set result

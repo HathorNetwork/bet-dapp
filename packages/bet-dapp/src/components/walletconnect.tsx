@@ -10,11 +10,11 @@ const WalletConnect = () => {
   const connected = false;
 
   return (
-    <Card>
-      <CardContent className='flex justify-between p-2 items-center space-x-4'>
+    <Card className='flex justify-between p-2 items-center max-h-14 sm:flex-row'>
+      <CardContent className='flex space-x-2 p-1 items-center pl-4 pr-4'>
         <CreditCard size={16} />
         { !connected && (
-          <Button className='bg-hathor-purple-700 hover:bg-hathor-purple-600 text-white rounded-full outline outline-1 outline-hathor-purple-600 text-xs'>
+          <Button className='bg-hathor-purple-700 p-2 hover:bg-hathor-purple-600 text-white rounded-full outline outline-1 outline-hathor-purple-600 text-xs'>
             Wallet not connected
           </Button>
         )}

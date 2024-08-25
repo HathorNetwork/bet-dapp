@@ -34,7 +34,7 @@ const formSchema = z.object({
   message: 'Public Key is required when Oracle Type is Public Key',
 });
 
-export default function CreateNanoContractLayout() {
+export default function CreateNanoContractPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     mode: 'onChange',

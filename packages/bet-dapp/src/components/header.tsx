@@ -11,14 +11,14 @@ export interface HeaderProps {
 
 const Header = ({ logo, title, subtitle }: HeaderProps) => {
   return (
-    <div className='container pl-0 pr-0 p-8 pb-12 justify-between flex max-w-4xl'>
+    <div className='container pl-0 pr-0 p-8 pb-12 justify-between flex flex-col sm:flex-row md:flex-row lg:flex-row max-w-4xl'>
       { logo && (
         <Link href="/" className='flex justify-between'>
           <Image alt="Hathor" width={100} height={25} src="/logo-hathor.svg" />
         </Link>
       )}
       { title && (
-      <div className='flex flex-col justify-center'>
+      <div className='flex flex-col justify-center mb-2 md:m-0 lg:m-0'>
         <p className='text-sm text-gray-400 mb-2'>{ title }</p>
         <p className='text-2xl text-white subpixel-antialiased'>{ subtitle }</p>
       </div>
