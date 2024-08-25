@@ -25,16 +25,76 @@ export default function ResultsPage() {
     amount: 500,
     id: '000004fe95fed9c440954ebacb1088054b303c046a2aa97dbdb2f92cbfddc6ea',
     timestamp: addHours(new Date(), 5),
+  }, {
+    type: 'Bet',
+    bet: 'Brazil',
+    amount: 500,
+    id: '0000002fba8eea57f12b7112f818d458975146daa16c3a4900e766dffe467c63',
+    timestamp: new Date()
+  }, {
+    type: 'Bet',
+    bet: 'Brazil',
+    amount: 500,
+    id: '000004fe95fed9c440954ebacb1088054b303c046a2aa97dbdb2f92cbfddc6ea',
+    timestamp: addHours(new Date(), 5),
+  }, {
+    type: 'Bet',
+    bet: 'Brazil',
+    amount: 500,
+    id: '0000002fba8eea57f12b7112f818d458975146daa16c3a4900e766dffe467c63',
+    timestamp: new Date()
+  }, {
+    type: 'Bet',
+    bet: 'Brazil',
+    amount: 500,
+    id: '000004fe95fed9c440954ebacb1088054b303c046a2aa97dbdb2f92cbfddc6ea',
+    timestamp: addHours(new Date(), 5),
+  }, {
+    type: 'Bet',
+    bet: 'Brazil',
+    amount: 500,
+    id: '0000002fba8eea57f12b7112f818d458975146daa16c3a4900e766dffe467c63',
+    timestamp: new Date()
+  }, {
+    type: 'Bet',
+    bet: 'Brazil',
+    amount: 500,
+    id: '000004fe95fed9c440954ebacb1088054b303c046a2aa97dbdb2f92cbfddc6ea',
+    timestamp: addHours(new Date(), 5),
+  }, {
+    type: 'Bet',
+    bet: 'Brazil',
+    amount: 500,
+    id: '0000002fba8eea57f12b7112f818d458975146daa16c3a4900e766dffe467c63',
+    timestamp: new Date()
+  }, {
+    type: 'Bet',
+    bet: 'Brazil',
+    amount: 500,
+    id: '000004fe95fed9c440954ebacb1088054b303c046a2aa97dbdb2f92cbfddc6ea',
+    timestamp: addHours(new Date(), 5),
+  }, {
+    type: 'Bet',
+    bet: 'Brazil',
+    amount: 500,
+    id: '0000002fba8eea57f12b7112f818d458975146daa16c3a4900e766dffe467c63',
+    timestamp: new Date()
+  }, {
+    type: 'Bet',
+    bet: 'Brazil',
+    amount: 500,
+    id: '000004fe95fed9c440954ebacb1088054b303c046a2aa97dbdb2f92cbfddc6ea',
+    timestamp: addHours(new Date(), 5),
   }];
 
   return (
     <main className="flex min-h-screen items-center p-6 flex-col">
       <Header logo={false} title='Betting' subtitle="Olympic Games - Men's Football Finals" />
       <div className='flex w-full justify-center flex-col lg:flex-row md:flex-col sm:flex-col'>
-        <Card className="flex justify-center items-center bg-cover bg-center rounded-lg max-w-4xl w-full p-8 sm:p-12 lg:p-16 border border-gray-800 min-h-[440px]">
+        <Card className="flex justify-center items-center bg-cover bg-center rounded-lg max-w-4xl w-full p-8 sm:p-12 lg:p-16 border border-gray-800 min-h-[440px] min-w-sm">
           <CardContent className="w-full flex items-center justify-center flex-col max-w-md">
             <p className='text-white w-full mb-4 subpixel-antialiased text-2xl'>Winner 🥇</p>
-            <Button className='bg-hathor-green-500 text-white w-full h-12 text-lg'>Brazil</Button>
+            <Button className='bg-hathor-green-500 hover:bg-hathor-green-500 text-white w-full h-12 text-lg'>Brazil</Button>
 
             <p className='text-white w-full mb-4 subpixel-antialiased text-2xl mt-12'>Prize 💰</p>
             <Button disabled className='bg-hathor-purple-500 w-full text-white disabled:bg-[#21262D] disabled:text-[#484F58] text-md h-12'>200 EVC</Button>
