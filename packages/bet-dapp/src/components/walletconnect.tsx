@@ -40,8 +40,16 @@ const WalletConnect = () => {
           </CardContent>
         </Card>
       </PopoverTrigger>
-      <PopoverContent className="w-80">
-        <h1>ola mundo</h1>
+      <PopoverContent className="w-60 p-0">
+        <Button variant='ghost' className='w-full p-0 rounded-none'>
+          See all bets
+        </Button>
+        <Button variant='ghost' className='w-full p-0 rounded-none'>
+          Disconnect wallet
+        </Button>
+        <Button variant='ghost' className='w-full p-0 rounded-none'>
+          Exit bet
+        </Button>
       </PopoverContent>
     </Popover>
   )

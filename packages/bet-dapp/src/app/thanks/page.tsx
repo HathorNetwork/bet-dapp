@@ -27,7 +27,7 @@ export default function ThanksPage() {
                   </h1>
                 )} />
                 <p className='text-xl mt-8 subpixel-antialiased'>Winners, send us your EVCs <span className='bold'>to exchange for real HTRs!</span></p>
-                <p className='text-lg mt-8'>You've seen how easy it is to deploy smart contracts on Hathor Network — no specialized developers, no audits, no delays. Just focus on building your business with high scalability and fee-less transactions.</p>
+                <p className='text-lg mt-8'>You&apos;ve seen how easy it is to deploy smart contracts on Hathor Network — no specialized developers, no audits, no delays. Just focus on building your business with high scalability and fee-less transactions.</p>
                 <p className='text-lg text-hathor-purple-500 subpixel-antialiased mt-8'>Trust only Hathor, and start developing your future dApps!</p>
               </div>
               <div className='h-full w-full flex p-4 flex flex-col justify-start items-center'>
