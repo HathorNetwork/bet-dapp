@@ -1,17 +1,15 @@
-import type { Metadata } from "next";
+'use client';
+
 import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { WalletConnectClientContextProvider } from "@/contexts/WalletConnectClientContext";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = FontSans({
   subsets: ["latin"],
   variable: '--font-sans'
 });
-
-export const metadata: Metadata = {
-  title: "Hathor Betting dApp",
-  description: "Bet your way to the top",
-};
 
 export default function RootLayout({
   children,
@@ -26,7 +24,10 @@ export default function RootLayout({
         'font-mona-sans',
         inter.variable
       )}>
-        {children}
+        <WalletConnectClientContextProvider>
+          {children}
+          <Toaster />
+        </WalletConnectClientContextProvider>
       </body>
     </html>
   );

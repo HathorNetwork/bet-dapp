@@ -1,20 +1,61 @@
 import * as React from 'react';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
-import { CreditCard, ChevronDown } from 'lucide-react';
+import { CreditCard, ChevronDown, CheckCircle } from 'lucide-react';
 import { getShortHash } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { get } from 'lodash';
+import { useWalletConnectClient } from '@/contexts/WalletConnectClientContext';
+import { useToast } from './ui/use-toast';
+import { useRouter } from 'next/navigation';
 
 export interface WalletConnectProps {
 }
 
 const WalletConnect = () => {
-  const [connected, setConnected] = React.useState<boolean>(false);
+  const {
+    connect,
+    disconnect,
+    session
+  } = useWalletConnectClient();
+  const { toast } = useToast();
+  const router = useRouter();
+  const connected = !!session;
+
+  const address = React.useMemo(() => {
+    const [_, _network, addr] = get(session, 'namespaces.hathor.accounts[0]', '::').split(':');
+
+    return addr as string;
+  }, [session]);
+
   const onConnect = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    setConnected(!connected);
+
+    connect();
   };
-  const onCopy = () => {};
+
+  const onDisconnect = () => {
+    disconnect();
+  };
+
+  const onCopy = React.useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+
+    navigator.clipboard.writeText(address);
+    toast({
+      className: 'bg-[#193D11] h-8 w-72 justify-between',
+      description: (
+        <div className='flex flex-row items-center'>
+          <CheckCircle size={12} className='mr-2 text-hathor-green-400'/>
+          <p className='font-semibold font-white'>Address copied to clipboard!</p>
+        </div>
+      ),
+    });
+  }, [address, toast]);
+
+  const onExit = React.useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    router.replace('/thanks');
+  }, [router]);
 
   return (
     <Popover>
@@ -30,8 +71,8 @@ const WalletConnect = () => {
               </Button>
             )}
             { connected && (
-              <Button onClick={onConnect} className='bg-[#21262D] p-2 pl-4 pr-4 hover:bg-[#21262D] text-white rounded-full text-xs'>
-                {getShortHash('Wd7v9y42bkW3qvG1Adg3hdgmiXe7mwUxsu', 7)}
+              <Button onClick={onCopy} className='bg-[#21262D] p-2 pl-4 pr-4 hover:bg-[#21262D] text-white rounded-full text-xs'>
+                {getShortHash(address, 7)}
               </Button>
             )}
             <Button variant='ghost' className='m-0 pl-2 pr-2 mr-4'>
@@ -44,10 +85,12 @@ const WalletConnect = () => {
         <Button variant='ghost' className='w-full p-0 rounded-none'>
           See all bets
         </Button>
-        <Button variant='ghost' className='w-full p-0 rounded-none'>
-          Disconnect wallet
-        </Button>
-        <Button variant='ghost' className='w-full p-0 rounded-none'>
+        { connected && (
+          <Button variant='ghost' className='w-full p-0 rounded-none' onClick={onDisconnect}>
+            Disconnect wallet
+          </Button>
+        )}
+        <Button variant='ghost' className='w-full p-0 rounded-none' onClick={onExit}>
           Exit bet
         </Button>
       </PopoverContent>
