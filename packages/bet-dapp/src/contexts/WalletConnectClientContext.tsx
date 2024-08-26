@@ -20,6 +20,7 @@ import {
   DEFAULT_RELAY_URL,
 } from '../constants';
 import { getSdkError } from '@walletconnect/utils';
+import { get } from 'lodash';
 
 /**
  * Types
@@ -36,6 +37,7 @@ interface IContext {
   accounts: string[];
   setChains: any;
   setRelayerRegion: any;
+  getFirstAddress: () => string;
 }
 
 /**
@@ -94,11 +96,25 @@ export function WalletConnectClientContextProvider({
     []
   );
 
+  const getFirstAddress = useCallback(() => {
+    const [_, _network, addr] = get(session, 'namespaces.hathor.accounts[0]', '::').split(':');
+
+    return addr;
+  }, [session]);
+
   const connect = useCallback(
     async (pairing: any) => {
       if (typeof client === 'undefined') {
-        throw new Error('WalletConnect is not initialized');
+        console.error('WalletConnect is not initialized');
+
+        return;
       }
+
+      if (session != null) {
+        // Session already exists, return success
+        return;
+      }
+
       try {
         const requiredNamespaces = {
           'hathor': {
@@ -135,7 +151,7 @@ export function WalletConnectClientContextProvider({
         web3Modal.closeModal();
       }
     },
-    [client, onSessionConnected]
+    [client, session, onSessionConnected]
   );
 
   const disconnect = useCallback(async () => {
@@ -249,11 +265,13 @@ export function WalletConnectClientContextProvider({
       client,
       session,
       connect,
+      getFirstAddress,
       disconnect,
       setChains,
       setRelayerRegion,
     }),
     [
+      getFirstAddress,
       pairings,
       isInitializing,
       accounts,

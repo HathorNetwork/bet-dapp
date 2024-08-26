@@ -1,5 +1,7 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { nanoUtils, Network } from '@hathor/wallet-lib';
+import { NETWORK } from "@/constants";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -22,4 +24,10 @@ export function formatDate(date: Date): string {
   const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
 
   return `${formattedMonth}/${formattedDay}, ${formattedHours}:${formattedMinutes}`;
+}
+
+export function getOracleBuffer(address: string) {
+  return nanoUtils
+    .getOracleBuffer(address, new Network(NETWORK))
+    .toString('hex');
 }

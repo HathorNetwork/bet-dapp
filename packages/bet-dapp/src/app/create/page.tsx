@@ -12,6 +12,9 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format, addHours } from 'date-fns';
+import { useWalletConnectClient } from '@/contexts/WalletConnectClientContext';
+import { createBet } from './createBet';
+import { useJsonRpc } from '@/contexts/JsonRpcContext';
 
 function formatLocalDateTime(date: Date): string {
   return format(date, 'yyyy-MM-dd\'T\'HH:mm');
@@ -46,9 +49,18 @@ export default function CreateNanoContractPage() {
     },
   });
 
-  const onSubmit = useCallback((values: z.infer<typeof formSchema>) => {
-    console.log(values);
-  }, []);
+  const { hathorRpc } = useJsonRpc();
+
+  const { connect, getFirstAddress } = useWalletConnectClient();
+
+  const onSubmit = useCallback(async (values: z.infer<typeof formSchema>) => {
+    // connect is idempotent
+    await connect();
+
+    const firstAddress = getFirstAddress();
+    await createBet(hathorRpc, values.name, values.description || '', firstAddress, values.lastBetAt.getTime(), '00');
+    console.log('Result!!');
+  }, [connect, hathorRpc, getFirstAddress]);
 
   const oracleTypeValue = form.watch('oracleType');
 

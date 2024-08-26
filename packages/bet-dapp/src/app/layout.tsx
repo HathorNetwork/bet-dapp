@@ -5,6 +5,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { WalletConnectClientContextProvider } from "@/contexts/WalletConnectClientContext";
 import { Toaster } from "@/components/ui/toaster";
+import { JsonRpcContextProvider } from "@/contexts/JsonRpcContext";
 
 const inter = FontSans({
   subsets: ["latin"],
@@ -25,8 +26,10 @@ export default function RootLayout({
         inter.variable
       )}>
         <WalletConnectClientContextProvider>
-          {children}
-          <Toaster />
+          <JsonRpcContextProvider>
+            {children}
+            <Toaster />
+          </JsonRpcContextProvider>
         </WalletConnectClientContextProvider>
       </body>
     </html>

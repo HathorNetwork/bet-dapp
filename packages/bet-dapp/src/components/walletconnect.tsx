@@ -28,10 +28,10 @@ const WalletConnect = () => {
     return addr as string;
   }, [session]);
 
-  const onConnect = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const onConnect = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
-    connect();
+    await connect();
   };
 
   const onDisconnect = () => {
