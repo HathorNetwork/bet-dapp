@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Header } from '@/components/header';
 import { z } from 'zod';
@@ -12,6 +12,9 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
 import { TotalBets } from '@/components/total-bets';
+import { useParams } from 'next/navigation';
+import { getNanoContractById } from '@/lib/api/getNanoContractById';
+import { NanoContract } from '@/lib/dynamodb/nano-contract';
 
 const formSchema = z.object({
   bet: z.string().min(5),
@@ -19,6 +22,21 @@ const formSchema = z.object({
 });
 
 export default function BetPage() {
+  const params = useParams();
+  const [nanoContract, setNanoContract] = useState<NanoContract | null>(null);
+
+  useEffect(() => {
+    if (!params || !params.id) {
+      return;
+    }
+
+    const ncId = params.id as string;
+    (async () => {
+      const nc = await getNanoContractById(ncId);
+      setNanoContract(nc);
+    })();
+  }, [params]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     mode: 'onChange',
@@ -34,9 +52,13 @@ export default function BetPage() {
 
   const connected = true;
 
+  if (!nanoContract) {
+    return null;
+  }
+
   return (
     <main className="flex min-h-screen items-center p-6 flex-col">
-      <Header logo={false} title='Betting' subtitle="Olympic Games - Men's Football Finals" />
+      <Header logo={false} title='Betting' subtitle={nanoContract.title} />
       <Card className="relative flex items-center bg-cover bg-center rounded-lg shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">
         <CardContent className="w-full flex items-center justify-center flex-col">
           <Form {...form}>

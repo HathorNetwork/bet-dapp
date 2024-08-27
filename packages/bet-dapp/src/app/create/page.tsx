@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Header } from '@/components/header';
 import { z } from 'zod';
@@ -15,6 +15,11 @@ import { format, addHours } from 'date-fns';
 import { useWalletConnectClient } from '@/contexts/WalletConnectClientContext';
 import { createBet } from './createBet';
 import { useJsonRpc } from '@/contexts/JsonRpcContext';
+import { WaitInput } from '@/components/wait-input';
+import Link from 'next/link';
+import Image from 'next/image';
+import { ResultError } from '@/components/result-error';
+import { useRouter } from 'next/navigation';
 
 function formatLocalDateTime(date: Date): string {
   return format(date, 'yyyy-MM-dd\'T\'HH:mm');
@@ -38,6 +43,11 @@ const formSchema = z.object({
 });
 
 export default function CreateNanoContractPage() {
+  const [waitingApproval, setWaitingApproval] = useState<boolean>(false);
+  const [error, setError] = useState<boolean>(false);
+
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     mode: 'onChange',
@@ -56,98 +66,66 @@ export default function CreateNanoContractPage() {
   const onSubmit = useCallback(async (values: z.infer<typeof formSchema>) => {
     // connect is idempotent
     await connect();
+    setWaitingApproval(true);
 
     const firstAddress = getFirstAddress();
-    await createBet(hathorRpc, values.name, values.description || '', firstAddress, values.lastBetAt.getTime(), '00');
-    console.log('Result!!');
+    try {
+      const nc = await createBet(hathorRpc, values.name, values.description || '', values.oracleType, firstAddress, values.lastBetAt.getTime(), '00');
+      console.log(nc);
+    } catch (e) {
+      (true);
+      setError(true);
+    } finally {
+      setWaitingApproval(false);
+    }
   }, [connect, hathorRpc, getFirstAddress]);
+
+  const onTryAgain = useCallback(() => {
+    const values = form.getValues();
+    setError(false);
+    onSubmit(values);
+  }, [form, onSubmit]);
+
+  const onCancel = useCallback(() => {
+    router.replace('/');
+  }, [router]);
 
   const oracleTypeValue = form.watch('oracleType');
 
   return (
     <main className="flex min-h-screen items-center p-6 flex-col">
       <Header logo={true} />
-      <Card className="relative flex items-center bg-cover bg-center rounded-lg shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">
-        <CardContent className="w-full flex items-center justify-center flex-col">
-          <h1 className='text-4xl subpixel-antialiased text-bold'>Create your Nano Contract</h1>
-          <p className='pb-16'>for the Betting Event</p>
+      { error && (
+        <ResultError
+          title='Error during confirmation'
+          description='The connection was not approved on your phone. Please, try again.'
+          tryAgainText='Try again'
+          cancelText='Go to home'
+          onTryAgain={onTryAgain}
+          onCancel={onCancel}
+        />
+      )}
+      { waitingApproval && (
+        <WaitInput title='Waiting Approval' description='Please, approve this transaction on your phone' />
+      )}
+      { (!error && !waitingApproval) && (
+        <Card className="relative flex items-center bg-cover bg-center rounded-lg shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">
+          <CardContent className="w-full flex items-center justify-center flex-col">
+            <h1 className='text-4xl subpixel-antialiased text-bold'>Create your Nano Contract</h1>
+            <p className='pb-16'>for the Betting Event</p>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-md w-full flex flex-col">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name of the Main Event</FormLabel>
-                    <FormControl>
-                      <Input
-                        className="w-full h-12"
-                        placeholder="E.g. Olympic Games"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        className="w-full h-24"
-                        placeholder="E.g. Men's Football Final"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Oracle Type Field (Select) */}
-              <FormField
-                control={form.control}
-                name="oracleType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Oracle Type</FormLabel>
-                    <FormControl>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                        defaultValue="Random"
-                      >
-                        <SelectTrigger className="w-full h-12">
-                          <SelectValue placeholder="Select one" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="random">Random</SelectItem>
-                          <SelectItem value="publicKey">Public Key</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {oracleTypeValue === "publicKey" && (
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-md w-full flex flex-col">
                 <FormField
                   control={form.control}
-                  name="oracle"
+                  name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Oracle</FormLabel>
+                      <FormLabel>Name of the Main Event</FormLabel>
                       <FormControl>
                         <Input
                           className="w-full h-12"
-                          placeholder="E.g. WejPRb...3y5Mq"
+                          placeholder="E.g. Olympic Games"
                           {...field}
                         />
                       </FormControl>
@@ -155,52 +133,120 @@ export default function CreateNanoContractPage() {
                     </FormItem>
                   )}
                 />
-              )}
 
-              <FormField
-                control={form.control}
-                name="lastBetAt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Last Bet At</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="datetime-local"
-                        value={field.value ? formatLocalDateTime(field.value) : ""}
-                        onChange={(e) => field.onChange(
-                          new Date(e.target.value || new Date().getTime())
-                        )}
-                        className="w-full h-12"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          className="w-full h-24"
+                          placeholder="E.g. Men's Football Final"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Oracle Type Field (Select) */}
+                <FormField
+                  control={form.control}
+                  name="oracleType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Oracle Type</FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                          defaultValue="Random"
+                        >
+                          <SelectTrigger className="w-full h-12">
+                            <SelectValue placeholder="Select one" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="random">Random</SelectItem>
+                            <SelectItem value="publicKey">Public Key</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {oracleTypeValue === "publicKey" && (
+                  <FormField
+                    control={form.control}
+                    name="oracle"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Oracle</FormLabel>
+                        <FormControl>
+                          <Input
+                            className="w-full h-12"
+                            placeholder="E.g. WejPRb...3y5Mq"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 )}
-              />
 
-              <FormItem>
-                <FormLabel>Token</FormLabel>
-                <FormControl>
-                  <Input type="text" className="w-full h-12" value='EVC' disabled />
-                </FormControl>
-                <FormDescription>
-                  Token for this experience cannot be changed.
-                </FormDescription>
-              </FormItem>
+                <FormField
+                  control={form.control}
+                  name="lastBetAt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Last Bet At</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="datetime-local"
+                          value={field.value ? formatLocalDateTime(field.value) : ""}
+                          onChange={(e) => field.onChange(
+                            new Date(e.target.value || new Date().getTime())
+                          )}
+                          className="w-full h-12"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <div className='flex justify-center items-center pt-8'>
-                <Button
-                  className="bg-hathor-purple-500 text-white w-40 disabled:bg-[#21262D] disabled:text-[#484F58]"
-                  type="submit"
-                  disabled={!form.formState.isValid}
-                >
-                  Create your bet
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+                <FormItem>
+                  <FormLabel>Token</FormLabel>
+                  <FormControl>
+                    <Input type="text" className="w-full h-12" value='EVC' disabled />
+                  </FormControl>
+                  <FormDescription>
+                    Token for this experience cannot be changed.
+                  </FormDescription>
+                </FormItem>
+
+                <div className='flex justify-center items-center pt-8'>
+                  <Button
+                    className="bg-hathor-purple-500 text-white w-40 disabled:bg-[#21262D] disabled:text-[#484F58]"
+                    type="submit"
+                    disabled={!form.formState.isValid}
+                  >
+                    Create your bet
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+      )}
+      <Link href="/" className='flex justify-between mt-24'>
+        <Image alt="Hathor" width={100} height={25} src="/logo-hathor.svg" />
+      </Link>
     </main>
   );
 }
