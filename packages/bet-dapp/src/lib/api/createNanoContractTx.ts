@@ -26,18 +26,7 @@ export const createNanoContractTx = async (
     }),
   });
 
-  console.log('Created', {
-    id: nanoContract.hash,
-    title,
-    description,
-    oracleType,
-    oracle,
-    timestamp,
-    createdAt,
-  });
-
   if (response.status !== 200) {
-    console.log(response.json());
     throw new Error('Error creating nano contract.');
   }
 

@@ -1,4 +1,4 @@
-import { URL } from '@/app/constants';
+import { URL } from '@/constants';
 
 export const getNanoContracts = async () => {
   const response: Response = await fetch(`${URL}/api/nano_contracts`, {

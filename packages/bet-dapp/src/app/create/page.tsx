@@ -72,13 +72,14 @@ export default function CreateNanoContractPage() {
     try {
       const nc = await createBet(hathorRpc, values.name, values.description || '', values.oracleType, firstAddress, values.lastBetAt.getTime(), '00');
       console.log(nc);
+      router.push(`/create/success/${nc.hash}`);
     } catch (e) {
       (true);
       setError(true);
     } finally {
       setWaitingApproval(false);
     }
-  }, [connect, hathorRpc, getFirstAddress]);
+  }, [connect, hathorRpc, getFirstAddress, router]);
 
   const onTryAgain = useCallback(() => {
     const values = form.getValues();

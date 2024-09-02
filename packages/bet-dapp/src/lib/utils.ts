@@ -1,7 +1,10 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { nanoUtils, Network } from '@hathor/wallet-lib';
-import { NETWORK } from "@/constants";
+import { Address, NanoContractTransactionParser, nanoUtils, Network } from '@hathor/wallet-lib';
+import { EVENT_TOKEN_SYMBOL, NETWORK } from "@/constants";
+import { IHistoryTx } from "@hathor/wallet-lib/lib/types";
+import { find, get } from "lodash";
+import { prettyValue } from "@hathor/wallet-lib/lib/utils/numbers";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -30,4 +33,63 @@ export function getOracleBuffer(address: string) {
   return nanoUtils
     .getOracleBuffer(address, new Network(NETWORK))
     .toString('hex');
+}
+
+export function getAddressHex(address: string) {
+  return (new Address(address)).decode().toString('hex');
+}
+
+export async function extractDataFromHistory(history: IHistoryTx[]): Promise<[number, {
+  type: string,
+  amount: string,
+  bet: string,
+  id: string,
+  timestamp: Date,
+}[]]> {
+  const data = [];
+
+  let totalInBets = 0;
+  for (let i = 0; i < history.length; i++) {
+    const item = history[i];
+    const deserializer = new NanoContractTransactionParser(
+      item.nc_blueprint_id as string,
+      item.nc_method as string,
+      item.nc_pubkey as string,
+      new Network('testnet'),
+      item.nc_args as string
+    );
+
+    if (item.nc_method === 'initialize'
+        || item.nc_method === 'set_result') {
+      continue;
+    }
+
+    await deserializer.parseArguments()
+
+    const bet = get(find(deserializer.parsedArgs, { name: 'score' }), 'parsed', '-') as string;
+
+    // @ts-ignore: nc_context is not yet in the lib
+    const amount = item.nc_context.actions.reduce((acc, action) => {
+      if (item.nc_method === 'bet' && action.type === 'deposit') {
+        totalInBets += action.amount;
+        return acc + action.amount;
+      }
+
+      if (item.nc_method === 'withdraw' && action.type === 'withdrawal') {
+        return acc + action.amount;
+      }
+
+      return acc;
+    }, 0);
+
+    data.push({
+      type: item.nc_method as string,
+      amount: `${prettyValue(amount)} ${EVENT_TOKEN_SYMBOL}`,
+      bet,
+      id: item.nc_id as string,
+      timestamp: new Date(item.timestamp * 1000),
+    });
+  }
+
+  return [totalInBets, data];
 }

@@ -1,5 +1,4 @@
 import { ncApi } from '@hathor/wallet-lib';
-import { NanoContractHistoryAPIResponse } from '@hathor/wallet-lib/lib/nano_contracts/types';
 import { IHistoryTx } from '@hathor/wallet-lib/lib/types';
 
 const COUNT: number = 400;
