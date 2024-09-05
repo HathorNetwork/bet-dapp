@@ -184,7 +184,7 @@ export default function ResultsPage() {
 
                 <div className="flex-grow border-t border-[#484F58] w-full max-w-md mt-12 mb-12"></div>
 
-                <TotalBets amount={totalInBets} />
+                <TotalBets hash={nanoContract.id} />
               </CardContent>
             </Card>
 
