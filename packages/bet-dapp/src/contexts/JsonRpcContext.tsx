@@ -1,6 +1,8 @@
 import { createContext, ReactNode, useCallback, useContext, useState } from 'react';
 import { useWalletConnectClient } from './WalletConnectClientContext';
 import {
+  CreateTokenResponse,
+  CreateTokenRpcRequest,
   SendNanoContractRpcRequest,
   SendNanoContractTxResponse,
   SignOracleDataResponse,
@@ -22,6 +24,7 @@ export interface IFormattedRpcResponse<T> {
 export interface IHathorRpc {
   sendNanoContractTx: (ncTxRpcReq: SendNanoContractRpcRequest) => Promise<SendNanoContractTxResponse>;
   signOracleData: (signOracleDataReq: SignOracleDataRpcRequest) => Promise<SignOracleDataResponse>;
+  createToken: (createTokenReq: CreateTokenRpcRequest) => Promise<CreateTokenResponse>;
 }
 
 export interface IContext {
