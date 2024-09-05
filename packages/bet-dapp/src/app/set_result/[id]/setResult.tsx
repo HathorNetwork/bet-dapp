@@ -31,5 +31,5 @@ export const setResult = async (
     ncId,
   );
 
-  await hathorRpc.sendNanoContractTx(setResultNcTx);
+  return await hathorRpc.sendNanoContractTx(setResultNcTx);
 };

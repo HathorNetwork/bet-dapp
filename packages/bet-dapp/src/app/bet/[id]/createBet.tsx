@@ -21,7 +21,7 @@ export const createBet = async (
       address: null,
       changeAddress: address,
     }], [
-      getAddressHex(address),
+      address,
       result,
     ],
     true,

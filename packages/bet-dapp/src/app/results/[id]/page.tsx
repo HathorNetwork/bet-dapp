@@ -17,7 +17,7 @@ import { getFullnodeNanoContractById } from '@/lib/api/getFullnodeNanoContractBy
 import { get } from 'lodash';
 import { getNanoContractById } from '@/lib/api/getNanoContractById';
 import { NanoContract } from '@/lib/dynamodb/nano-contract';
-import { extractDataFromHistory } from '@/lib/utils';
+import { extractDataFromHistory, waitForTransactionConfirmation } from '@/lib/utils';
 import { useWalletConnectClient } from '@/contexts/WalletConnectClientContext';
 import { EVENT_TOKEN, EVENT_TOKEN_SYMBOL, EXPLORER_URL } from '@/constants';
 import { ResultError } from '@/components/result-error';
@@ -25,6 +25,7 @@ import { WaitInput } from '@/components/wait-input';
 import { withdraw } from './withdraw';
 import { useJsonRpc } from '@/contexts/JsonRpcContext';
 import { prettyValue } from '@hathor/wallet-lib/lib/utils/numbers';
+import { Transaction } from '@hathor/wallet-lib';
 
 export default function ResultsPage() {
   const router = useRouter();
@@ -33,6 +34,8 @@ export default function ResultsPage() {
   const [nanoContract, setNanoContract] = useState<NanoContract | null>(null);
   const [fullnodeNanoContract, setFullnodeNanoContract] = useState<NanoContractStateAPIResponse | null>(null);
   const [waitingApproval, setWaitingApproval] = useState<boolean>(false);
+  const [waitingConfirmation, setWaitingConfirmation] = useState<boolean>(false);
+  const [maxWithdrawal, setMaxWithdrawal] = useState<number>(0);
   const [error, setError] = useState<boolean>(false);
   const [totalInBets, setTotalInBets] = useState<number>(0);
 
@@ -54,8 +57,17 @@ export default function ResultsPage() {
       const nc = await getNanoContractById(id);
       setNanoContract(nc);
 
-      const fullnodeNc: NanoContractStateAPIResponse = await getFullnodeNanoContractById(id);
+      const address = getFirstAddress();
+      console.log('Address: ', address);
+      const fullnodeNc: NanoContractStateAPIResponse = await getFullnodeNanoContractById(id, address);
       setFullnodeNanoContract(fullnodeNc);
+
+      const maxWithdrawalKey = Object.keys(fullnodeNc.calls)[0];
+      if (maxWithdrawalKey) {
+        // @ts-ignore
+        const fullnodeMaxWithdrawal = fullnodeNc.calls[maxWithdrawalKey].value;
+        setMaxWithdrawal(fullnodeMaxWithdrawal);
+      }
 
       const history = await getFullnodeNanoContractHistoryById(id)
       const [_totalInBets, data] = await extractDataFromHistory(history);
@@ -64,7 +76,7 @@ export default function ResultsPage() {
       setData(data);
       setTotalInBets(_totalInBets);
     })();
-  }, [params]);
+  }, [params, getFirstAddress]);
 
   const result = get(fullnodeNanoContract, 'fields.final_result.value', null);
 
@@ -88,21 +100,24 @@ export default function ResultsPage() {
 
     try {
       const firstAddress = getFirstAddress();
-      await withdraw(hathorRpc, firstAddress, nanoContract.id, amount, EVENT_TOKEN);
+      const tx = await withdraw(hathorRpc, firstAddress, nanoContract.id, amount, EVENT_TOKEN);
+      setWaitingApproval(false);
+      setWaitingConfirmation(true);
+      await waitForTransactionConfirmation((tx.response as unknown as Transaction).hash as string);
+
       router.replace(`/thanks`);
     } catch (e) {
       setError(true);
     } finally {
       setWaitingApproval(false);
+      setWaitingConfirmation(false);
     }
   }, [hathorRpc, connect, getFirstAddress, nanoContract, router]);
 
-  const won = 157;
-
   const onTryAgain = useCallback(() => {
     setError(false);
-    onWithdraw(won);
-  }, [onWithdraw]);
+    onWithdraw(maxWithdrawal);
+  }, [onWithdraw, maxWithdrawal]);
 
   const onCancel = useCallback(() => {
     setError(false);
@@ -117,6 +132,10 @@ export default function ResultsPage() {
       { waitingApproval && (
         <WaitInput title='Waiting Approval' description='Please, approve the withdraw transaction on your phone' />
       )}
+
+      { waitingConfirmation && (
+        <WaitInput title='Waiting Network Confirmation' description='Waiting for a block to confirm this transaction.' />
+      )}
       { error && (
         <ResultError
           title='Error during confirmation'
@@ -127,7 +146,7 @@ export default function ResultsPage() {
           onCancel={onCancel}
         />
       )}
-      { (!error && !waitingApproval) && (
+      { (!error && !waitingApproval && !waitingConfirmation) && (
         <>
           <Header logo={false} title='Betting' subtitle={`${nanoContract.title} - ${nanoContract.description}`} />
           <div className='flex w-full justify-center items-center flex-col'>
@@ -139,15 +158,15 @@ export default function ResultsPage() {
                     <Button className='bg-hathor-green-500 hover:bg-hathor-green-500 text-white w-full h-12 text-lg'>{ result }</Button>
 
                     <p className='text-white w-full mb-4 subpixel-antialiased text-2xl mt-12'>Prize 💰</p>
-                    <Button disabled className='bg-hathor-purple-500 w-full text-white disabled:bg-[#21262D] disabled:text-white disabled:opacity-1 text-md h-12'>{ prettyValue(won) } { EVENT_TOKEN_SYMBOL }</Button>
+                    <Button disabled className='bg-hathor-purple-500 w-full text-white disabled:bg-[#21262D] disabled:text-white disabled:opacity-1 text-md h-12'>{ prettyValue(maxWithdrawal) } { EVENT_TOKEN_SYMBOL }</Button>
 
-                    { won > 0 && (
+                    { maxWithdrawal > 0 && (
                       <>
-                        <p className='text-white w-full subpixel-antialiased text-2xl mt-12 text-center'>You won <span className='text-hathor-purple-500'>{ prettyValue(won) } { EVENT_TOKEN_SYMBOL }</span>!</p>
+                        <p className='text-white w-full subpixel-antialiased text-2xl mt-12 text-center'>You won <span className='text-hathor-purple-500'>{ prettyValue(maxWithdrawal) } { EVENT_TOKEN_SYMBOL }</span>!</p>
                         <p className='text-white text-md mb-8'>Click below to withdraw your tokens to your wallet.</p>
 
                         <Button 
-                          onClick={() => onWithdraw(won)}
+                          onClick={() => onWithdraw(maxWithdrawal)}
                           className='bg-hathor-purple-500 w-full text-white text-md h-12'
                         >
                           Collect your prize

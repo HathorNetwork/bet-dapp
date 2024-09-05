@@ -27,5 +27,5 @@ export const withdraw = async (
     ncId,
   );
 
-  await hathorRpc.sendNanoContractTx(setResultNcTx);
+  return await hathorRpc.sendNanoContractTx(setResultNcTx);
 };

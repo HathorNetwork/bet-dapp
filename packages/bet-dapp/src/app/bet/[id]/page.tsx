@@ -25,7 +25,8 @@ import { getFullnodeNanoContractById } from '@/lib/api/getFullnodeNanoContractBy
 import { NanoContractStateAPIResponse } from '@hathor/wallet-lib/lib/nano_contracts/types';
 import { get } from 'lodash';
 import { getFullnodeNanoContractHistoryById } from '@/lib/api/getFullnodeNanoContractHistoryById';
-import { extractDataFromHistory } from '@/lib/utils';
+import { extractDataFromHistory, waitForTransactionConfirmation } from '@/lib/utils';
+import { SendTransaction, Transaction } from '@hathor/wallet-lib';
 
 const formSchema = z.object({
   bet: z.string().min(5),
@@ -36,6 +37,7 @@ export default function BetPage() {
   const router = useRouter();
   const params = useParams();
   const [waitingApproval, setWaitingApproval] = useState<boolean>(false);
+  const [waitingConfirmation, setWaitingConfirmation] = useState<boolean>(false);
   const [bet, setBet] = useState<null | { amount: number, bet: string }>(null);
   const [error, setError] = useState<boolean>(false);
   const [nanoContract, setNanoContract] = useState<NanoContract | null>(null);
@@ -90,13 +92,17 @@ export default function BetPage() {
 
     try {
       const firstAddress = getFirstAddress();
-      await createBet(
+      const tx = await createBet(
         hathorRpc,
         firstAddress,
         nanoContract.id,
         values.bet,
         values.amount
       );
+
+      setWaitingApproval(false);
+      setWaitingConfirmation(true);
+      await waitForTransactionConfirmation((tx.response as unknown as Transaction).hash as string);
 
       setBet({
         amount: values.amount,
@@ -106,6 +112,7 @@ export default function BetPage() {
       setError(true);
     } finally {
       setWaitingApproval(false);
+      setWaitingConfirmation(false);
     }
   }, [getFirstAddress, hathorRpc, connect, nanoContract ]);
 
@@ -149,7 +156,7 @@ export default function BetPage() {
   const canPlaceABet = () => {
     return session
       && !result
-      // && lastBet >= now;
+      && lastBet >= now;
   };
 
   const canSetResult = () => {
@@ -171,9 +178,13 @@ export default function BetPage() {
         />
       )}
       { waitingApproval && (
-        <WaitInput title='Waiting Approval' description='Please, approve this transaction on your phone' />
+        <WaitInput title='Waiting Approval' description='Please, approve this transaction on your phone.' />
       )}
-      { (!error && !waitingApproval) && (
+
+      { waitingConfirmation && (
+        <WaitInput title='Waiting Network Confirmation' description='Waiting for a block to confirm this transaction.' />
+      )}
+      { (!error && !waitingApproval && !waitingConfirmation) && (
       <>
         <Header logo={false} title='Betting' subtitle={`${nanoContract.title} - ${nanoContract.description}`} />
         <Card className="relative flex items-center bg-cover bg-center rounded-lg shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">
@@ -232,7 +243,7 @@ export default function BetPage() {
 
                 <div className="flex-grow border-t border-[#484F58] w-full max-w-md mt-12 mb-12"></div>
 
-                <TotalBets amount={totalBets} />
+                <TotalBets hash={nanoContract.id} />
 
                 <Button
                   onClick={onSetResult}

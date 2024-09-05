@@ -1,10 +1,11 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { Address, NanoContractTransactionParser, nanoUtils, Network } from '@hathor/wallet-lib';
-import { EVENT_TOKEN_SYMBOL, NETWORK } from "@/constants";
+import { EVENT_TOKEN_SYMBOL, NETWORK, WAIT_CONFIRMATION_MAX_RETRIES } from "@/constants";
 import { IHistoryTx } from "@hathor/wallet-lib/lib/types";
 import { find, get } from "lodash";
 import { prettyValue } from "@hathor/wallet-lib/lib/utils/numbers";
+import { getFullnodeTxById } from "./api/getFullnodeTxById";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -92,4 +93,24 @@ export async function extractDataFromHistory(history: IHistoryTx[]): Promise<[nu
   }
 
   return [totalInBets, data];
+}
+
+export async function waitForTransactionConfirmation(hash: string, failures: number = 0) {
+  if (failures > WAIT_CONFIRMATION_MAX_RETRIES) {
+    throw new Error('Max retries reached.');
+  }
+
+  const { meta } = await getFullnodeTxById(hash);
+
+  if (meta.voided_by.length > 0) {
+    throw new Error('Transaction was voided.');
+  }
+
+  if (meta.first_block != null) {
+    console.log('has first block!');
+    return;
+  }
+
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+  return waitForTransactionConfirmation(hash, failures + 1);
 }

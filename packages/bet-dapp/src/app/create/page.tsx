@@ -13,13 +13,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format, addHours } from 'date-fns';
 import { useWalletConnectClient } from '@/contexts/WalletConnectClientContext';
-import { createBet } from './createBet';
+import { createNc } from './createNc';
 import { useJsonRpc } from '@/contexts/JsonRpcContext';
 import { WaitInput } from '@/components/wait-input';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ResultError } from '@/components/result-error';
 import { useRouter } from 'next/navigation';
+import { waitForTransactionConfirmation } from '@/lib/utils';
+import { EVENT_TOKEN } from '@/constants';
 
 function formatLocalDateTime(date: Date): string {
   return format(date, 'yyyy-MM-dd\'T\'HH:mm');
@@ -44,6 +46,7 @@ const formSchema = z.object({
 
 export default function CreateNanoContractPage() {
   const [waitingApproval, setWaitingApproval] = useState<boolean>(false);
+  const [waitingConfirmation, setWaitingConfirmation] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
 
   const router = useRouter();
@@ -70,14 +73,35 @@ export default function CreateNanoContractPage() {
 
     const firstAddress = getFirstAddress();
     try {
-      const nc = await createBet(hathorRpc, values.name, values.description || '', values.oracleType, firstAddress, values.lastBetAt.getTime(), '00');
-      console.log(nc);
+      console.log('Will create bet', {
+        hathorRpc,
+        name: values.name,
+        description: values.description || '',
+        oracleType: values.oracleType,
+        firstAddress,
+        lastBetAt: values.lastBetAt.getTime(),
+        token: '00'
+      });
+      const nc = await createNc(
+        hathorRpc,
+        values.name,
+        values.description || '',
+        values.oracleType,
+        firstAddress,
+        Math.ceil(values.lastBetAt.getTime() / 1000),
+        EVENT_TOKEN,
+      );
+
+      setWaitingApproval(false);
+      setWaitingConfirmation(true);
+      await waitForTransactionConfirmation(nc.hash as string);
       router.push(`/create/success/${nc.hash}`);
     } catch (e) {
       (true);
       setError(true);
     } finally {
       setWaitingApproval(false);
+      setWaitingConfirmation(false);
     }
   }, [connect, hathorRpc, getFirstAddress, router]);
 
@@ -94,7 +118,7 @@ export default function CreateNanoContractPage() {
   const oracleTypeValue = form.watch('oracleType');
 
   return (
-    <main className="flex min-h-screen items-center p-6 flex-col">
+    <main className="flex min-h-screen items-center justify-center p-6 flex-col">
       <Header logo={true} />
       { error && (
         <ResultError
@@ -106,10 +130,13 @@ export default function CreateNanoContractPage() {
           onCancel={onCancel}
         />
       )}
+      { waitingConfirmation && (
+        <WaitInput title='Waiting Network Confirmation' description='Waiting for a block to confirm this transaction.' />
+      )}
       { waitingApproval && (
         <WaitInput title='Waiting Approval' description='Please, approve this transaction on your phone' />
       )}
-      { (!error && !waitingApproval) && (
+      { (!error && !waitingApproval && !waitingConfirmation) && (
         <Card className="relative flex items-center bg-cover bg-center rounded-lg shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">
           <CardContent className="w-full flex items-center justify-center flex-col">
             <h1 className='text-4xl subpixel-antialiased text-bold'>Create your Nano Contract</h1>

@@ -1,11 +1,11 @@
 import { IHathorRpc } from '@/contexts/JsonRpcContext';
 import { SendNanoContractRpcRequest, SendNanoContractTxResponse, sendNanoContractTxRpcRequest } from 'hathor-rpc-handler-test';
 import { BET_BLUEPRINT } from '@/constants';
-import { getOracleBuffer } from '@/lib/utils';
+import { getOracleBuffer, waitForTransactionConfirmation } from '@/lib/utils';
 import NanoContract from '@hathor/wallet-lib/lib/nano_contracts/nano_contract';
 import { createNanoContractTx } from '@/lib/api/createNanoContractTx';
 
-export const createBet = async (
+export const createNc = async (
   hathorRpc: IHathorRpc,
   title: string,
   description: string,

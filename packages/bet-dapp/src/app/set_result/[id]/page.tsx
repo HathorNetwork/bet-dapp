@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Header } from '@/components/header';
 import { z } from 'zod';
@@ -20,8 +20,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { NanoContract } from '@/lib/dynamodb/nano-contract';
 import { getFullnodeNanoContractHistoryById } from '@/lib/api/getFullnodeNanoContractHistoryById';
-import { extractDataFromHistory } from '@/lib/utils';
-import { NanoContractTransactionParser, Network } from '@hathor/wallet-lib';
+import { extractDataFromHistory, waitForTransactionConfirmation } from '@/lib/utils';
+import { NanoContractTransactionParser, Network, Transaction } from '@hathor/wallet-lib';
 import { find, get } from 'lodash';
 
 const formSchema = z.object({
@@ -38,8 +38,10 @@ export default function SetResultPage() {
   const router = useRouter();
 
   const [waitingApproval, setWaitingApproval] = useState<boolean>(false);
+  const [waitingConfirmation, setWaitingConfirmation] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [nanoContract, setNanoContract] = useState<NanoContract | null>(null);
+  const [randomValue, setRandomValue] = useState<string | null>(null);
 
   const { session, connect, getFirstAddress } = useWalletConnectClient();
   const { hathorRpc } = useJsonRpc();
@@ -52,8 +54,18 @@ export default function SetResultPage() {
     },
   });
 
+  const getFirstAddressRef = useRef(getFirstAddress);
+  const hathorRpcRef = useRef(hathorRpc);
+  const connectRef = useRef(connect);
+
+  useEffect(() => {
+    getFirstAddressRef.current = getFirstAddress;
+    hathorRpcRef.current = hathorRpc;
+    connectRef.current = connect;
+  }, [getFirstAddress, hathorRpc, connect]);
+
   const onSubmit = useCallback(async (values: z.infer<typeof formSchema>) => {
-    await connect();
+    await connectRef.current();
 
     if (!nanoContract) {
       return;
@@ -62,25 +74,37 @@ export default function SetResultPage() {
     setWaitingApproval(true);
 
     try {
-      const firstAddress = getFirstAddress();
-      await setResult(
-        hathorRpc,
+      const firstAddress = getFirstAddressRef.current();
+
+      let result = values.result;
+      if (nanoContract.oracleType === 'random' && randomValue) {
+        result = randomValue;
+      }
+
+      const tx = await setResult(
+        hathorRpcRef.current,
         nanoContract.id,
         firstAddress,
-        values.result,
+        result,
       );
+
+      setWaitingApproval(false);
+      setWaitingConfirmation(true);
+      await waitForTransactionConfirmation((tx.response as unknown as Transaction).hash as string);
 
       router.replace(`/results/${nanoContract.id}`);
     } catch (e) {
       setError(true);
     } finally {
       setWaitingApproval(false);
+      setWaitingConfirmation(false);
     }
-  }, [router, getFirstAddress, hathorRpc, connect, nanoContract]);
+  }, [router, randomValue, nanoContract]);
 
   useEffect(() => {
     const ncId = params?.id as string;
     (async () => {
+      console.log('Fetching nano contract by id');
       const nc = await getNanoContractById(ncId);
       setNanoContract(nc);
 
@@ -124,11 +148,11 @@ export default function SetResultPage() {
 
         if (options.length > 0) {
           const value = getRandomValue(options);
-          form.setValue('result', value);
+          setRandomValue(value);
         }
       }
     })();
-  }, [params, form, onSubmit]);
+  }, [params]);
 
   const onTryAgain = useCallback(() => {
     const values = form.getValues();
@@ -163,10 +187,13 @@ export default function SetResultPage() {
           onCancel={onCancel}
         />
       )}
+      { waitingConfirmation && (
+        <WaitInput title='Waiting Network Confirmation' description='Waiting for a block to confirm this transaction.' />
+      )}
       { waitingApproval && (
         <WaitInput title='Waiting Approval' description='Please, approve this transaction on your phone' />
       )}
-      { (!error && !waitingApproval) && (
+      { (!error && !waitingApproval && !waitingConfirmation) && (
       <>
         <Header logo={false} title='Betting' subtitle={`${nanoContract.title} - ${nanoContract.description}`} />
         <Card className="relative flex items-center bg-cover bg-center rounded-lg shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">

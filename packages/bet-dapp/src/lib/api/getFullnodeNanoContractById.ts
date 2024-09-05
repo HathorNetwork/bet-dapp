@@ -11,7 +11,9 @@ export const getFullnodeNanoContractById = async (ncId: string, address?: string
 
   const calls = address ? [`get_max_withdrawal("a'${address}'")`] : [];
 
+  console.log('Calls: ', calls, fields);
   const state = await ncApi.getNanoContractState(ncId, fields, [], calls);
+  console.log('State: ', state);
 
   if (!state.success) {
     console.log(state);
