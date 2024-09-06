@@ -1,17 +1,18 @@
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { BASE_PATH } from '@/constants';
 
 export default function Home() {
   return (
     <main className="flex min-h-screen items-center justify-center p-6 flex-col">
 
-      <div className="relative flex items-center bg-cover bg-center rounded-lg shadow-lg max-w-6xl w-full h-[800px] p-6 sm:p-12 lg:p-16 bg-[url('/introduction.png')] border border-gray-800">
+      <div className="relative flex items-center bg-cover bg-center rounded-lg shadow-lg max-w-6xl w-full h-[800px] p-6 sm:p-12 lg:p-16 bg-hathor-introduction border border-gray-800">
         <div className="absolute inset-0 bg-black opacity-10 rounded-lg"></div>
 
         <div className="relative z-10 text-center lg:text-left max-w-xl text-white text-left">
           <div className="mb-8">
-            <Image alt="Hathor" width={150} height={100} src="/logo.svg" />
+            <Image alt="Hathor" width={150} height={100} src={`${BASE_PATH}/logo.svg`} />
           </div>
 
           <h1 className="text-4xl font-semibold m-0 bg-gradient-to-r from-hathor-purple-500 from-10% to-hathor-green-400 to-90% text-transparent bg-clip-text mb-8">

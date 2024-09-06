@@ -21,7 +21,11 @@ RUN \
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED=1
 
+ENV NEXT_PUBLIC_URL=https://hathor.network/betting2024
+ENV NEXT_PUBLIC_BASE_PATH=/betting2024/public
+
 COPY packages/bet-dapp ./packages/bet-dapp
+RUN cp ./packages/bet-dapp/next.config.production.mjs ./packages/bet-dapp/next.config.mjs
 
 RUN \
   yarn workspace bet-dapp run build
@@ -44,7 +48,7 @@ RUN chown nextjs:nodejs .next
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/packages/bet-dapp/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/packages/bet-dapp/public ./packages/bet-dapp/public
+COPY --from=builder --chown=nextjs:nodejs /app/packages/bet-dapp/public ./packages/bet-dapp/public/public
 COPY --from=builder --chown=nextjs:nodejs /app/packages/bet-dapp/.next/static ./packages/bet-dapp/.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/classic-level ./node_modules/classic-level
 

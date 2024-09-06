@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: false,
+  output: "standalone",
+  basePath: "/betting2024",
+  assetPrefix: "https://hathor.network/betting2024/",
   webpack: config => {
     config.externals.push('pino-pretty', 'lokijs', 'encoding');
 

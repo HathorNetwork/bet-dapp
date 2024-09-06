@@ -22,6 +22,7 @@ import { ResultError } from '@/components/result-error';
 import { useRouter } from 'next/navigation';
 import { waitForTransactionConfirmation } from '@/lib/utils';
 import { EVENT_TOKEN } from '@/constants';
+import { BASE_PATH } from '@/constants';
 
 function formatLocalDateTime(date: Date): string {
   return format(date, 'yyyy-MM-dd\'T\'HH:mm');
@@ -268,7 +269,7 @@ export default function CreateNanoContractPage() {
         </Card>
       )}
       <Link href="/" className='flex justify-between mt-24'>
-        <Image alt="Hathor" width={100} height={25} src="/logo-hathor.svg" />
+        <Image alt="Hathor" width={100} height={25} src={`${BASE_PATH}/logo-hathor.svg`}/>
       </Link>
     </main>
   );
