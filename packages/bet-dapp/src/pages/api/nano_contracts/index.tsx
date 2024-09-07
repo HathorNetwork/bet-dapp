@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { createNanoContract, NanoContract } from '@/lib/dynamodb/nano-contract';
+import { createNanoContract, getAllNanoContracts, NanoContract } from '@/lib/dynamodb/nano-contract';
 import { z } from 'zod';
 
 export interface ErrorResponse {
@@ -21,13 +21,15 @@ const nanoContractSchema = z.object({
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ErrorResponse | NanoContract>
+  res: NextApiResponse<ErrorResponse | NanoContract | NanoContract[]>
 ) {
   const { method } = req;
 
   switch (method) {
     case 'POST':
       return create(req, res);
+    case 'GET':
+      return listAll(req, res);
     default: 
       res.setHeader('Allow', ['GET', 'POST']);
       res.status(405).json({
@@ -59,4 +61,14 @@ export async function create(
 
 
   res.status(200).json(data);
+}
+
+export async function listAll(
+  _req: NextApiRequest,
+  res: NextApiResponse<NanoContract[]>
+) {
+
+const nanoContracts: NanoContract[] = await getAllNanoContracts();
+
+  res.status(200).json(nanoContracts);
 }

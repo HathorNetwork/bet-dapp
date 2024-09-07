@@ -8,6 +8,7 @@ import { get } from 'lodash';
 import { useWalletConnectClient } from '@/contexts/WalletConnectClientContext';
 import { useToast } from './ui/use-toast';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export interface WalletConnectProps {
 }
@@ -53,7 +54,7 @@ const WalletConnect = () => {
     });
   }, [address, toast]);
 
-  const onExit = React.useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+  const onExit = React.useCallback(() => {
     router.replace('/thanks');
   }, [router]);
 
@@ -82,9 +83,12 @@ const WalletConnect = () => {
         </Card>
       </PopoverTrigger>
       <PopoverContent className="w-60 p-0">
-        <Button variant='ghost' className='w-full p-0 rounded-none'>
-          See all bets
-        </Button>
+
+        <Link href='/all_bets'>
+          <Button variant='ghost' className='w-full p-0 rounded-none'>
+            See all bets
+          </Button>
+        </ Link>
         { connected && (
           <Button variant='ghost' className='w-full p-0 rounded-none' onClick={onDisconnect}>
             Disconnect wallet

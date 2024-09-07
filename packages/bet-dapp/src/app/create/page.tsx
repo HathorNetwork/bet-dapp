@@ -198,7 +198,7 @@ export default function CreateNanoContractPage() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="random">Random</SelectItem>
-                            <SelectItem value="publicKey">Public Key</SelectItem>
+                            <SelectItem value="publicKey">Choose your oracle</SelectItem>
                           </SelectContent>
                         </Select>
                       </FormControl>

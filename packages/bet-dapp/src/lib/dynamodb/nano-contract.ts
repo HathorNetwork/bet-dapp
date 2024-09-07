@@ -7,6 +7,8 @@ import {
   GetItemCommandInput,
   PutItemCommand,
   PutItemCommandInput,
+  ScanCommand,
+  ScanCommandInput,
 } from '@aws-sdk/client-dynamodb';
 import dynamodb from './dynamodb-client';
 
@@ -79,6 +81,27 @@ export const createNanoContract = async ({
     createdAt,
   };
 }
+
+export const getAllNanoContracts = async () => {
+  const params: ScanCommandInput = {
+    TableName: TABLE_NAME,
+    ProjectionExpression: '#ts, id, title, description, oracleType, oracle, createdAt',
+    ExpressionAttributeNames: {
+      '#ts': 'timestamp',
+    },
+  };
+
+  const scanResults: DynamoNanoContract[] = [];
+  let items;
+
+  do {
+    items = await dynamodb.send(new ScanCommand(params));
+    items.Items?.forEach((item) => scanResults.push(item as unknown as DynamoNanoContract));
+    params.ExclusiveStartKey = items.LastEvaluatedKey;
+  } while (typeof items.LastEvaluatedKey !== "undefined");
+
+  return scanResults.map(getNanoContractEntity);
+};
 
 export const getNanoContractById = async (id: string) => {
   const params: GetItemCommandInput = {
