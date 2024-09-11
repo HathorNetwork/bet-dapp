@@ -64,11 +64,9 @@ export default function CreateNanoContractPage() {
 
   const { hathorRpc } = useJsonRpc();
 
-  const { connect, getFirstAddress } = useWalletConnectClient();
+  const { session, connect, getFirstAddress } = useWalletConnectClient();
 
-  const onSubmit = useCallback(async (values: z.infer<typeof formSchema>) => {
-    // connect is idempotent
-    await connect();
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setWaitingApproval(true);
 
     const firstAddress = getFirstAddress();
@@ -82,34 +80,41 @@ export default function CreateNanoContractPage() {
         lastBetAt: values.lastBetAt.getTime(),
         token: '00'
       });
+      await new Promise((resolve) => setTimeout(resolve, 500));
       const nc = await createNc(
         hathorRpc,
         values.name,
         values.description || '',
         values.oracleType,
-        firstAddress,
+        values.oracleType === 'random' ? firstAddress : values.oracle as string,
         Math.ceil(values.lastBetAt.getTime() / 1000),
         EVENT_TOKEN,
       );
+      console.log('Got result: ', nc);
 
       setWaitingApproval(false);
       setWaitingConfirmation(true);
       await waitForTransactionConfirmation(nc.hash as string);
       router.push(`/create/success/${nc.hash}`);
     } catch (e) {
-      (true);
+      console.log('erroed: ', e);
       setError(true);
     } finally {
       setWaitingApproval(false);
       setWaitingConfirmation(false);
     }
-  }, [connect, hathorRpc, getFirstAddress, router]);
+  };
 
-  const onTryAgain = useCallback(() => {
+  const handleNotConnected = async (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    await connect();
+  };
+
+  const onTryAgain = () => {
     const values = form.getValues();
     setError(false);
     onSubmit(values);
-  }, [form, onSubmit]);
+  };
 
   const onCancel = useCallback(() => {
     router.replace('/');
@@ -262,6 +267,7 @@ export default function CreateNanoContractPage() {
                   <Button
                     className="bg-hathor-purple-500 text-white w-40 disabled:bg-[#21262D] disabled:text-[#484F58]"
                     type="submit"
+                    onClick={(e) => !session ? handleNotConnected(e) : null}
                     disabled={!form.formState.isValid}
                   >
                     Create your bet
