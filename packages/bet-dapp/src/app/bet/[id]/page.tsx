@@ -83,7 +83,7 @@ export default function BetPage() {
       return;
     }
 
-    let interval;
+    let interval: ReturnType<typeof setInterval>;
     const fetchValue = async () => {
       const firstAddress = getFirstAddress();
       const fullnodeNc: NanoContractStateAPIResponse = await getFullnodeNanoContractById(nanoContract.id, firstAddress);
