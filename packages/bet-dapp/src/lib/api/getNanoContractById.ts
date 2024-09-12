@@ -10,7 +10,6 @@ export const getNanoContractById = async (id: string) => {
   });
 
   if (response.status !== 200) {
-    console.log(response.json());
     throw new Error('Request failed.');
   }
 

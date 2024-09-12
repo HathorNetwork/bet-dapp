@@ -659,25 +659,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hathor/wallet-lib@npm:1.8.0":
-  version: 1.8.0
-  resolution: "@hathor/wallet-lib@npm:1.8.0"
+"@hathor/hathor-rpc-handler@npm:^0.0.2-experimental-alpha":
+  version: 0.0.2-experimental-alpha
+  resolution: "@hathor/hathor-rpc-handler@npm:0.0.2-experimental-alpha"
   dependencies:
-    axios: "npm:1.7.2"
-    bitcore-lib: "npm:8.25.10"
-    bitcore-mnemonic: "npm:8.25.10"
-    buffer: "npm:6.0.3"
-    crypto-js: "npm:4.2.0"
-    isomorphic-ws: "npm:5.0.0"
-    level: "npm:8.0.1"
-    lodash: "npm:4.17.21"
-    long: "npm:5.2.3"
-    ws: "npm:8.17.0"
-  checksum: 10c0/9491e54d643809da970951aab174b3a82d581c9ada40716a99a831057be647dde3da05e91fcee12ec866952b1e0a1a947a239c68317b8b5c813acbb5cb6957a5
+    "@hathor/wallet-lib": "npm:1.8.0"
+  checksum: 10c0/a0723002a71c0feee9c56ed545311c3afabf8ce7201825cfc98768b64beb3131fa6352199bea7a3b9c8d1cc016d7ae2a2a8fa9df611946bbc4ee796aa2b36cc0
   languageName: node
   linkType: hard
 
-"@hathor/wallet-lib@npm:^1.11.0":
+"@hathor/wallet-lib@npm:1.11.0":
   version: 1.11.0
   resolution: "@hathor/wallet-lib@npm:1.11.0"
   dependencies:
@@ -693,6 +684,24 @@ __metadata:
     long: "npm:5.2.3"
     ws: "npm:8.17.1"
   checksum: 10c0/b3a1c20b836789040f105237dc35cf35f0cff6aa436eb08e0090ecff92f24a0b3af792060d57b735d5a63bc4a34f37ba17d4b1072682ff0567ba8ce3941517f0
+  languageName: node
+  linkType: hard
+
+"@hathor/wallet-lib@npm:1.8.0":
+  version: 1.8.0
+  resolution: "@hathor/wallet-lib@npm:1.8.0"
+  dependencies:
+    axios: "npm:1.7.2"
+    bitcore-lib: "npm:8.25.10"
+    bitcore-mnemonic: "npm:8.25.10"
+    buffer: "npm:6.0.3"
+    crypto-js: "npm:4.2.0"
+    isomorphic-ws: "npm:5.0.0"
+    level: "npm:8.0.1"
+    lodash: "npm:4.17.21"
+    long: "npm:5.2.3"
+    ws: "npm:8.17.0"
+  checksum: 10c0/9491e54d643809da970951aab174b3a82d581c9ada40716a99a831057be647dde3da05e91fcee12ec866952b1e0a1a947a239c68317b8b5c813acbb5cb6957a5
   languageName: node
   linkType: hard
 
@@ -3251,7 +3260,8 @@ __metadata:
   dependencies:
     "@aws-sdk/client-dynamodb": "npm:^3.637.0"
     "@aws-sdk/lib-dynamodb": "npm:^3.637.0"
-    "@hathor/wallet-lib": "npm:^1.11.0"
+    "@hathor/hathor-rpc-handler": "npm:^0.0.2-experimental-alpha"
+    "@hathor/wallet-lib": "npm:1.11.0"
     "@hookform/resolvers": "npm:^3.9.0"
     "@radix-ui/react-aspect-ratio": "npm:^1.1.0"
     "@radix-ui/react-icons": "npm:^1.3.0"

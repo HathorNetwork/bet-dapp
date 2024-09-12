@@ -8,6 +8,7 @@ import { DataTable } from '@/components/nc-history/data-table';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getNanoContracts } from '@/lib/api/getNanoContracts';
+import { orderBy } from 'lodash';
 
 export default function AllBetsPage() {
   const [data, setData] = useState<NcHistoryItem[]>([]);
@@ -16,8 +17,7 @@ export default function AllBetsPage() {
     (async () => {
       try {
         const nanoContracts = await getNanoContracts();
-        console.log('nano: ', nanoContracts);
-        setData(nanoContracts);
+        setData(orderBy(nanoContracts, 'timestamp', ['desc']));
       } catch (e) {
       }
     })();

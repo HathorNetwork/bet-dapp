@@ -112,12 +112,6 @@ export function JsonRpcContextProvider({
           request: ncTxRpcReq,
         });
 
-        setResult({
-          method: RpcMethods.SendNanoContractTx,
-          valid: true,
-          result,
-        });
-
         return result;
       } catch (error: any) {
         setResult({
@@ -141,12 +135,6 @@ export function JsonRpcContextProvider({
           chainId: HATHOR_TESTNET_CHAIN,
           topic: session!.topic,
           request: signOracleDataReq,
-        });
-
-        setResult({
-          method: RpcMethods.SignOracleData,
-          valid: true,
-          result,
         });
 
         return result;

@@ -71,15 +71,6 @@ export default function CreateNanoContractPage() {
 
     const firstAddress = getFirstAddress();
     try {
-      console.log('Will create bet', {
-        hathorRpc,
-        name: values.name,
-        description: values.description || '',
-        oracleType: values.oracleType,
-        firstAddress,
-        lastBetAt: values.lastBetAt.getTime(),
-        token: '00'
-      });
       await new Promise((resolve) => setTimeout(resolve, 500));
       const nc = await createNc(
         hathorRpc,
@@ -90,14 +81,12 @@ export default function CreateNanoContractPage() {
         Math.ceil(values.lastBetAt.getTime() / 1000),
         EVENT_TOKEN,
       );
-      console.log('Got result: ', nc);
 
       setWaitingApproval(false);
       setWaitingConfirmation(true);
       await waitForTransactionConfirmation(nc.hash as string);
       router.push(`/create/success/${nc.hash}`);
     } catch (e) {
-      console.log('erroed: ', e);
       setError(true);
     } finally {
       setWaitingApproval(false);

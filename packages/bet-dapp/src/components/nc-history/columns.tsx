@@ -81,5 +81,5 @@ export const columns: ColumnDef<NcHistoryItem>[] = [{
 }, {
   accessorKey: 'createdAt',
   header: (header: HeaderContext<NcHistoryItem, unknown>) => SortableTableHeader('createdAt', header.column),
-  cell: ({ row }) => RowText(row.getValue('createdAt')),
+  cell: ({ row }) => RowText(formatDate(new Date(row.getValue('createdAt')))),
 }];

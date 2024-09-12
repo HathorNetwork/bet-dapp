@@ -58,7 +58,6 @@ export default function ResultsPage() {
       setNanoContract(nc);
 
       const address = getFirstAddress();
-      console.log('Address: ', address);
       const fullnodeNc: NanoContractStateAPIResponse = await getFullnodeNanoContractById(id, address);
       setFullnodeNanoContract(fullnodeNc);
 

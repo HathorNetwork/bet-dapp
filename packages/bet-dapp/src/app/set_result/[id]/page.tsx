@@ -104,7 +104,6 @@ export default function SetResultPage() {
   useEffect(() => {
     const ncId = params?.id as string;
     (async () => {
-      console.log('Fetching nano contract by id');
       const nc = await getNanoContractById(ncId);
       setNanoContract(nc);
 

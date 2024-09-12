@@ -28,13 +28,16 @@ export const createNc = async (
   );
 
   const result: SendNanoContractTxResponse = await hathorRpc.sendNanoContractTx(ncTxRpcReq);
+  console.log('Got result from rpc', result);
   const nanoContract = result.response as unknown as NanoContract;
 
   if (!nanoContract.timestamp) {
     throw new Error('No timestamp received in transaction');
   }
 
+  console.log('Will create tx in dynamodb');
   await createNanoContractTx(nanoContract, title, description, oracleType, oracle, timestamp, nanoContract.timestamp);
+  console.log('done');
 
   return nanoContract;
 };

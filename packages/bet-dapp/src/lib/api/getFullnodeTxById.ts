@@ -53,7 +53,5 @@ export const getFullnodeTxById = async (txId: string): Promise<ResponseObject> =
     throw new Error('Request to fullnode failed.');
   }
 
-  console.log(txReq);
-
   return txReq;
 }

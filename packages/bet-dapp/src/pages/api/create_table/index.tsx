@@ -29,7 +29,7 @@ export async function create(
   _req: NextApiRequest,
   res: NextApiResponse<ErrorResponse | string>
 ) {
-  await deleteTable();
+  // await deleteTable();
   await createTable();
 
   res.status(200).json('ok');

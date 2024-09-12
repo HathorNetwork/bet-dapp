@@ -1,62 +1,32 @@
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Client from '@walletconnect/sign-client';
 import { PairingTypes, SessionTypes } from '@walletconnect/types';
 import { Web3Modal } from '@web3modal/standalone';
-
-import {
-  createContext,
-  ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  useRef,
-} from 'react';
-
-import {
-  DEFAULT_APP_METADATA,
-  DEFAULT_LOGGER,
-  DEFAULT_PROJECT_ID,
-  DEFAULT_RELAY_URL,
-} from '../constants';
 import { getSdkError } from '@walletconnect/utils';
 import { get } from 'lodash';
+import { DEFAULT_PROJECT_ID } from '@/constants';
+import { getClient } from './WalletConnectClient';
 
-/**
- * Types
- */
 interface IContext {
   client: Client | undefined;
   session: SessionTypes.Struct | undefined;
   connect: (pairing?: { topic: string }) => Promise<void>;
   disconnect: () => Promise<void>;
-  isInitializing: boolean;
   chains: string[];
-  relayerRegion: string;
   pairings: PairingTypes.Struct[];
   accounts: string[];
-  setChains: any;
-  setRelayerRegion: any;
+  setChains: React.Dispatch<React.SetStateAction<string[]>>;
   getFirstAddress: () => string;
 }
 
-/**
- * Context
- */
-export const WalletConnectClientContext = createContext<IContext>({} as IContext);
+const WalletConnectClientContext = createContext<IContext>({} as IContext);
 
-/**
- * Web3Modal Config
- */
 const web3Modal = new Web3Modal({
   projectId: DEFAULT_PROJECT_ID,
   themeMode: 'dark',
   walletConnectVersion: 2,
 });
 
-/**
- * Provider
- */
 export function WalletConnectClientContextProvider({
   children,
 }: {
@@ -65,21 +35,13 @@ export function WalletConnectClientContextProvider({
   const [client, setClient] = useState<Client>();
   const [pairings, setPairings] = useState<PairingTypes.Struct[]>([]);
   const [session, setSession] = useState<SessionTypes.Struct>();
-
-  const [isInitializing, setIsInitializing] = useState(false);
-  const prevRelayerValue = useRef<string>('');
-
   const [accounts, setAccounts] = useState<string[]>([]);
   const [chains, setChains] = useState<string[]>([]);
-  const [relayerRegion, setRelayerRegion] = useState<string>(
-    DEFAULT_RELAY_URL!
-  );
 
   const reset = () => {
     setSession(undefined);
     setAccounts([]);
     setChains([]);
-    setRelayerRegion(DEFAULT_RELAY_URL!);
   };
 
   const onSessionConnected = useCallback(
@@ -98,86 +60,12 @@ export function WalletConnectClientContextProvider({
 
   const getFirstAddress = useCallback(() => {
     const [_, _network, addr] = get(session, 'namespaces.hathor.accounts[0]', '::').split(':');
-
     return addr;
   }, [session]);
 
-  const connect = useCallback(
-    async (pairing: any) => {
-      if (typeof client === 'undefined') {
-        console.error('WalletConnect is not initialized');
-
-        return;
-      }
-
-      if (session != null) {
-        // Session already exists, return success
-        return;
-      }
-
-      try {
-        const requiredNamespaces = {
-          'hathor': {
-            methods: ['htr_signWithAddress', 'htr_sendNanoContractTx'],
-            chains: ['hathor:testnet'],
-            events: [],
-          }
-        }
-
-        const { uri, approval } = await client.connect({
-          pairingTopic: pairing?.topic,
-          requiredNamespaces,
-        });
-
-        // Open QRCode modal if a URI was returned (i.e. we're not connecting an existing pairing).
-        if (uri) {
-          // Create a flat array of all requested chains across namespaces.
-          const standaloneChains = Object.values(requiredNamespaces)
-            .map((namespace) => namespace.chains)
-            .flat() as string[];
-
-          web3Modal.openModal({ uri, standaloneChains });
-        }
-
-        const session = await approval();
-        await onSessionConnected(session);
-        // Update known pairings after session is connected.
-        setPairings(client.pairing.getAll({ active: true }));
-      } catch (e) {
-        console.error(e);
-        // ignore rejection
-      } finally {
-        // close modal in case it was open
-        web3Modal.closeModal();
-      }
-    },
-    [client, session, onSessionConnected]
-  );
-
-  const disconnect = useCallback(async () => {
-    if (typeof client === 'undefined') {
-      throw new Error('WalletConnect is not initialized');
-    }
-    if (typeof session === 'undefined') {
-      throw new Error('Session is not connected');
-    }
-
-    try {
-      await client.disconnect({
-        topic: session.topic,
-        reason: getSdkError('USER_DISCONNECTED'),
-      });
-    } catch (error) {
-      console.error('SignClient.disconnect failed:', error);
-    } finally {
-      // Reset app state after disconnect.
-      reset();
-    }
-  }, [client, session]);
-
   const _subscribeToEvents = useCallback(
     async (_client: Client) => {
-      if (typeof _client === 'undefined') {
+      if (!_client) {
         throw new Error('WalletConnect is not initialized');
       }
 
@@ -207,19 +95,15 @@ export function WalletConnectClientContextProvider({
 
   const _checkPersistedState = useCallback(
     async (_client: Client) => {
-      if (typeof _client === 'undefined') {
+      if (!_client) {
         throw new Error('WalletConnect is not initialized');
       }
-      // populates existing pairings to state
       setPairings(_client.pairing.getAll({ active: true }));
 
-      if (typeof session !== 'undefined') return;
-      // populates (the last) existing session to state
+      if (session) return;
       if (_client.session.length) {
         const lastKeyIndex = _client.session.keys.length - 1;
-        const _session = _client.session.get(
-          _client.session.keys[lastKeyIndex]
-        );
+        const _session = _client.session.get(_client.session.keys[lastKeyIndex]);
         await onSessionConnected(_session);
         return _session;
       }
@@ -227,71 +111,107 @@ export function WalletConnectClientContextProvider({
     [session, onSessionConnected]
   );
 
-  const createClient = useCallback(async () => {
-    try {
-      setIsInitializing(true);
-
-      const _client = await Client.init({
-        logger: DEFAULT_LOGGER,
-        relayUrl: relayerRegion,
-        projectId: DEFAULT_PROJECT_ID,
-        metadata: DEFAULT_APP_METADATA,
-      });
-
-      setClient(_client);
-      prevRelayerValue.current = relayerRegion;
-      await _subscribeToEvents(_client);
-      await _checkPersistedState(_client);
-    } catch (err) {
-      throw err;
-    } finally {
-      setIsInitializing(false);
-    }
-  }, [_checkPersistedState, _subscribeToEvents, relayerRegion]);
-
   useEffect(() => {
-    if (!client || prevRelayerValue.current !== relayerRegion) {
-      createClient();
+    (async () => {
+      const client = getClient();
+
+      await _subscribeToEvents(client);
+      await _checkPersistedState(client);
+      setClient(client);
+    })();
+  }, [_subscribeToEvents, _checkPersistedState]);
+
+  const connect = useCallback(
+    async (pairing: { topic: string } | undefined) => {
+      if (!client) {
+        throw new Error('WalletConnect is not initialized');
+      }
+
+      if (session) {
+        return;
+      }
+
+      try {
+        const requiredNamespaces = {
+          'hathor': {
+            methods: ['htr_signWithAddress', 'htr_sendNanoContractTx'],
+            chains: ['hathor:testnet'],
+            events: [],
+          }
+        };
+
+        const { uri, approval } = await client.connect({
+          pairingTopic: pairing?.topic,
+          requiredNamespaces,
+        });
+
+        if (uri) {
+          const standaloneChains = Object.values(requiredNamespaces)
+            .map((namespace) => namespace.chains)
+            .flat() as string[];
+
+          web3Modal.openModal({ uri, standaloneChains });
+        }
+
+        const session = await approval();
+        await onSessionConnected(session);
+        setPairings(client.pairing.getAll({ active: true }));
+      } catch (e) {
+        console.error(e);
+      } finally {
+        web3Modal.closeModal();
+      }
+    },
+    [client, session, onSessionConnected]
+  );
+
+  const disconnect = useCallback(async () => {
+    if (!client) {
+      throw new Error('WalletConnect is not initialized');
     }
-  }, [client, createClient, relayerRegion]);
+    if (!session) {
+      throw new Error('Session is not connected');
+    }
+
+    try {
+      await client.disconnect({
+        topic: session.topic,
+        reason: getSdkError('USER_DISCONNECTED'),
+      });
+    } catch (error) {
+      console.error('SignClient.disconnect failed:', error);
+    } finally {
+      reset();
+    }
+  }, [client, session]);
 
   const value = useMemo(
     () => ({
       pairings,
-      isInitializing,
       accounts,
       chains,
-      relayerRegion,
       client,
       session,
       connect,
-      getFirstAddress,
       disconnect,
+      getFirstAddress,
       setChains,
-      setRelayerRegion,
     }),
     [
-      getFirstAddress,
       pairings,
-      isInitializing,
       accounts,
       chains,
-      relayerRegion,
       client,
       session,
       connect,
       disconnect,
+      getFirstAddress,
       setChains,
-      setRelayerRegion,
     ]
   );
 
   return (
-    <WalletConnectClientContext.Provider
-      value={{
-        ...value,
-      }}
-    >
+    <WalletConnectClientContext.Provider value={value}>
       {children}
     </WalletConnectClientContext.Provider>
   );

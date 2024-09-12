@@ -26,7 +26,8 @@ import { NanoContractStateAPIResponse } from '@hathor/wallet-lib/lib/nano_contra
 import { get } from 'lodash';
 import { getFullnodeNanoContractHistoryById } from '@/lib/api/getFullnodeNanoContractHistoryById';
 import { extractDataFromHistory, waitForTransactionConfirmation } from '@/lib/utils';
-import { SendTransaction, Transaction } from '@hathor/wallet-lib';
+import { Transaction } from '@hathor/wallet-lib';
+import { IHistoryTx } from '@hathor/wallet-lib/lib/types';
 
 const formSchema = z.object({
   bet: z.string().min(5),
@@ -38,18 +39,23 @@ export default function BetPage() {
   const params = useParams();
   const [waitingApproval, setWaitingApproval] = useState<boolean>(false);
   const [waitingConfirmation, setWaitingConfirmation] = useState<boolean>(false);
+  const [history, setHistory] = useState<{
+    type: string,
+    amount: string,
+    bet: string,
+    id: string,
+    timestamp: Date,
+  }[]>([]);
   const [bet, setBet] = useState<null | { amount: number, bet: string }>(null);
   const [error, setError] = useState<boolean>(false);
   const [nanoContract, setNanoContract] = useState<NanoContract | null>(null);
   const [fullnodeNanoContract, setFullnodeNanoContract] = useState<NanoContractStateAPIResponse | null>(null);
-  const [totalBets, setTotalBets] = useState<number>(0);
   const { session, connect, getFirstAddress } = useWalletConnectClient();
 
   const updateNcData = useCallback(async (ncId: string) => {
     const firstAddress = getFirstAddress();
     
     const nc = await getNanoContractById(ncId);
-    console.log('nc: ', nc);
     setNanoContract(nc);
 
     // State on fullnode:
@@ -58,20 +64,50 @@ export default function BetPage() {
 
     // History on fullnode:
     const history = await getFullnodeNanoContractHistoryById(nc.id)
-    const [_totalInBets] = await extractDataFromHistory(history);
-
-    setTotalBets(_totalInBets);
+    const [_totalInBets, data] = await extractDataFromHistory(history);
+    setHistory(data);
   }, [getFirstAddress]);
 
   useEffect(() => {
     if (!params || !params.id) {
-      console.log('no id');
       return;
     }
 
     const ncId = params.id as string;
     updateNcData(ncId);
   }, [params, updateNcData]);
+
+  // Poll for result to check if it was already set.
+  useEffect(() => {
+    if (!nanoContract) { 
+      return;
+    }
+
+    let interval;
+    const fetchValue = async () => {
+      const firstAddress = getFirstAddress();
+      const fullnodeNc: NanoContractStateAPIResponse = await getFullnodeNanoContractById(nanoContract.id, firstAddress);
+      const fullnodeHistory: IHistoryTx[] = await getFullnodeNanoContractHistoryById(nanoContract.id);
+      const [_, data] = await extractDataFromHistory(fullnodeHistory);
+
+      setHistory(data);
+
+      const result = get(fullnodeNc, 'fields.final_result.value', null);
+      if (result) {
+        // @ts-ignore
+        clearInterval(interval);
+        router.replace(`/results/${nanoContract.id}`);
+        // Navigate to result
+      }
+    };
+
+    fetchValue();
+    interval = setInterval(fetchValue, 3000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [nanoContract, getFirstAddress, router]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -161,6 +197,7 @@ export default function BetPage() {
 
   const canSetResult = () => {
     return (session != null)
+      && history.length > 0
       && address === oracleAddress
       && !result;
   };
