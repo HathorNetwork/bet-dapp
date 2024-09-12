@@ -151,7 +151,7 @@ export default function ResultsPage() {
           <div className='flex w-full justify-center items-center flex-col'>
             <Card className="flex justify-center items-center bg-cover bg-center rounded-lg max-w-4xl w-full p-8 sm:p-12 lg:p-16 border border-gray-800 min-h-[440px] min-w-sm">
               <CardContent className="w-full flex items-center justify-center flex-col max-w-md">
-                { canWithdraw() && (
+                { result && (
                   <>
                     <p className='text-white w-full mb-4 subpixel-antialiased text-2xl'>Winner 🥇</p>
                     <Button className='bg-hathor-green-500 hover:bg-hathor-green-500 text-white w-full h-12 text-lg'>{ result }</Button>
@@ -175,9 +175,11 @@ export default function ResultsPage() {
                   </>
                 )}
 
-                { !canWithdraw() && (
+                { !result && (
                   <>
-                    <Button disabled className='bg-hathor-green-500 hover:bg-hathor-green-500 text-white w-full h-12 text-lg'>No result set yet.</Button>
+                    <Button disabled className='bg-hathor-green-500 hover:bg-hathor-green-500 text-white w-full h-12 text-lg'>
+                      No result set yet.
+                    </Button>
                   </>
                 )}
 
