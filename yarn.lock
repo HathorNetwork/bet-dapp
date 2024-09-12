@@ -3286,7 +3286,7 @@ __metadata:
     date-fns: "npm:^3.6.0"
     eslint: "npm:^8"
     eslint-config-next: "npm:14.2.6"
-    hathor-rpc-handler-test: "npm:^0.0.26"
+    hathor-rpc-handler-test: "npm:0.0.41"
     highlight.js: "npm:^11.10.0"
     lodash: "npm:^4.17.21"
     lucide-react: "npm:^0.435.0"
@@ -5197,12 +5197,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"hathor-rpc-handler-test@npm:^0.0.26":
-  version: 0.0.26
-  resolution: "hathor-rpc-handler-test@npm:0.0.26"
+"hathor-rpc-handler-test@npm:0.0.41":
+  version: 0.0.41
+  resolution: "hathor-rpc-handler-test@npm:0.0.41"
   dependencies:
-    "@hathor/wallet-lib": "npm:1.8.0"
-  checksum: 10c0/522f1105c0848e8acffc4ec54c508f91dca6be7d1f86b7a8aeb6dbb4fe791dd715a3c31a4eacaa40e350842bfeb594428061333b1798802c5285b6250d2d6606
+    "@hathor/wallet-lib": "npm:1.11.0"
+  checksum: 10c0/84554965dd9797ff1805cfc044464fc77ee10fa7b4755457e01e8cb0ee2a087be376893cfc22e4990e9c0ffea93a0cd327c70fad4f11c29479ffa68a106d0f8f
   languageName: node
   linkType: hard
 

@@ -1,7 +1,6 @@
 import { createContext, ReactNode, useCallback, useContext, useState } from 'react';
 import { useWalletConnectClient } from './WalletConnectClientContext';
 import {
-  RpcMethods,
   SendNanoContractRpcRequest,
   SendNanoContractTxResponse,
   SignOracleDataResponse,

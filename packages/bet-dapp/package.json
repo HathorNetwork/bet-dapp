@@ -30,7 +30,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
-    "hathor-rpc-handler-test": "^0.0.26",
+    "hathor-rpc-handler-test": "0.0.41",
     "highlight.js": "^11.10.0",
     "lodash": "^4.17.21",
     "lucide-react": "^0.435.0",
