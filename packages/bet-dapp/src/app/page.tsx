@@ -11,7 +11,7 @@ export default function Home() {
 
         <div className="relative z-10 text-center lg:text-left max-w-xl text-white text-left">
           <div className="mb-8">
-            <Image alt="Hathor" width={150} height={100} src="/logo-hathor.svg" />
+            <Image alt="Hathor" width={150} height={100} src="/logo.svg" />
           </div>
 
           <h1 className="text-4xl font-semibold m-0 bg-gradient-to-r from-hathor-purple-500 from-10% to-hathor-green-400 to-90% text-transparent bg-clip-text mb-8">

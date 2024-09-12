@@ -14,7 +14,7 @@ const Header = ({ logo, title, subtitle }: HeaderProps) => {
     <div className='container pl-0 pr-0 p-8 pb-12 justify-between flex flex-col sm:flex-row md:flex-row lg:flex-row max-w-4xl'>
       { logo && (
         <Link href="/" className='flex justify-center md:justify-between lg:justify-between xl:justify-between mb-8 sm:mb-0 md:mb-0 lg:mb-0'>
-          <Image alt="Hathor" width={100} height={25} src="/logo-hathor.svg" />
+          <Image alt="Hathor" width={100} height={22} src="/logo.svg" />
         </Link>
       )}
       { title && (
