@@ -34,7 +34,7 @@ export default function ThanksPage() {
               <div className='h-full w-full flex p-4 flex flex-col justify-start items-center'>
                 <Image src={`${BASE_PATH}/qr_code.png`} alt={`${URL + BASE_PATH}`} width={200} height={200} />
                 <Button variant='link' className='text-sm text-[#B7BFC7] mt-4 text-md'>
-                  {URL + BASE_PATH}
+                  <a href="https://pages.hathor.network/singapore">https://pages.hathor.network/singapore</a>
                 </Button>
               </div>
             </div>
