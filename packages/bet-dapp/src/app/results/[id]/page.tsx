@@ -26,6 +26,7 @@ import { withdraw } from './withdraw';
 import { useJsonRpc } from '@/contexts/JsonRpcContext';
 import { prettyValue } from '@hathor/wallet-lib/lib/utils/numbers';
 import { Transaction } from '@hathor/wallet-lib';
+import { BASE_PATH } from '@/constants';
 
 export default function ResultsPage() {
   const router = useRouter();
@@ -208,7 +209,7 @@ export default function ResultsPage() {
       )}
 
       <Link href="/" className='flex justify-between mt-24'>
-        <Image alt="Hathor" width={100} height={25} src="/logo-hathor.svg" />
+        <Image alt="Hathor" width={100} height={25} src={`${BASE_PATH}/logo-hathor.svg`}/>
       </Link>
     </main>
   );

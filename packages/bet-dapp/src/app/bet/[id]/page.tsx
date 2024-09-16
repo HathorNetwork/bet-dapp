@@ -28,6 +28,7 @@ import { getFullnodeNanoContractHistoryById } from '@/lib/api/getFullnodeNanoCon
 import { extractDataFromHistory, waitForTransactionConfirmation } from '@/lib/utils';
 import { Transaction } from '@hathor/wallet-lib';
 import { IHistoryTx } from '@hathor/wallet-lib/lib/types';
+import { BASE_PATH } from '@/constants';
 
 const formSchema = z.object({
   bet: z.string().min(2),
@@ -296,7 +297,7 @@ export default function BetPage() {
         </>
       )}
       <Link href="/" className='flex justify-between mt-24'>
-        <Image alt="Hathor" width={100} height={25} src="/logo-hathor.svg" />
+        <Image alt="Hathor" width={100} height={25} src={`${BASE_PATH}/logo-hathor.svg`}/>
       </Link>
     </main>
   );

@@ -1,16 +1,14 @@
 import { DynamoDBClient, DynamoDBClientConfig } from '@aws-sdk/client-dynamodb';
 
-const config: DynamoDBClientConfig = {
-  region: process.env['AWS_REGION'] || 'local',
-  credentials: {
-    accessKeyId: process.env['AWS_ACCESS_KEY'] || 'fake',
-    secretAccessKey: process.env['AWS_SECRET_KEY'] || 'fake',
-  },
-};
 
-if (!process.env['AWS_ACCESS_KEY'] && !process.env['AWS_SECRET_KEY']) {
-  config.endpoint = 'http://localhost:8000';
-}
+// Set the AWS Region.
+const REGION = process.env.REGION || 'local';
+const ENDPOINT = process.env.DB_ENDPOINT || 'http://localhost:8000';
+
+const config: DynamoDBClientConfig = {
+  region: REGION,
+  endpoint: ENDPOINT,
+};
 
 const dynamodb = new DynamoDBClient(config);
 

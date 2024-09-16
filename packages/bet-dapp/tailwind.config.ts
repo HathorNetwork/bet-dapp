@@ -1,5 +1,6 @@
 import type { Config } from 'tailwindcss';
 import { fontFamily } from 'tailwindcss/defaultTheme';
+import { BASE_PATH } from './src/constants';
 
 const config = {
   darkMode: ['class'],
@@ -25,6 +26,7 @@ const config = {
       },
       backgroundImage: {
         'hathor-pattern': 'url("/pattern.svg")',
+        'hathor-introduction': `url("${BASE_PATH}/introduction.png")`,
       },
       fontFamily: {
         sans: ['var(--font-sans)', ...fontFamily.sans],
