@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Header } from '@/components/header';
 import { z } from 'zod';
@@ -30,7 +30,7 @@ import { Transaction } from '@hathor/wallet-lib';
 import { IHistoryTx } from '@hathor/wallet-lib/lib/types';
 
 const formSchema = z.object({
-  bet: z.string().min(5),
+  bet: z.string().min(2),
   amount: z.coerce.number(),
 });
 
@@ -96,8 +96,9 @@ export default function BetPage() {
       if (result) {
         // @ts-ignore
         clearInterval(interval);
-        router.replace(`/results/${nanoContract.id}`);
+
         // Navigate to result
+        router.replace(`/results/${nanoContract.id}`);
       }
     };
 

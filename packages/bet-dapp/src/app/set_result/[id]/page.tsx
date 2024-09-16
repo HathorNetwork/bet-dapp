@@ -20,9 +20,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { NanoContract } from '@/lib/dynamodb/nano-contract';
 import { getFullnodeNanoContractHistoryById } from '@/lib/api/getFullnodeNanoContractHistoryById';
-import { extractDataFromHistory, waitForTransactionConfirmation } from '@/lib/utils';
+import { waitForTransactionConfirmation } from '@/lib/utils';
 import { NanoContractTransactionParser, Network, Transaction } from '@hathor/wallet-lib';
-import { find, get } from 'lodash';
+import { find } from 'lodash';
 
 const formSchema = z.object({
   result: z.string(),
@@ -37,6 +37,7 @@ export default function SetResultPage() {
   const params = useParams();
   const router = useRouter();
 
+  const [loading, setLoading] = useState<boolean>(true);
   const [waitingApproval, setWaitingApproval] = useState<boolean>(false);
   const [waitingConfirmation, setWaitingConfirmation] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
@@ -94,6 +95,7 @@ export default function SetResultPage() {
 
       router.replace(`/results/${nanoContract.id}`);
     } catch (e) {
+      console.log('error: ', e);
       setError(true);
     } finally {
       setWaitingApproval(false);
@@ -130,9 +132,10 @@ export default function SetResultPage() {
 
           await deserializer.parseArguments()
 
-          const bet = get(find(deserializer.parsedArgs, {
+          const scoreArg = find(deserializer.parsedArgs, {
             name: 'score'
-          }), 'parsed');
+          });
+          const bet = scoreArg ? scoreArg.parsed : null;
 
           if (!bet) {
             continue;
@@ -150,6 +153,8 @@ export default function SetResultPage() {
           setRandomValue(value);
         }
       }
+
+      setLoading(false);
     })();
   }, [params]);
 
@@ -186,13 +191,16 @@ export default function SetResultPage() {
           onCancel={onCancel}
         />
       )}
+      { loading && (
+        <WaitInput title='Loading' description='Loading bet history, please wait.' />
+      )}
       { waitingConfirmation && (
         <WaitInput title='Waiting Network Confirmation' description='Waiting for a block to confirm this transaction.' />
       )}
       { waitingApproval && (
         <WaitInput title='Waiting Approval' description='Please, approve this transaction on your phone' />
       )}
-      { (!error && !waitingApproval && !waitingConfirmation) && (
+      { (!error && !waitingApproval && !waitingConfirmation && !loading) && (
       <>
         <Header logo={false} title='Betting' subtitle={`${nanoContract.title} - ${nanoContract.description}`} />
         <Card className="relative flex items-center bg-cover bg-center rounded-lg shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">

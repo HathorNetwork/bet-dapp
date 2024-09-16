@@ -28,7 +28,7 @@ function formatLocalDateTime(date: Date): string {
 }
 
 const formSchema = z.object({
-  name: z.string().min(5),
+  name: z.string().min(2),
   description: z.string().optional(),
   oracleType: z.enum(['publicKey', 'random']), // Ensure oracleType is either 'publicKey' or 'random'
   oracle: z.string().optional(),
