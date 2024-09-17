@@ -47,7 +47,7 @@ const SortableTableHeader = (name: string, column: Column<NcHistoryItem, unknown
 const RowText = (text: string, bold: boolean = false) => {
   return (
     <div className='h-16 flex items-center'>
-      <p className={`text-lg text-right text-[#B7BFC7] ${bold ? ' text-white' : ''}`}>
+      <p className={`text-lg text-center text-[#B7BFC7] ${bold ? ' text-white' : ''}`}>
         { text }
       </p>
     </div>
@@ -58,7 +58,7 @@ const RowLink = (href: string, text: string, bold: boolean = false) => {
   return (
     <div className='h-16 flex items-center'>
       <Link href={href}>
-        <Button variant='link' className={`text-lg text-left text-[#B7BFC7] ${bold ? ' text-white' : ''}`}>
+        <Button variant='link' className={`text-lg text-center text-[#B7BFC7] ${bold ? ' text-white' : ''}`}>
           { text }
         </Button>
       </Link>
@@ -80,6 +80,6 @@ export const columns: ColumnDef<NcHistoryItem>[] = [{
   cell: ({ row }) => RowTransactionId(row.getValue('id')),
 }, {
   accessorKey: 'createdAt',
-  header: (header: HeaderContext<NcHistoryItem, unknown>) => SortableTableHeader('createdAt', header.column),
+  header: (header: HeaderContext<NcHistoryItem, unknown>) => SortableTableHeader('created at', header.column),
   cell: ({ row }) => RowText(formatDate(new Date(row.getValue('createdAt')))),
 }];

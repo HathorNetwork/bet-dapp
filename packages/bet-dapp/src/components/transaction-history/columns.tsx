@@ -7,8 +7,6 @@ import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import Link from 'next/link';
 import { EXPLORER_URL } from '@/constants';
 
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
 export type TransactionHistoryItem = {
   type: string
   bet: string
