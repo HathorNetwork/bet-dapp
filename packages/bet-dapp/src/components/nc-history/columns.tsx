@@ -35,6 +35,7 @@ const SortableTableHeader = (name: string, column: Column<NcHistoryItem, unknown
 
   return (
     <Button
+      className='p-0'
       variant="ghost"
       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
     >
@@ -58,7 +59,7 @@ const RowLink = (href: string, text: string, bold: boolean = false) => {
   return (
     <div className='h-16 flex items-center'>
       <Link href={href}>
-        <Button variant='link' className={`text-lg text-center text-[#B7BFC7] ${bold ? ' text-white' : ''}`}>
+        <Button variant='link' className={`text-lg p-0 text-center text-[#B7BFC7] ${bold ? ' text-white' : ''}`}>
           { text }
         </Button>
       </Link>

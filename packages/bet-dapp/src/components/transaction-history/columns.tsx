@@ -36,6 +36,7 @@ const SortableTableHeader = (name: string, column: Column<TransactionHistoryItem
   return (
     <Button
       variant="ghost"
+      className='p-0'
       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
     >
       { TableHeader(name) }
@@ -58,7 +59,7 @@ const RowLink = (href: string, text: string, bold: boolean = false) => {
   return (
     <div className='h-16 flex items-center'>
       <Link href={href}>
-        <Button variant='link' className={`text-lg text-left text-[#B7BFC7] ${bold ? ' text-white' : ''}`}>
+        <Button variant='link' className={`text-lg p-0 text-left text-[#B7BFC7] ${bold ? ' text-white' : ''}`}>
           { text }
         </Button>
       </Link>
