@@ -17,7 +17,7 @@ export default function AllBetsPage() {
     (async () => {
       try {
         const nanoContracts = await getNanoContracts();
-        setData(orderBy(nanoContracts, 'timestamp', ['desc']));
+        setData(orderBy(nanoContracts, 'createdAt', ['desc']));
       } catch (e) {
       }
     })();
