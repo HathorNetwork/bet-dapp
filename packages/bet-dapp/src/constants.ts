@@ -12,7 +12,7 @@ export const DEFAULT_LOGGER = 'debug';
 export const DEFAULT_APP_METADATA = {
   name: 'Hathor Bet',
   description: 'Create your Bet Nano Contract',
-  url: URL + BASE_PATH,
+  url: URL,
   icons: ['https://hathor-public-files.s3.amazonaws.com/hathor-demo-icon.png'],
 };
 
