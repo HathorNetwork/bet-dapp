@@ -87,7 +87,7 @@ export async function extractDataFromHistory(history: IHistoryTx[]): Promise<[nu
       type: item.nc_method as string,
       amount: `${prettyValue(amount)} ${EVENT_TOKEN_SYMBOL}`,
       bet,
-      id: item.nc_id as string,
+      id: item.tx_id as string,
       timestamp: new Date(item.timestamp * 1000),
     });
   }
