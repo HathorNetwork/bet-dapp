@@ -82,7 +82,7 @@ export const columns: ColumnDef<TransactionHistoryItem>[] = [{
 }, {
   accessorKey: 'bet',
   header: () => TableHeader('bet'),
-  cell: ({ row }) => RowCapitalizeFirst(row.getValue('bet')),
+  cell: ({ row }) => RowText(row.getValue('bet')),
 }, {
   accessorKey: 'amount',
   header: () => TableHeader('amount'),
