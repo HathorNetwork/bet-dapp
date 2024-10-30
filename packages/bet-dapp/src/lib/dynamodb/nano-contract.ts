@@ -7,6 +7,8 @@ import {
   GetItemCommandInput,
   PutItemCommand,
   PutItemCommandInput,
+  QueryCommand,
+  QueryCommandInput,
   ScanCommand,
   ScanCommandInput,
 } from '@aws-sdk/client-dynamodb';
@@ -131,9 +133,38 @@ export const getNanoContractById = async (id: string) => {
   return getNanoContractEntity(data.Item as unknown as DynamoNanoContract);
 }
 
+export const getNanoContractsByCreator = async (creatorAddress: string) => {
+  const params: QueryCommandInput = {
+    TableName: TABLE_NAME,
+    IndexName: 'CreatorAddressIndex',
+    KeyConditionExpression: 'creatorAddress = :creatorAddress',
+    ExpressionAttributeValues: {
+      ':creatorAddress': { S: creatorAddress },
+    },
+    ProjectionExpression: '#ts, id, title, description, oracleType, oracle, creatorAddress, createdAt',
+    ExpressionAttributeNames: {
+      '#ts': 'timestamp',
+    },
+  };
+
+  const queryResults: DynamoNanoContract[] = [];
+  let items;
+
+  do {
+    items = await dynamodb.send(new QueryCommand(params));
+    items.Items?.forEach((item) => queryResults.push(item as unknown as DynamoNanoContract));
+    params.ExclusiveStartKey = items.LastEvaluatedKey;
+  } while (typeof items.LastEvaluatedKey !== "undefined");
+
+  return queryResults.map(getNanoContractEntity);
+};
+
 export const params: CreateTableInput = {
   AttributeDefinitions: [{
     AttributeName: 'id',
+    AttributeType: 'S',
+  }, {
+    AttributeName: 'creatorAddress',
     AttributeType: 'S',
   }],
   KeySchema: [{
@@ -149,6 +180,24 @@ export const params: CreateTableInput = {
     StreamEnabled: true,
     StreamViewType: 'KEYS_ONLY',
   },
+  GlobalSecondaryIndexes: [
+    {
+      IndexName: 'CreatorAddressIndex',
+      KeySchema: [
+        {
+          AttributeName: 'creatorAddress',
+          KeyType: 'HASH',
+        }
+      ],
+      Projection: {
+        ProjectionType: 'ALL'
+      },
+      ProvisionedThroughput: {  // Required for DynamoDB Local
+        ReadCapacityUnits: 5,
+        WriteCapacityUnits: 5
+      }
+    }
+  ],
 };
 
 export async function createTable() {
