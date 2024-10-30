@@ -28,7 +28,12 @@ export const NETWORK = 'testnet';
 
 export const EXPLORER_URL = 'https://explorer.alpha.nano-testnet.hathor.network/';
 
+/*
 export const EVENT_TOKEN = '00000008ff7c8af2f3ea120b7a3bab5788f917d320ccc98098445bc1ef78ecca';
 export const EVENT_TOKEN_SYMBOL = 'EVC';
+*/
+
+export const EVENT_TOKEN = '00';
+export const EVENT_TOKEN_SYMBOL = 'HTR';
 
 export const WAIT_CONFIRMATION_MAX_RETRIES = 800;

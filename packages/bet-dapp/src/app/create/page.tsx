@@ -21,7 +21,7 @@ import Image from 'next/image';
 import { ResultError } from '@/components/result-error';
 import { useRouter } from 'next/navigation';
 import { waitForTransactionConfirmation } from '@/lib/utils';
-import { EVENT_TOKEN } from '@/constants';
+import { EVENT_TOKEN, EVENT_TOKEN_SYMBOL } from '@/constants';
 import { BASE_PATH } from '@/constants';
 
 function formatLocalDateTime(date: Date): string {
@@ -81,6 +81,7 @@ export default function CreateNanoContractPage() {
         values.oracleType === 'random' ? firstAddress : values.oracle as string,
         Math.ceil(values.lastBetAt.getTime() / 1000),
         EVENT_TOKEN,
+        firstAddress,
       );
 
       setWaitingApproval(false);
@@ -246,7 +247,7 @@ export default function CreateNanoContractPage() {
                 <FormItem>
                   <FormLabel>Token</FormLabel>
                   <FormControl>
-                    <Input type="text" className="w-full h-12" value='EVC' disabled />
+                    <Input type="text" className="w-full h-12" value={EVENT_TOKEN_SYMBOL} disabled />
                   </FormControl>
                   <FormDescription>
                     Token for this experience cannot be changed.
