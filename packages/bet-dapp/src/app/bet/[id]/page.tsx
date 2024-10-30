@@ -254,7 +254,7 @@ export default function BetPage() {
                         <FormLabel className='text-white text-xl subpixel-antialiased'>Amount</FormLabel>
                         <FormControl>
                           <>
-                            {!bet && <Input type="number" placeholder='E.g. 1000 EVC' className="w-full text-lg h-12 text-center" {...field} /> }
+                            {!bet && <Input type="number" placeholder={`E.g. 1000 ${EVENT_TOKEN_SYMBOL}`} className="w-full text-lg h-12 text-center" {...field} /> }
                             { bet && <p className='h-12 bg-[#21262D] flex items-center justify-center text-white w-full text-lg font-semibold'>{bet.amount} {EVENT_TOKEN_SYMBOL}</p>}
                           </>
                         </FormControl>

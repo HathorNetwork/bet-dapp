@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import React from 'react';
-import { BASE_PATH, URL } from '@/constants';
+import { BASE_PATH, EVENT_TOKEN_SYMBOL, URL } from '@/constants';
 
 export default function ThanksPage() {
   return (
@@ -27,7 +27,7 @@ export default function ThanksPage() {
                     Nano Contracts DEMO!
                   </h1>
                 )} />
-                <p className='text-xl mt-8 subpixel-antialiased'>Winners, send us your EVCs <span className='bold'>to exchange for real HTRs!</span></p>
+                <p className='text-xl mt-8 subpixel-antialiased'>Winners, send us your event {EVENT_TOKEN_SYMBOL}s <span className='bold'>to exchange for real HTRs!</span></p>
                 <p className='text-lg mt-8'>You&apos;ve seen how easy it is to deploy smart contracts on Hathor Network — no specialized developers, no audits, no delays. Just focus on building your business with high scalability and fee-less transactions.</p>
                 <p className='text-lg text-hathor-purple-500 subpixel-antialiased mt-8'>Trust only Hathor, and start developing your future dApps!</p>
               </div>
