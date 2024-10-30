@@ -16,6 +16,7 @@ const nanoContractSchema = z.object({
   oracle: z.string(),
   description: z.string().optional(),
   timestamp: z.number(),
+  creatorAddress: z.string(),
   createdAt: z.number(),
 });
 

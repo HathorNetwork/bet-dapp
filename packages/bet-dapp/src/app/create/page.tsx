@@ -81,6 +81,7 @@ export default function CreateNanoContractPage() {
         values.oracleType === 'random' ? firstAddress : values.oracle as string,
         Math.ceil(values.lastBetAt.getTime() / 1000),
         EVENT_TOKEN,
+        firstAddress,
       );
 
       setWaitingApproval(false);
