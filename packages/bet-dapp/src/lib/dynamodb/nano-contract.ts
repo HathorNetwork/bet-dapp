@@ -85,6 +85,7 @@ export const createNanoContract = async ({
     oracleType,
     oracle,
     description,
+    creatorAddress,
     createdAt,
   };
 }
