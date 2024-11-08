@@ -23,7 +23,7 @@ RUN \
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED=1
 
-ENV NEXT_PUBLIC_URL=https://betting.hathor.network/
+ENV NEXT_PUBLIC_URL=https://betting.hathor.network
 ENV NEXT_PUBLIC_BASE_PATH=/public
 
 COPY packages/bet-dapp ./packages/bet-dapp
