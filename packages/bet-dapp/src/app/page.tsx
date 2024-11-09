@@ -5,9 +5,9 @@ import { BASE_PATH } from '@/constants';
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen items-center justify-center p-6 flex-col">
+    <main className="bg-desert-background bg-cover flex min-h-screen items-center justify-center p-6 flex-col">
 
-      <div className="relative flex items-center bg-cover bg-center rounded-lg shadow-lg max-w-6xl w-full h-[800px] p-6 sm:p-12 lg:p-16 bg-hathor-introduction border border-gray-800">
+      <div className="relative flex items-center bg-cover bg-center rounded-lg shadow-lg max-w-6xl w-full h-[800px] p-6 sm:p-12 lg:p-16 bg-pharaoh-quest border border-gray-800">
         <div className="absolute inset-0 bg-black opacity-10 rounded-lg"></div>
 
         <div className="relative z-10 text-center lg:text-left max-w-xl text-white text-left">

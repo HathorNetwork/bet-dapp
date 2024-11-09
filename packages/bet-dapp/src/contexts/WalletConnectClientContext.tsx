@@ -1,7 +1,7 @@
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Client from '@walletconnect/sign-client';
 import { PairingTypes, SessionTypes } from '@walletconnect/types';
-import { Web3Modal } from '@web3modal/standalone';
+import { WalletConnectModal } from '@walletconnect/modal'
 import { getSdkError } from '@walletconnect/utils';
 import { get } from 'lodash';
 import { DEFAULT_PROJECT_ID } from '@/constants';
@@ -21,11 +21,10 @@ interface IContext {
 
 const WalletConnectClientContext = createContext<IContext>({} as IContext);
 
-const web3Modal = new Web3Modal({
+const web3Modal = new WalletConnectModal({
   projectId: DEFAULT_PROJECT_ID,
-  themeMode: 'dark',
-  walletConnectVersion: 2,
-});
+  themeMode: 'dark'
+})
 
 export function WalletConnectClientContextProvider({
   children,
@@ -150,7 +149,10 @@ export function WalletConnectClientContextProvider({
             .map((namespace) => namespace.chains)
             .flat() as string[];
 
-          web3Modal.openModal({ uri, standaloneChains });
+          web3Modal.openModal({
+            uri,
+            standaloneChains
+          });
         }
 
         const session = await approval();

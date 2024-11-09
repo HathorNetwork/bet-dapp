@@ -25,8 +25,10 @@ const config = {
         xs: '2px',
       },
       backgroundImage: {
+        'desert-background': 'url(\'/background.png\')',
         'hathor-pattern': 'url("/pattern.svg")',
         'hathor-introduction': `url("${BASE_PATH}/introduction.png")`,
+        'pharaoh-quest': 'url(\'/pharaohs_quest.png\')',
       },
       fontFamily: {
         sans: ['var(--font-sans)', ...fontFamily.sans],
