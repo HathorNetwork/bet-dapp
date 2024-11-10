@@ -25,6 +25,7 @@ const config = {
         xs: '2px',
       },
       backgroundImage: {
+        'papyrus-background': 'url(\'/papyrus-background.png\')',
         'desert-background': 'url(\'/background.png\')',
         'hathor-pattern': 'url("/pattern.svg")',
         'hathor-introduction': `url("${BASE_PATH}/introduction.png")`,

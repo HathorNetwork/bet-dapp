@@ -37,7 +37,7 @@ export default function Home() {
       </div>
 
       <span className="mt-4 text-sm text-hathor-purple-500">
-        v0.3.0
+        v0.4.0
       </span>
     </main>
   );

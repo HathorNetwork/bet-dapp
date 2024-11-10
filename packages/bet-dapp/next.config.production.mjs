@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
-  basePath: "/betting2024",
-  assetPrefix: "https://hathor.network/betting2024/",
+  basePath: "/public",
+  assetPrefix: "https://betting.hathor.network/",
   webpack: config => {
     config.externals.push('pino-pretty', 'lokijs', 'encoding');
 

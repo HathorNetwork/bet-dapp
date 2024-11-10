@@ -150,7 +150,7 @@ export default function ResultsPage() {
         <>
           <Header logo={false} title='Betting' subtitle={`${nanoContract.title} - ${nanoContract.description}`} />
           <div className='flex w-full justify-center items-center flex-col'>
-            <Card className="flex justify-center items-center bg-cover bg-center rounded-lg max-w-4xl w-full p-8 sm:p-12 lg:p-16 border border-gray-800 min-h-[440px] min-w-sm">
+            <Card className="flex justify-center items-center bg-cover bg-center rounded-lg rounded-tl-none max-w-4xl w-full p-8 sm:p-12 lg:p-16 border border-gray-800 min-h-[440px] min-w-sm">
               <CardContent className="w-full flex items-center justify-center flex-col max-w-md">
                 { result && (
                   <>
@@ -209,7 +209,7 @@ export default function ResultsPage() {
       )}
 
       <Link href="/" className='flex justify-between mt-24'>
-        <Image alt="Hathor" width={100} height={25} src={`${BASE_PATH}/logo-hathor.svg`}/>
+        <Image alt="Hathor" width={100} height={25} src={`${BASE_PATH}/logo.svg`}/>
       </Link>
     </main>
   );

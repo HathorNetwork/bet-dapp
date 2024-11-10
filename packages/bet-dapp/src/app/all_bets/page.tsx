@@ -35,7 +35,7 @@ export default function AllBetsPage() {
         </CardContent>
       </Card>
       <Link href="/" className='flex justify-between mt-24'>
-        <Image alt="Hathor" width={100} height={25} src="/logo-hathor.svg" />
+        <Image alt="Hathor" width={100} height={25} src="/logo.svg" />
       </Link>
     </main>
   );
