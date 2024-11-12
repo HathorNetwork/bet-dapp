@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { BASE_PATH } from '@/constants';
+import { Suspense } from 'react';
 
 interface CharacterCardProps {
   src: string;
@@ -19,16 +20,19 @@ interface IconBarProps {
 }
 
 const CharacterCard: React.FC<CharacterCardProps> = ({ src, alt, className = "" }) => (
-  <div className={`relative overflow-hidden rounded-2xl bg-purple-950 ${className}`}>
-    <Image
-      src={src}
-      alt={alt}
-      fill
-      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-      className="object-cover hover:scale-105 transition-transform duration-300"
-      priority
-    />
-  </div>
+ <div className={`relative overflow-hidden rounded-2xl bg-gray-950 border-1 border-gray-800 ${className}`}>
+   <Image
+     src={src}
+     alt={alt}
+     fill
+     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+     className="object-cover"
+     priority
+   />
+   <div className="absolute inset-0 rounded-2xl ring-2 ring-white/30 shadow-[inset_0_0_15px_rgba(255,255,255,0.15)]" />
+   
+   <div className="absolute inset-0 rounded-2xl shadow-[inset_0_2px_8px_rgba(0,0,0,0.9)]" />
+ </div>
 );
 
 const CharacterGrid: React.FC<{ BASE_PATH: string }> = ({ BASE_PATH }) => {
@@ -103,10 +107,10 @@ const EgyptianIconBar: React.FC<IconBarProps> = ({ BASE_PATH }) => {
   );
 };
 
-export default function Home() {
+export function Home() {
   return (
     <main className="bg-desert-background bg-cover flex min-h-screen items-center justify-center p-6 flex-col">
-      <div className="relative flex items-center bg-cover bg-center rounded-lg shadow-lg max-w-6xl w-full p-6 bg-home-background border border-gray-800 ">
+  <div className="relative flex items-center bg-cover bg-center rounded-md shadow-lg max-w-6xl w-full px-8 py-4 bg-home-background border border-gray-800">
         <div className="absolute inset-0 bg-black opacity-10 rounded-lg"></div>
         
         {/* Left Content */}
@@ -162,5 +166,17 @@ export default function Home() {
         v0.4.0
       </span>
     </main>
+  );
+};
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={
+      <div className="fixed inset-0 flex items-center justify-center z-50">
+        <div className="animate-spin rounded-full h-24 w-24 border-t-2 border-b-2 border-purple-500" />
+      </div>
+    }>
+      <Home />
+    </Suspense>
   );
 }

@@ -205,7 +205,7 @@ export default function BetPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-6 flex-col">
+    <main className="flex min-h-screen items-center justify-center p-6 flex-col bg-cover bg-papyrus-background">
       { error && (
         <ResultError
           title='Error during confirmation'

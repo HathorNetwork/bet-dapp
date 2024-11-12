@@ -10,6 +10,8 @@ WORKDIR /app
 COPY package.json yarn.lock* .yarnrc.yml ./
 COPY packages/bet-dapp/package.json ./packages/bet-dapp/
 
+COPY .yarn/patches .yarn/patches/
+
 RUN corepack enable
 RUN yarn set version 4.2.2
 

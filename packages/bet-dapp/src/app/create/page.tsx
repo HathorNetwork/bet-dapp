@@ -114,7 +114,7 @@ export default function CreateNanoContractPage() {
   const oracleTypeValue = form.watch('oracleType');
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-6 flex-col">
+    <main className="flex min-h-screen items-center justify-center p-6 flex-col bg-cover bg-papyrus-background">
       <Header logo={true} />
       { error && (
         <ResultError

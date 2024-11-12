@@ -128,7 +128,7 @@ export default function ResultsPage() {
   }
 
   return (
-    <main className="flex min-h-screen justify-center items-center p-6 flex-col">
+    <main className="flex min-h-screen justify-center items-center p-6 flex-col bg-cover bg-papyrus-background">
       { waitingApproval && (
         <WaitInput title='Waiting Approval' description='Please, approve the withdraw transaction on your phone' />
       )}

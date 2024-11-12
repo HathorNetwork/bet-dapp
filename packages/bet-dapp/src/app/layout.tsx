@@ -40,7 +40,6 @@ export default function RootLayout({
     <html lang="pt-br" className="dark">
       <body className={cn(
         'min-h-screen bg-background font-sans antialiased',
-        'bg-cover bg-papyrus-background',
         'font-mona-sans',
         inter.variable
       )}>

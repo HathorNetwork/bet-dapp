@@ -11,7 +11,7 @@ import { BASE_PATH, EVENT_TOKEN_SYMBOL, URL } from '@/constants';
 export default function ThanksPage() {
   return (
     <>
-      <main className="flex min-h-screen items-center justify-center p-6 flex-col">
+      <main className="flex min-h-screen items-center justify-center p-6 flex-col bg-cover bg-papyrus-background">
         <Card className="relative flex items-center bg-cover bg-center rounded-lg shadow-lg max-w-6xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">
           <CardContent className="w-full flex flex-col">
             <Image alt="Hathor" width={150} height={50} src={`${BASE_PATH}/logo_white.svg`}/>
