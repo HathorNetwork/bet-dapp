@@ -25,7 +25,7 @@ const Header = ({ logo, title, subtitle }: HeaderProps) => {
         <p className='text-2xl subpixel-antialiased font-kuenstler text-[#FCB116]'>{ subtitle }</p>
       </Card>
       )}
-      <div className='pt-5'>
+      <div className='pt-5 mb-8'>
         <WalletConnect />
       </div>
     </div>
