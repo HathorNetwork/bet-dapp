@@ -25,11 +25,12 @@ const config = {
         xs: '2px',
       },
       backgroundImage: {
-        'papyrus-background': 'url(\'/papyrus-background.png\')',
-        'desert-background': 'url(\'/background.png\')',
-        'hathor-pattern': 'url("/pattern.svg")',
+        'papyrus-background': `url("${BASE_PATH}/papyrus-background.png")`,
+        'home-background': `url("${BASE_PATH}/open-screen-background.png")`,
+        'desert-background': `url("${BASE_PATH}/background.png")`,
+        'hathor-pattern': `url("${BASE_PATH}/pattern.svg")`,
         'hathor-introduction': `url("${BASE_PATH}/introduction.png")`,
-        'pharaoh-quest': 'url(\'/pharaohs_quest.png\')',
+        'pharaoh-quest': `url("${BASE_PATH}/pharaohs_quest.png")`
       },
       fontFamily: {
         sans: ['var(--font-sans)', ...fontFamily.sans],
