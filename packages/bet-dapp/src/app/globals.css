@@ -13,7 +13,7 @@
 
 @font-face {
   font-family: 'Kuenstler-Grotesk';
-  src: url('/fonts/KuenstlerGrotesk.ttf') format('truetype');
+  src: url('/public/fonts/KuenstlerGrotesk.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
