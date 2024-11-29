@@ -11,13 +11,27 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Kuenstler-Grotesk';
+  src: url('/public/fonts/KuenstlerGrotesk.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   .font-mona-sans {
     font-family: var(--font-sans);
   }
 
+  .font-kuenstler {
+    font-family: var(--font-headings);
+  }
+
   :root {
     --font-sans: 'Mona-Sans', sans-serif;
+    --font-headings: 'Kuenstler-Grotesk', serif;
+
     --background: 0 0% 100%;
     --foreground: 224 71.4% 4.1%;
     --card: 0 0% 100%;

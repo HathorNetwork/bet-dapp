@@ -40,7 +40,6 @@ export default function RootLayout({
     <html lang="pt-br" className="dark">
       <body className={cn(
         'min-h-screen bg-background font-sans antialiased',
-        'bg-gradient-to-b from-black via-[#1C0B33] via-85% to-[#180A2D]',
         'font-mona-sans',
         inter.variable
       )}>

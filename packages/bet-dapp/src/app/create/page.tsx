@@ -21,7 +21,7 @@ import Image from 'next/image';
 import { ResultError } from '@/components/result-error';
 import { useRouter } from 'next/navigation';
 import { waitForTransactionConfirmation } from '@/lib/utils';
-import { EVENT_TOKEN } from '@/constants';
+import { EVENT_TOKEN, EVENT_TOKEN_SYMBOL } from '@/constants';
 import { BASE_PATH } from '@/constants';
 
 function formatLocalDateTime(date: Date): string {
@@ -81,6 +81,7 @@ export default function CreateNanoContractPage() {
         values.oracleType === 'random' ? firstAddress : values.oracle as string,
         Math.ceil(values.lastBetAt.getTime() / 1000),
         EVENT_TOKEN,
+        firstAddress,
       );
 
       setWaitingApproval(false);
@@ -113,7 +114,7 @@ export default function CreateNanoContractPage() {
   const oracleTypeValue = form.watch('oracleType');
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-6 flex-col">
+    <main className="flex min-h-screen items-center justify-center p-6 flex-col bg-cover bg-papyrus-background">
       <Header logo={true} />
       { error && (
         <ResultError
@@ -134,8 +135,8 @@ export default function CreateNanoContractPage() {
       { (!error && !waitingApproval && !waitingConfirmation) && (
         <Card className="relative flex items-center bg-cover bg-center rounded-lg shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">
           <CardContent className="w-full flex items-center justify-center flex-col">
-            <h1 className='text-4xl subpixel-antialiased text-bold'>Create your Nano Contract</h1>
-            <p className='pb-16'>for the Betting Event</p>
+            <h1 className='text-4xl subpixel-antialiased text-bold font-kuenstler text-[#FCB116]'>Create your Nano Contract</h1>
+            <p className='pb-16'>Create your own betting contracts and claim your spot in the sands of Hathor! </p>
 
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-md w-full flex flex-col">
@@ -246,7 +247,7 @@ export default function CreateNanoContractPage() {
                 <FormItem>
                   <FormLabel>Token</FormLabel>
                   <FormControl>
-                    <Input type="text" className="w-full h-12" value='EVC' disabled />
+                    <Input type="text" className="w-full h-12" value={EVENT_TOKEN_SYMBOL} disabled />
                   </FormControl>
                   <FormDescription>
                     Token for this experience cannot be changed.
@@ -269,7 +270,7 @@ export default function CreateNanoContractPage() {
         </Card>
       )}
       <Link href="/" className='flex justify-between mt-24'>
-        <Image alt="Hathor" width={100} height={25} src={`${BASE_PATH}/logo-hathor.svg`}/>
+        <Image alt="Hathor" width={100} height={25} src={`${BASE_PATH}/logo.svg`}/>
       </Link>
     </main>
   );

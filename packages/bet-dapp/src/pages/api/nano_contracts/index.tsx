@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { createNanoContract, getAllNanoContracts, NanoContract } from '@/lib/dynamodb/nano-contract';
+import { createNanoContract, getAllNanoContracts, getNanoContractsByCreator, NanoContract } from '@/lib/dynamodb/nano-contract';
 import { z } from 'zod';
 
 export interface ErrorResponse {
@@ -16,6 +16,7 @@ const nanoContractSchema = z.object({
   oracle: z.string(),
   description: z.string().optional(),
   timestamp: z.number(),
+  creatorAddress: z.string(),
   createdAt: z.number(),
 });
 
@@ -63,12 +64,35 @@ export async function create(
   res.status(200).json(data);
 }
 
+const listAllQuerySchema = z.object({
+  creator_address: z.string().optional()
+});
+
 export async function listAll(
-  _req: NextApiRequest,
-  res: NextApiResponse<NanoContract[]>
+  req: NextApiRequest,
+  res: NextApiResponse<NanoContract[] | { error: string }>
 ) {
+  try {
+    const query = listAllQuerySchema.parse(req.query);
 
-const nanoContracts: NanoContract[] = await getAllNanoContracts();
+    let nanoContracts: NanoContract[];
 
-  res.status(200).json(nanoContracts);
+    if (query.creator_address) {
+      // If creator_address is provided, fetch contracts for that creator
+      nanoContracts = await getNanoContractsByCreator(query.creator_address);
+    } else {
+      // Otherwise, fetch all contracts
+      nanoContracts = await getAllNanoContracts();
+    }
+
+    res.status(200).json(nanoContracts);
+  } catch (error) {
+    console.error('Error fetching nano contracts:', error);
+
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Invalid query parameters' });
+    }
+
+    res.status(500).json({ error: 'Failed to fetch nano contracts' });
+  }
 }

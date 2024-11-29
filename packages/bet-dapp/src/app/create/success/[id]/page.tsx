@@ -24,17 +24,15 @@ export default function CreateSuccess() {
 
   return (
     <>
-      <main className='flex min-h-screen items-center p-6 flex-col justify-center'>
+      <main className='flex min-h-screen items-center p-6 flex-col justify-center bg-cover bg-papyrus-background'> 
         <Card className='relative flex items-center bg-cover bg-center rounded-lg shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800'>
           <CardContent className='w-full flex items-center justify-center flex-col'>
-            <div className='flex flex-row items-center justify-center'>
-              <HathorGradient text={(<h1 className='text-5xl font-semibold p-4'>Congratulations!</h1>)} />
-              <span className='text-4xl ml-0'>🎉</span>
-            </div>
+            <HathorGradient text={(<h1 className='text-4xl p-4 font-kuenstler'>Nano Contract Created!</h1>)} />
 
-            <p className='leading-relaxed mb-6 text-left text-xl mt-8 text-bold text-center'>
-              Nano Contract created in just a few minutes! <br/>
-              Scroll down to see all the hassle, time and money that you saved!
+            <p className='leading-relaxed mb-6 text-left text-md mt-8 text-bold text-center'>
+              In the heart of the ancient crypto sands, your journey has begun!<br/>
+              Below is the <span className='font-semibold text-[#FCB116]'>Nano Contract code</span> that will guide you on your path,<br/>
+              saving you time and ensuring you have a safe journey.
             </p>
 
             <div className="w-full flex justify-center flex-col items-center mt-8">
@@ -48,7 +46,7 @@ export default function CreateSuccess() {
             </div>
 
             <p className='text-lg w-full text-center mt-12'>
-              Now it&apos;s time: <span className='text-hathor-purple-500 subpixel-antialiased font-semibold'>place your bet and have fun.🥳</span>
+              Now it&apos;s time: <span className='text-[#FCB116] subpixel-antialiased font-semibold'>place your bet and have fun.</span>
             </p>
 
             <Button onClick={placeBet} className='h-12 text-white mt-12 w-48 text-lg subpixel-antialiased font-semibold'>

@@ -205,7 +205,7 @@ export default function BetPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-6 flex-col">
+    <main className="flex min-h-screen items-center justify-center p-6 flex-col bg-cover bg-papyrus-background">
       { error && (
         <ResultError
           title='Error during confirmation'
@@ -226,7 +226,7 @@ export default function BetPage() {
       { (!error && !waitingApproval && !waitingConfirmation) && (
       <>
         <Header logo={false} title='Betting' subtitle={`${nanoContract.title} - ${nanoContract.description}`} />
-        <Card className="relative flex items-center bg-cover bg-center rounded-lg shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">
+        <Card className="relative rounded-lg rounded-tl-none flex items-center bg-cover bg-center shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">
           <CardContent className="w-full flex items-center justify-center flex-col">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-md w-full flex flex-col">
@@ -254,7 +254,7 @@ export default function BetPage() {
                         <FormLabel className='text-white text-xl subpixel-antialiased'>Amount</FormLabel>
                         <FormControl>
                           <>
-                            {!bet && <Input type="number" placeholder='E.g. 1000 EVC' className="w-full text-lg h-12 text-center" {...field} /> }
+                            {!bet && <Input type="number" placeholder={`E.g. 1000 ${EVENT_TOKEN_SYMBOL}`} className="w-full text-lg h-12 text-center" {...field} /> }
                             { bet && <p className='h-12 bg-[#21262D] flex items-center justify-center text-white w-full text-lg font-semibold'>{bet.amount} {EVENT_TOKEN_SYMBOL}</p>}
                           </>
                         </FormControl>
@@ -297,7 +297,7 @@ export default function BetPage() {
         </>
       )}
       <Link href="/" className='flex justify-between mt-24'>
-        <Image alt="Hathor" width={100} height={25} src={`${BASE_PATH}/logo-hathor.svg`}/>
+        <Image alt="Hathor" width={100} height={25} src={`${BASE_PATH}/logo.svg`}/>
       </Link>
     </main>
   );

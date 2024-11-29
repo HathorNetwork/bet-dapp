@@ -10,6 +10,8 @@ WORKDIR /app
 COPY package.json yarn.lock* .yarnrc.yml ./
 COPY packages/bet-dapp/package.json ./packages/bet-dapp/
 
+COPY .yarn/patches .yarn/patches/
+
 RUN corepack enable
 RUN yarn set version 4.2.2
 
@@ -21,8 +23,8 @@ RUN \
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED=1
 
-ENV NEXT_PUBLIC_URL=https://hathor.network/betting2024
-ENV NEXT_PUBLIC_BASE_PATH=/betting2024/public
+ENV NEXT_PUBLIC_URL=https://betting.hathor.network
+ENV NEXT_PUBLIC_BASE_PATH=/public
 
 COPY packages/bet-dapp ./packages/bet-dapp
 RUN cp ./packages/bet-dapp/next.config.production.mjs ./packages/bet-dapp/next.config.mjs

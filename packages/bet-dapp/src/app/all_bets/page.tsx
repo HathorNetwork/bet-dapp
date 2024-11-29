@@ -9,6 +9,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getNanoContracts } from '@/lib/api/getNanoContracts';
 import { orderBy } from 'lodash';
+import { BASE_PATH } from '@/constants';
 
 export default function AllBetsPage() {
   const [data, setData] = useState<NcHistoryItem[]>([]);
@@ -24,7 +25,7 @@ export default function AllBetsPage() {
   }, []);
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-6 flex-col">
+    <main className="flex min-h-screen items-center justify-center p-6 flex-col bg-cover bg-papyrus-background">
       <Header logo={true} />
       <Card className="relative flex items-center bg-cover bg-center rounded-lg shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">
         <CardContent className="w-full flex items-center justify-center flex-col">
@@ -35,7 +36,7 @@ export default function AllBetsPage() {
         </CardContent>
       </Card>
       <Link href="/" className='flex justify-between mt-24'>
-        <Image alt="Hathor" width={100} height={25} src="/logo-hathor.svg" />
+        <Image alt="Hathor" width={100} height={25} src={`${BASE_PATH}/logo.svg`}/>
       </Link>
     </main>
   );

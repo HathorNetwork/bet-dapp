@@ -22,6 +22,7 @@
     "@radix-ui/react-toast": "^1.2.1",
     "@tanstack/react-table": "^8.20.5",
     "@walletconnect/core": "^2.15.1",
+    "@walletconnect/modal": "^2.7.0",
     "@walletconnect/sign-client": "^2.15.1",
     "@walletconnect/types": "^2.15.1",
     "@web3modal/standalone": "^2.4.3",
@@ -38,6 +39,7 @@
     "react-dom": "^18",
     "react-hook-form": "^7.52.2",
     "react-syntax-highlighter": "^15.5.0",
+    "sharp": "^0.33.5",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.23.8"

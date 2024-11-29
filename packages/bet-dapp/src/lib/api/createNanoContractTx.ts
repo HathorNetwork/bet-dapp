@@ -8,6 +8,7 @@ export const createNanoContractTx = async (
   oracleType: string,
   oracle: string,
   timestamp: number,
+  creatorAddress: string,
   createdAt: number,
 ) => {
   const response: Response = await fetch(`${URL}/api/nano_contracts`, {
@@ -22,6 +23,7 @@ export const createNanoContractTx = async (
       oracleType,
       oracle,
       timestamp,
+      creatorAddress,
       createdAt,
     }),
   });
