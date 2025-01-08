@@ -61,11 +61,31 @@ const BetOption = styled.button<{ selected?: boolean }>`
     background: ${props => props.selected ? '#FFC107' : '#2c3238'};
   }
 
+  span:first-child {
+    font-size: 1.25rem;
+    font-weight: 500;
+  }
+
   span:last-child {
     font-size: 0.875rem;
-    opacity: 0.8;
+    color: ${props => props.selected ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.7)'};
   }
 `;
+
+const calculateBetPercentages = (fullnodeNc: NanoContractStateAPIResponse | null, options: string[]): Record<string, number> => {
+  if (!fullnodeNc) return {};
+
+  const total = get(fullnodeNc, 'fields.total.value', 0);
+  if (total === 0) return Object.fromEntries(options.map(opt => [opt, 0]));
+
+  return options.reduce((acc, option) => {
+    const fields = get(fullnodeNc, 'fields', {});
+    const betField = get(fields, `bets_total.${option}`, {});
+    const betAmount = 'value' in betField && typeof betField.value === 'number' ? betField.value : 0;
+    acc[option] = Math.round((betAmount / total) * 100);
+    return acc;
+  }, {} as Record<string, number>);
+};
 
 export default function BetPage() {
   const router = useRouter();
@@ -119,10 +139,13 @@ export default function BetPage() {
     let interval: ReturnType<typeof setInterval>;
     const fetchValue = async () => {
       const firstAddress = getFirstAddress();
-      const fullnodeNc: NanoContractStateAPIResponse = await getFullnodeNanoContractById(nanoContract.id, firstAddress);
+      const fullnodeNc: NanoContractStateAPIResponse = await getFullnodeNanoContractById(nanoContract.id, firstAddress, nanoContract.options);
       const fullnodeHistory: IHistoryTx[] = await getFullnodeNanoContractHistoryById(nanoContract.id);
       const [_, data] = await extractDataFromHistory(fullnodeHistory);
 
+      if (fullnodeNc) {
+        setFullnodeNanoContract(fullnodeNc);
+      }
       setHistory(data);
 
       const result = get(fullnodeNc, 'fields.final_result.value', null);
@@ -148,6 +171,7 @@ export default function BetPage() {
     mode: 'onChange',
     defaultValues: {
       bet: '',
+      amount: 0
     },
   });
 
@@ -236,6 +260,7 @@ export default function BetPage() {
       && !result;
   };
 
+  const betPercentages = calculateBetPercentages(fullnodeNanoContract, nanoContract?.options || []);
   return (
     <main className="flex min-h-screen items-center justify-center p-6 flex-col bg-cover bg-papyrus-background">
       { error && (
@@ -279,14 +304,14 @@ export default function BetPage() {
                                 onClick={() => field.onChange(option)}
                               >
                                 <span>{option}</span>
-                                <span>Total bet: %</span>
+                                <span>Total bet: {betPercentages[option] || 0}%</span>
                               </BetOption>
                             ))}
                           </OptionsContainer>
                         ) : (
                           // Show dropdown for more than 2 options
                           <Select onValueChange={field.onChange} value={field.value}>
-                            <SelectTrigger className="bg-[#21262D] border-0 text-white h-12 text-2xl pl-6 [&>svg]:text-white">
+                            <SelectTrigger className="bg-[#21262D] border-0 text-white h-12 text-lg pl-6 [&>svg]:text-white">
                               <SelectValue placeholder="Select answer" />
                             </SelectTrigger>
                             <SelectContent className="bg-[#21262D] border-0">
@@ -294,11 +319,11 @@ export default function BetPage() {
                                 <SelectItem 
                                   key={option} 
                                   value={option}
-                                  className="flex justify-between items-center text-white hover:bg-[#FFC107] hover:text-black focus:bg-[#FFC107] focus:text-black cursor-pointer py-3 pl-6"
+                                  className="flex justify-between items-center text-white hover:bg-[#FFC107] hover:text-black focus:bg-[#FFC107] focus:text-black cursor-pointer py-3 pl-6 group"
                                 >
                                   <div className="flex items-center gap-3">
-                                    <span className="text-2xl font-bold">{option}</span>
-                                    <span className="text-gray-400 text-lg hover:text-black/60">- Total bet: 52%</span>
+                                    <span className="text-lg font-medium">{option}</span>
+                                    <span className="text-sm text-gray-300 group-hover:text-black/70">- Total bet: {betPercentages[option] || 0}%</span>
                                   </div>
                                 </SelectItem>
                               ))}

@@ -80,6 +80,21 @@ export default function ResultsPage() {
 
   const result = get(fullnodeNanoContract, 'fields.final_result.value', null);
 
+  const getUserBets = () => {
+    if (!fullnodeNanoContract || !getFirstAddress()) return null;
+
+    const address = getFirstAddress();
+    const addressField = `address_details.a'${address}'`;
+    const fields = fullnodeNanoContract.fields;
+    const addressDetails = get(fields, addressField, null);
+    if (!addressDetails?.value) return null;
+
+    return Object.entries(addressDetails.value).map(([bet, amount]) => ({
+      bet,
+      amount: amount as number
+    }));
+  };
+
   const haveSomethingToWithdraw = () => {
     return true;
   };
@@ -184,7 +199,29 @@ export default function ResultsPage() {
                   </>
                 )}
 
-                <div className="flex-grow border-t border-[#484F58] w-full max-w-md mt-12 mb-12"></div>
+                { getUserBets() && (
+                  <>
+                    <div className="flex-grow border-t border-[#484F58] w-full max-w-md mt-12 mb-12"></div>
+                    <div className='w-full mb-12'>
+                      <span className='text-white text-lg'>My bets:</span>
+                      {getUserBets()?.map((bet, index) => (
+                        <div key={index} className='flex justify-end items-center w-full mt-4'>
+                          <div className='flex items-center gap-4'>
+                            <div className='h-8 px-4 flex items-center rounded-full border border-[#2F3336] bg-transparent'>
+                              <span className='text-white text-sm'>{prettyValue(bet.amount)} HTR</span>
+                            </div>
+                            <div className={`h-8 px-4 flex items-center rounded-full border ${bet.bet === result ? 'bg-[#1B4332] border-[#2E7D32]' : 'border-[#2F3336] bg-transparent'}`}>
+                              <span className='text-white text-sm'>{bet.bet}</span>
+                            </div>
+                            <Button variant="outline" className='text-xs text-[#B7BFC7] h-8 px-4 rounded-full border border-[#2F3336] bg-transparent hover:bg-transparent hover:text-[#B7BFC7] hover:border-[#2F3336]'>
+                              Details <ArrowUpRight className="h-3 w-3 ml-1" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
 
                 <TotalBets hash={nanoContract.id} />
               </CardContent>

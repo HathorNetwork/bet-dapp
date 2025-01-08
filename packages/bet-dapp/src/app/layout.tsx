@@ -11,6 +11,7 @@ import { config } from '@hathor/wallet-lib';
 import { initializeClient } from '@/contexts/WalletConnectClient';
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import StyledComponentsRegistry from '@/lib/registry'
 
 config.setServerUrl(FULLNODE_URL);
 config.setNetwork(NETWORK);
@@ -51,7 +52,7 @@ export default function RootLayout({
         { walletConnectConnected && (
           <WalletConnectClientContextProvider>
             <JsonRpcContextProvider>
-              {children}
+              <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
               <Toaster />
             </JsonRpcContextProvider>
           </WalletConnectClientContextProvider>

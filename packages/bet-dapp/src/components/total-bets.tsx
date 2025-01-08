@@ -35,9 +35,11 @@ const TotalBets = ({ hash }: TotalBetsProps) => {
   }, [hash, fetchValue]);
 
   return (
-    <div className='flex justify-between w-full max-w-md'>
-      <p className='text-md subpixel-antialiased'>Total Bet</p>
-      <p className='text-md subpixel-antialiased'>{ prettyValue(value) } {EVENT_TOKEN_SYMBOL}</p>
+    <div className='flex justify-between items-center w-full'>
+      <span className='text-white text-lg'>Total bet</span>
+      <div className='h-8 px-4 flex items-center rounded-full border border-[#2F3336] bg-transparent'>
+        <span className='text-white text-sm'>{ prettyValue(value) } {EVENT_TOKEN_SYMBOL}</span>
+      </div>
     </div>
   )
 }
