@@ -139,7 +139,7 @@ export function Home() {
             <p className="text-white">
               Embark on the Pharaoh&apos;s Quest and Play to Qualify for <span className="font-bold">HTR Airdrops!</span>
             </p>
-            <Button className="rounded-sm text-white px-6 py-3 h-12 text-lg mt-6 mb-8">
+            <Button className="rounded-sm text-white px-6 py-3 h-12 text-lg mt-6 mb-8 bg-hathor-yellow-500 hover:bg-hathor-yellow-600">
               <Link href='/create'>
                 Start now!
               </Link>

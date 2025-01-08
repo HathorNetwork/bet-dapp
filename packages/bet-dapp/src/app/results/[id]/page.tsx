@@ -165,12 +165,12 @@ export default function ResultsPage() {
         <>
           <Header logo={false} title='Betting' subtitle={`${nanoContract.title} - ${nanoContract.description}`} />
           <div className='flex w-full justify-center items-center flex-col'>
-            <Card className="flex justify-center items-center bg-cover bg-center rounded-lg rounded-tl-none max-w-4xl w-full p-8 sm:p-12 lg:p-16 border border-gray-800 min-h-[440px] min-w-sm">
+            <Card className="flex justify-center items-center bg-cover bg-center rounded-lg max-w-4xl w-full p-8 sm:p-12 lg:p-16 border border-gray-800 min-h-[440px] min-w-sm">
               <CardContent className="w-full flex items-center justify-center flex-col max-w-md">
                 { result && (
                   <>
                     <p className='text-white w-full mb-4 subpixel-antialiased text-2xl'>Winner 🥇</p>
-                    <Button className='bg-hathor-green-500 hover:bg-hathor-green-500 text-white w-full h-12 text-lg'>{ result }</Button>
+                    <div className='bg-hathor-green-500 text-white w-full h-12 text-lg flex items-center justify-center rounded-md'>{ result }</div>
 
                     <p className='text-white w-full mb-4 subpixel-antialiased text-2xl mt-12'>Prize 💰</p>
                     <Button disabled className='bg-hathor-purple-500 w-full text-white disabled:bg-[#21262D] disabled:text-white disabled:opacity-1 text-md h-12'>{ prettyValue(maxWithdrawal) } { EVENT_TOKEN_SYMBOL }</Button>
@@ -182,7 +182,7 @@ export default function ResultsPage() {
 
                         <Button 
                           onClick={() => onWithdraw(maxWithdrawal)}
-                          className='bg-hathor-purple-500 w-full text-white text-md h-12'
+                          className='bg-hathor-yellow-500 hover:bg-hathor-yellow-600 w-full text-white text-md h-12'
                         >
                           Collect your prize
                         </Button>
@@ -199,10 +199,14 @@ export default function ResultsPage() {
                   </>
                 )}
 
+                <div className="flex-grow border-t border-[#484F58] opacity-30 w-full max-w-md mt-12 mb-12"></div>
+                <div className='w-full'>
+                  <TotalBets hash={nanoContract.id} />
+                </div>
+
                 { getUserBets() && (
                   <>
-                    <div className="flex-grow border-t border-[#484F58] w-full max-w-md mt-12 mb-12"></div>
-                    <div className='w-full mb-12'>
+                    <div className='w-full mt-12'>
                       <span className='text-white text-lg'>My bets:</span>
                       {getUserBets()?.map((bet, index) => (
                         <div key={index} className='flex justify-end items-center w-full mt-4'>
@@ -213,17 +217,19 @@ export default function ResultsPage() {
                             <div className={`h-8 px-4 flex items-center rounded-full border ${bet.bet === result ? 'bg-[#1B4332] border-[#2E7D32]' : 'border-[#2F3336] bg-transparent'}`}>
                               <span className='text-white text-sm'>{bet.bet}</span>
                             </div>
-                            <Button variant="outline" className='text-xs text-[#B7BFC7] h-8 px-4 rounded-full border border-[#2F3336] bg-transparent hover:bg-transparent hover:text-[#B7BFC7] hover:border-[#2F3336]'>
+                            <Link 
+                              href={`${EXPLORER_URL}transaction/${nanoContract.id}`}
+                              target="_blank"
+                              className='text-xs text-[#B7BFC7] h-8 px-4 rounded-full border border-[#2F3336] bg-transparent hover:bg-transparent hover:text-[#B7BFC7] hover:border-[#2F3336] flex items-center'
+                            >
                               Details <ArrowUpRight className="h-3 w-3 ml-1" />
-                            </Button>
+                            </Link>
                           </div>
                         </div>
                       ))}
                     </div>
                   </>
                 )}
-
-                <TotalBets hash={nanoContract.id} />
               </CardContent>
             </Card>
 

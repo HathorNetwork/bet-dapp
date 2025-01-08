@@ -21,9 +21,9 @@ const Header = ({ logo, title, subtitle }: HeaderProps) => {
       )}
       { title && (
         <div className='flex flex-col flex-grow mr-4'>
-          <h1 className="text-black text-[32px] font-medium text-left">{title}</h1>
-          <div className='max-h-[96px] overflow-y-auto'>
-            <h2 className="text-black text-[16px] font-normal text-left">{subtitle}</h2>
+          <h1 className="text-black text-[32px] font-medium text-left font-kuenstler">{title}</h1>
+          <div className='max-h-[140px] overflow-y-auto'>
+            <h2 className="text-black text-[20px] font-normal text-left font-kuenstler">{subtitle}</h2>
           </div>
         </div>
       )}

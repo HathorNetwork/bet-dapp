@@ -49,7 +49,7 @@ export default function CreateSuccess() {
               Now it&apos;s time: <span className='text-[#FCB116] subpixel-antialiased font-semibold'>place your bet and have fun.</span>
             </p>
 
-            <Button onClick={placeBet} className='h-12 text-white mt-12 w-48 text-lg subpixel-antialiased font-semibold'>
+            <Button onClick={placeBet} className='h-12 text-white mt-12 w-48 text-lg subpixel-antialiased font-semibold bg-hathor-yellow-500 hover:bg-hathor-yellow-600'>
               Place your bet!
             </Button>
 

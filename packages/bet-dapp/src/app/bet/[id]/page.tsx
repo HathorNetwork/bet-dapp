@@ -283,7 +283,7 @@ export default function BetPage() {
       { (!error && !waitingApproval && !waitingConfirmation) && (
       <>
         <Header logo={false} title='Betting' subtitle={`${nanoContract.title} - ${nanoContract.description}`} />
-        <Card className="relative rounded-lg rounded-tl-none flex items-center bg-cover bg-center shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">
+        <Card className="relative flex items-center bg-cover bg-center rounded-lg shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">
           <CardContent className="w-full flex items-center justify-center flex-col">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-md w-full flex flex-col">
@@ -368,7 +368,7 @@ export default function BetPage() {
 
                 <Button
                   onClick={onSetResult}
-                  className="bg-hathor-purple-500 hover:bg-hathor-purple-600 text-white w-full max-w-md mt-12 h-12 text-md disabled:bg-[#21262D] disabled:text-[#484F58]"
+                  className="bg-hathor-yellow-500 hover:bg-hathor-yellow-600 text-black w-full max-w-md mt-12 h-12 text-md disabled:bg-[#21262D] disabled:text-[#484F58]"
                   disabled={!canSetResult()}
                 >
                   Set result

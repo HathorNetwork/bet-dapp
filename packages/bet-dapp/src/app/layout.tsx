@@ -40,10 +40,11 @@ export default function RootLayout({
   return (
     <html lang="pt-br" className="dark">
       <body className={cn(
-        'min-h-screen bg-background font-sans antialiased',
+        'min-h-screen bg-background font-sans antialiased relative',
         'font-mona-sans',
         inter.variable
       )}>
+        <div className="fixed inset-0 bg-black/15 pointer-events-none" />
         { !walletConnectConnected && (
           <main className="flex min-h-screen items-center justify-center p-6 flex-col">
             <Loader2 size={60} className='text-hathor-purple-500 animate-spin mt-8 mb-8' />

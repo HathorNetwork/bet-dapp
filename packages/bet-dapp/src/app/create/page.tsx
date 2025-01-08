@@ -59,9 +59,15 @@ export default function CreateNanoContractPage() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    mode: 'onChange',
     defaultValues: {
-      answers: [{ text: '' }, { text: '' }]
-    }
+      title: '',
+      description: '',
+      timestamp: addHours(new Date(), 1),
+      answers: [{ text: '' }, { text: '' }],
+      oracleType: 'random',
+      oracle: '',
+    },
   });
 
   const { fields, append, remove } = useFieldArray({

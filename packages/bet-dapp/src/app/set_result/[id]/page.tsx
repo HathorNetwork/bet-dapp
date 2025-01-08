@@ -251,7 +251,7 @@ export default function SetResultPage() {
                     <Button
                       disabled={!connected}
                       type="submit"
-                      className="bg-hathor-purple-500 w-full text-white text-md h-12">
+                      className="bg-hathor-yellow-500 hover:bg-hathor-yellow-600 text-black w-full text-md h-12 disabled:bg-[#21262D] disabled:text-[#484F58]">
                       Set Result
                     </Button>
                   </div>
