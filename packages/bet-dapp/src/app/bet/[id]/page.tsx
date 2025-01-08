@@ -264,19 +264,13 @@ export default function BetPage() {
                   />
 
                   <div className='flex justify-center items-center'>
-                    { connected ? (
-                      <Button
-                        className="bg-hathor-purple-500 w-full text-white disabled:bg-[#21262D] disabled:text-[#484F58] text-md h-12"
-                        type="submit"
-                        disabled={!form.formState.isValid || !!bet || !canPlaceABet()}
-                      >
-                        Place bet!
-                      </Button>
-                    ) : (
-                      <Button className="bg-hathor-purple-500 w-full text-white text-md h-12" onClick={onConnect}>
-                        Connect wallet to place bet
-                      </Button>
-                    )}
+                    <Button 
+                      type="submit"
+                      disabled={!form.formState.isValid || !!bet || !canPlaceABet()}
+                      className="bg-hathor-yellow-500 hover:bg-hathor-yellow-600 text-black disabled:bg-[#21262D] disabled:text-[#484F58] w-full text-md h-12"
+                    >
+                      {connected ? 'Place bet!' : 'Connect wallet to place bet'}
+                    </Button>
                   </div>
                 </form>
 
@@ -286,7 +280,7 @@ export default function BetPage() {
 
                 <Button
                   onClick={onSetResult}
-                  className="bg-hathor-purple-500 w-full text-white max-w-md mt-12 h-12 text-md"
+                  className="bg-hathor-purple-500 hover:bg-hathor-purple-600 text-white w-full max-w-md mt-12 h-12 text-md disabled:bg-[#21262D] disabled:text-[#484F58]"
                   disabled={!canSetResult()}
                 >
                   Set result

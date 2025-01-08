@@ -13,19 +13,21 @@ export interface HeaderProps {
 
 const Header = ({ logo, title, subtitle }: HeaderProps) => {
   return (
-    <div className='container p-0 justify-between flex flex-col sm:flex-row md:flex-row lg:flex-row max-w-4xl'>
+    <div className='container p-0 justify-between flex flex-col sm:flex-row md:flex-row lg:flex-row max-w-4xl mb-16'>
       { logo && (
         <Link href="/" className='flex justify-center md:justify-between lg:justify-between xl:justify-between mb-8 sm:mb-0 md:mb-0 lg:mb-0'>
           <Image alt="Hathor" width={100} height={25} src={`${BASE_PATH}/logo.svg`}/>
         </Link>
       )}
       { title && (
-      <Card className='flex flex-col justify-center p-4 rounded-none rounded-tl-lg rounded-tr-lg bg-[#24292F]'>
-        <p className='text-sm text-gray-200 mb-2'>{ title }</p>
-        <p className='text-2xl subpixel-antialiased font-kuenstler text-[#FCB116]'>{ subtitle }</p>
-      </Card>
+        <div className='flex flex-col flex-grow mr-4'>
+          <h1 className="text-black text-[32px] font-medium text-left">{title}</h1>
+          <div className='max-h-[96px] overflow-y-auto'>
+            <h2 className="text-black text-[16px] font-normal text-left">{subtitle}</h2>
+          </div>
+        </div>
       )}
-      <div className='pt-5 mb-8'>
+      <div className='flex items-center flex-shrink-0'>
         <WalletConnect />
       </div>
     </div>
