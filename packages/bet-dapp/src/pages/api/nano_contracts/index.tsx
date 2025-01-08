@@ -18,6 +18,7 @@ const nanoContractSchema = z.object({
   timestamp: z.number(),
   creatorAddress: z.string(),
   createdAt: z.number(),
+  options: z.array(z.string()),
 });
 
 export default async function handler(

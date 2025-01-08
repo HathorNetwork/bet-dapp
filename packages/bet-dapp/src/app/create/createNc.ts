@@ -14,6 +14,7 @@ export const createNc = async (
   timestamp: number,
   token: string,
   creatorAddress: string,
+  options: string[],
 ): Promise<NanoContract> => {
   const ncTxRpcReq: SendNanoContractRpcRequest = sendNanoContractTxRpcRequest(
     'initialize',
@@ -37,7 +38,17 @@ export const createNc = async (
   }
 
   console.log('Will create tx in dynamodb');
-  await createNanoContractTx(nanoContract, title, description, oracleType, oracle, timestamp, creatorAddress, nanoContract.timestamp);
+  await createNanoContractTx(
+    nanoContract,
+    title,
+    description,
+    oracleType,
+    oracle,
+    timestamp,
+    creatorAddress,
+    nanoContract.timestamp,
+    options
+  );
   console.log('done');
 
   return nanoContract;

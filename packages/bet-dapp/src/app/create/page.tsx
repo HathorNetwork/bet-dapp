@@ -39,7 +39,15 @@ const formSchema = z.object({
     text: z.string().min(1)
   })).min(2),
   oracleType: z.string(),
-  oracle: z.string()
+  oracle: z.string().optional().or(z.literal('')),
+}).refine((data) => {
+  if (data.oracleType === 'manual') {
+    return !!data.oracle;
+  }
+  return true;
+}, {
+  message: "Oracle address is required for manual oracle type",
+  path: ["oracle"]
 });
 
 export default function CreateNanoContractPage() {
@@ -75,11 +83,12 @@ export default function CreateNanoContractPage() {
         hathorRpc,
         values.title,
         values.description,
-        'random',
-        'random',
+        values.oracleType,
+        values.oracleType === 'random' ? firstAddress : values.oracle as string,
         Math.ceil(values.timestamp.getTime() / 1000),
         EVENT_TOKEN,
         firstAddress,
+        values.answers.map(a => a.text),
       );
 
       setWaitingApproval(false);
@@ -87,6 +96,7 @@ export default function CreateNanoContractPage() {
       await waitForTransactionConfirmation(nc.hash as string);
       router.push(`/create/success/${nc.hash}`);
     } catch (e) {
+      console.log('Got error: ', e);
       setError(true);
     } finally {
       setWaitingApproval(false);

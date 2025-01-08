@@ -10,6 +10,7 @@ export const createNanoContractTx = async (
   timestamp: number,
   creatorAddress: string,
   createdAt: number,
+  options: string[],
 ) => {
   const response: Response = await fetch(`${URL}/api/nano_contracts`, {
     method: 'POST',
@@ -18,13 +19,14 @@ export const createNanoContractTx = async (
     },
     body: JSON.stringify({
       id: nanoContract.hash,
+      timestamp,
       title,
-      description,
       oracleType,
       oracle,
-      timestamp,
+      description,
       creatorAddress,
       createdAt,
+      options,
     }),
   });
 

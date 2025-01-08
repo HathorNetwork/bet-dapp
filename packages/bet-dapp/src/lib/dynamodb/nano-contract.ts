@@ -25,6 +25,7 @@ export interface NanoContract {
   description?: string;
   creatorAddress?: string;
   createdAt: number;
+  options: string[];
 }
 
 export interface DynamoNanoContract {
@@ -36,9 +37,10 @@ export interface DynamoNanoContract {
   description?: AttributeValue;
   creatorAddress?: AttributeValue;
   createdAt: AttributeValue;
+  options: AttributeValue;
 }
 
-const getNanoContractEntity = ({ id, title, description, timestamp, oracle, oracleType, creatorAddress, createdAt }: DynamoNanoContract) => {
+const getNanoContractEntity = ({ id, title, description, timestamp, oracle, oracleType, creatorAddress, createdAt, options }: DynamoNanoContract) => {
   const nanoContract: Partial<NanoContract> = {};
   nanoContract.id = id.S;
   nanoContract.title = title.S;
@@ -48,6 +50,7 @@ const getNanoContractEntity = ({ id, title, description, timestamp, oracle, orac
   nanoContract.timestamp = timestamp?.N ? parseFloat(timestamp.N) : undefined;
   nanoContract.creatorAddress = creatorAddress?.S;
   nanoContract.createdAt = createdAt?.N ? parseFloat(createdAt.N) : undefined;
+  nanoContract.options = options?.L?.map(item => item.S) || [];
 
   return nanoContract as NanoContract;
 };
@@ -61,6 +64,7 @@ export const createNanoContract = async ({
   description,
   creatorAddress,
   createdAt,
+  options,
 }: NanoContract): Promise<NanoContract> => {
   const params: PutItemCommandInput = {
     TableName: TABLE_NAME,
@@ -73,6 +77,9 @@ export const createNanoContract = async ({
       oracle: { S: oracle },
       creatorAddress: { S: creatorAddress || '' },
       createdAt: { N: createdAt.toString() },
+      options: { 
+        L: options.map(option => ({ S: option }))
+      },
     },
   };
 
@@ -87,13 +94,14 @@ export const createNanoContract = async ({
     description,
     creatorAddress,
     createdAt,
+    options,
   };
 }
 
 export const getAllNanoContracts = async () => {
   const params: ScanCommandInput = {
     TableName: TABLE_NAME,
-    ProjectionExpression: '#ts, id, title, description, oracleType, oracle, creatorAddress, createdAt',
+    ProjectionExpression: '#ts, id, title, description, oracleType, oracle, creatorAddress, createdAt, options',
     ExpressionAttributeNames: {
       '#ts': 'timestamp',
     },
@@ -117,7 +125,7 @@ export const getNanoContractById = async (id: string) => {
     Key: {
       id: { S: id },
     },
-    ProjectionExpression: '#ts, id, title, description, oracleType, oracle, creatorAddress, createdAt',
+    ProjectionExpression: '#ts, id, title, description, oracleType, oracle, creatorAddress, createdAt, options',
     ExpressionAttributeNames: {
       '#ts': 'timestamp',
     },
