@@ -4,7 +4,7 @@ import React, { useCallback, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Header } from '@/components/header';
 import { z } from 'zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input'
@@ -23,26 +23,23 @@ import { useRouter } from 'next/navigation';
 import { waitForTransactionConfirmation } from '@/lib/utils';
 import { EVENT_TOKEN, EVENT_TOKEN_SYMBOL } from '@/constants';
 import { BASE_PATH } from '@/constants';
+import { Plus } from 'lucide-react';
+import { Label } from "@/components/ui/label";
+import { DateTimePicker } from '@/components/ui/datetime-picker';
 
 function formatLocalDateTime(date: Date): string {
   return format(date, 'yyyy-MM-dd\'T\'HH:mm');
 }
 
 const formSchema = z.object({
-  name: z.string().min(2),
-  description: z.string().optional(),
-  oracleType: z.enum(['publicKey', 'random']), // Ensure oracleType is either 'publicKey' or 'random'
-  oracle: z.string().optional(),
-  lastBetAt: z.date(),
-}).refine((data) => {
-  // Enforce that 'oracle' is required when 'oracleType' is 'publicKey'
-  if (data.oracleType === 'publicKey') {
-    return !!data.oracle;
-  }
-  return true;
-}, {
-  path: ['oracle'], // Specify the path of the error
-  message: 'Public Key is required when Oracle Type is Public Key',
+  title: z.string().min(2),
+  description: z.string().min(2),
+  timestamp: z.date(),
+  answers: z.array(z.object({
+    text: z.string().min(1)
+  })).min(2),
+  oracleType: z.string(),
+  oracle: z.string()
 });
 
 export default function CreateNanoContractPage() {
@@ -54,13 +51,14 @@ export default function CreateNanoContractPage() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    mode: 'onChange',
     defaultValues: {
-      name: '',
-      description: '',
-      oracleType: 'random',
-      lastBetAt: addHours(new Date(), 2),
-    },
+      answers: [{ text: '' }, { text: '' }]
+    }
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "answers"
   });
 
   const { hathorRpc } = useJsonRpc();
@@ -75,11 +73,11 @@ export default function CreateNanoContractPage() {
       await new Promise((resolve) => setTimeout(resolve, 500));
       const nc = await createNc(
         hathorRpc,
-        values.name,
-        values.description || '',
-        values.oracleType,
-        values.oracleType === 'random' ? firstAddress : values.oracle as string,
-        Math.ceil(values.lastBetAt.getTime() / 1000),
+        values.title,
+        values.description,
+        'random',
+        'random',
+        Math.ceil(values.timestamp.getTime() / 1000),
         EVENT_TOKEN,
         firstAddress,
       );
@@ -111,8 +109,6 @@ export default function CreateNanoContractPage() {
     router.replace('/');
   }, [router]);
 
-  const oracleTypeValue = form.watch('oracleType');
-
   return (
     <main className="flex min-h-screen items-center justify-center p-6 flex-col bg-cover bg-papyrus-background">
       <Header logo={true} />
@@ -133,25 +129,23 @@ export default function CreateNanoContractPage() {
         <WaitInput title='Waiting Approval' description='Please, approve this transaction on your phone' />
       )}
       { (!error && !waitingApproval && !waitingConfirmation) && (
-        <Card className="relative flex items-center bg-cover bg-center rounded-lg shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">
-          <CardContent className="w-full flex items-center justify-center flex-col">
-            <h1 className='text-4xl subpixel-antialiased text-bold font-kuenstler text-[#FCB116]'>Create your Nano Contract</h1>
-            <p className='pb-16'>Create your own betting contracts and claim your spot in the sands of Hathor! </p>
+        <Card className="relative flex items-start bg-cover bg-center rounded-lg shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">
+          <CardContent className="w-full">
+            <div className="text-center mb-16">
+              <h1 className='text-4xl subpixel-antialiased text-bold font-kuenstler text-white mb-2'>Create your Nano Contract</h1>
+              <p className='text-white'>Create your own betting contracts and claim your spot in the sands of Hathor!</p>
+            </div>
 
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-md w-full flex flex-col">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 w-full">
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="title"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Name of the Main Event</FormLabel>
                       <FormControl>
-                        <Input
-                          className="w-full h-12"
-                          placeholder="E.g. Olympic Games"
-                          {...field}
-                        />
+                        <Input placeholder="Olympic Games" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -165,57 +159,85 @@ export default function CreateNanoContractPage() {
                     <FormItem>
                       <FormLabel>Description</FormLabel>
                       <FormControl>
-                        <Textarea
-                          className="w-full h-24"
-                          placeholder="E.g. Men's Football Final"
-                          {...field}
-                        />
+                        <Input placeholder="Men's Football Final" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                {/* Oracle Type Field (Select) */}
+                <div className="space-y-4">
+                  <Label>Add Answers</Label>
+                  {fields.map((field, index) => (
+                    <FormField
+                      key={field.id}
+                      control={form.control}
+                      name={`answers.${index}.text`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex items-center gap-8">
+                            <FormLabel className="min-w-[80px] text-sm">Option {index + 1}</FormLabel>
+                            <div className="flex-1">
+                              <FormControl>
+                                <Input placeholder={`E.g. ${index === 0 ? 'Yes' : 'No'}`} {...field} />
+                              </FormControl>
+                            </div>
+                            {index >= 2 && (
+                              <Button 
+                                type="button"
+                                variant="secondary"
+                                onClick={() => remove(index)}
+                              >
+                                Remove
+                              </Button>
+                            )}
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  ))}
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      onClick={() => append({ text: '' })}
+                      variant="outline"
+                      className="flex items-center gap-2 bg-[#21262D] border-0 text-white hover:text-white hover:bg-[#2c3238]"
+                    >
+                      <Plus size={16} /> Add another
+                    </Button>
+                  </div>
+                </div>
+
                 <FormField
                   control={form.control}
                   name="oracleType"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Oracle Type</FormLabel>
-                      <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                          defaultValue="Random"
-                        >
-                          <SelectTrigger className="w-full h-12">
-                            <SelectValue placeholder="Select one" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="random">Random</SelectItem>
-                            <SelectItem value="publicKey">Choose your oracle</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <SelectTrigger className="bg-[#21262D] border-0 text-white h-12">
+                          <SelectValue placeholder="Select oracle type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="random">Random</SelectItem>
+                          <SelectItem value="manual">Manual</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                {oracleTypeValue === "publicKey" && (
+                {form.watch('oracleType') === 'manual' && (
                   <FormField
                     control={form.control}
                     name="oracle"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Oracle</FormLabel>
+                        <FormLabel>Oracle Address</FormLabel>
                         <FormControl>
-                          <Input
-                            className="w-full h-12"
-                            placeholder="E.g. WejPRb...3y5Mq"
-                            {...field}
-                          />
+                          <Input placeholder="Enter oracle address" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -225,19 +247,12 @@ export default function CreateNanoContractPage() {
 
                 <FormField
                   control={form.control}
-                  name="lastBetAt"
+                  name="timestamp"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Last Bet At</FormLabel>
+                      <FormLabel>Last time to place a bet</FormLabel>
                       <FormControl>
-                        <Input
-                          type="datetime-local"
-                          value={field.value ? formatLocalDateTime(field.value) : ""}
-                          onChange={(e) => field.onChange(
-                            new Date(e.target.value || new Date().getTime())
-                          )}
-                          className="w-full h-12"
-                        />
+                        <DateTimePicker value={field.value} onChange={field.onChange} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

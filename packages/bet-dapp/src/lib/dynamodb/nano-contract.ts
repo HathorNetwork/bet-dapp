@@ -12,7 +12,7 @@ import {
   ScanCommand,
   ScanCommandInput,
 } from '@aws-sdk/client-dynamodb';
-import dynamodb from './dynamodb-client';
+import dynamoDb from './dynamodb-client';
 
 export const TABLE_NAME = 'NanoContracts';
 
@@ -76,7 +76,7 @@ export const createNanoContract = async ({
     },
   };
 
-  await dynamodb.send(new PutItemCommand(params));
+  await dynamoDb.send(new PutItemCommand(params));
 
   return {
     id,
@@ -103,7 +103,7 @@ export const getAllNanoContracts = async () => {
   let items;
 
   do {
-    items = await dynamodb.send(new ScanCommand(params));
+    items = await dynamoDb.send(new ScanCommand(params));
     items.Items?.forEach((item) => scanResults.push(item as unknown as DynamoNanoContract));
     params.ExclusiveStartKey = items.LastEvaluatedKey;
   } while (typeof items.LastEvaluatedKey !== "undefined");
@@ -123,7 +123,7 @@ export const getNanoContractById = async (id: string) => {
     },
   };
 
-  const data = await dynamodb.send(
+  const data = await dynamoDb.send(
     new GetItemCommand(params)
   );
 
@@ -152,7 +152,7 @@ export const getNanoContractsByCreator = async (creatorAddress: string) => {
   let items;
 
   do {
-    items = await dynamodb.send(new QueryCommand(params));
+    items = await dynamoDb.send(new QueryCommand(params));
     items.Items?.forEach((item) => queryResults.push(item as unknown as DynamoNanoContract));
     params.ExclusiveStartKey = items.LastEvaluatedKey;
   } while (typeof items.LastEvaluatedKey !== "undefined");
@@ -202,11 +202,11 @@ export const params: CreateTableInput = {
 };
 
 export async function createTable() {
-  await dynamodb.send(new CreateTableCommand(params));
+  await dynamoDb.send(new CreateTableCommand(params));
 };
 
 export async function deleteTable() {
-  await dynamodb.send(new DeleteTableCommand({
+  await dynamoDb.send(new DeleteTableCommand({
     TableName: TABLE_NAME,
   }));
 }

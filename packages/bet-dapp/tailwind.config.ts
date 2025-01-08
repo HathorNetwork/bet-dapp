@@ -45,6 +45,10 @@ const config = {
           600: '#542A99',
           700: '#2A154D',
         },
+        'hathor-yellow': {
+          500: '#FFC107',
+          600: '#FFCD38',
+        },
         'hathor-green': {
           100: '#EEFBEB',
           200: '#DEF7D8',
