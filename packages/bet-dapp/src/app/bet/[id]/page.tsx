@@ -29,11 +29,43 @@ import { extractDataFromHistory, waitForTransactionConfirmation } from '@/lib/ut
 import { Transaction } from '@hathor/wallet-lib';
 import { IHistoryTx } from '@hathor/wallet-lib/lib/types';
 import { BASE_PATH } from '@/constants';
+import styled from 'styled-components';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 
 const formSchema = z.object({
   bet: z.string().min(2),
   amount: z.coerce.number(),
 });
+
+const OptionsContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  width: 100%;
+`;
+
+const BetOption = styled.button<{ selected?: boolean }>`
+  padding: 1rem;
+  background: ${props => props.selected ? '#FFC107' : '#21262D'};
+  color: ${props => props.selected ? 'black' : 'white'};
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: ${props => props.selected ? '#FFC107' : '#2c3238'};
+  }
+
+  span:last-child {
+    font-size: 0.875rem;
+    opacity: 0.8;
+  }
+`;
 
 export default function BetPage() {
   const router = useRouter();
@@ -236,12 +268,43 @@ export default function BetPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className='text-white text-xl subpixel-antialiased'>Your bet</FormLabel>
-                        <FormControl>
-                          <>
-                            {!bet && (<Input placeholder='E.g. Brazil' className="w-full text-lg h-12 text-center" {...field} />)}
-                            { bet && <p className='h-12 bg-[#21262D] flex items-center justify-center text-white w-full text-lg font-semibold'>{bet.bet}</p>}
-                          </>
-                        </FormControl>
+                        {nanoContract.options.length === 2 ? (
+                          // Show side-by-side buttons for 2 options
+                          <OptionsContainer>
+                            {nanoContract.options.map((option) => (
+                              <BetOption
+                                key={option}
+                                type="button"
+                                selected={field.value === option}
+                                onClick={() => field.onChange(option)}
+                              >
+                                <span>{option}</span>
+                                <span>Total bet: %</span>
+                              </BetOption>
+                            ))}
+                          </OptionsContainer>
+                        ) : (
+                          // Show dropdown for more than 2 options
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <SelectTrigger className="bg-[#21262D] border-0 text-white h-12 text-2xl pl-6 [&>svg]:text-white">
+                              <SelectValue placeholder="Select answer" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-[#21262D] border-0">
+                              {nanoContract.options.map((option) => (
+                                <SelectItem 
+                                  key={option} 
+                                  value={option}
+                                  className="flex justify-between items-center text-white hover:bg-[#FFC107] hover:text-black focus:bg-[#FFC107] focus:text-black cursor-pointer py-3 pl-6"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <span className="text-2xl font-bold">{option}</span>
+                                    <span className="text-gray-400 text-lg hover:text-black/60">- Total bet: 52%</span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
                         <FormMessage />
                       </FormItem>
                     )}
