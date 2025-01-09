@@ -166,6 +166,8 @@ export default function SetResultPage() {
   }, [form, onSubmit]);
 
   const onCancel = useCallback(() => {
+    setWaitingApproval(false);
+    setWaitingConfirmation(false);
     setError(false);
   }, []);
 
@@ -187,7 +189,7 @@ export default function SetResultPage() {
           title='Error during confirmation'
           description='The connection was not approved on your phone. Please, try again.'
           tryAgainText='Try again'
-          cancelText='Modify Result'
+          cancelText='Go to home'
           onTryAgain={onTryAgain}
           onCancel={onCancel}
         />
@@ -196,10 +198,10 @@ export default function SetResultPage() {
         <WaitInput title='Loading' description='Loading bet history, please wait.' />
       )}
       { waitingConfirmation && (
-        <WaitInput title='Waiting Network Confirmation' description='Waiting for a block to confirm this transaction.' />
+        <WaitInput title='Waiting Network Confirmation' description='Waiting for a block to confirm this transaction.' onCancel={onCancel} />
       )}
       { waitingApproval && (
-        <WaitInput title='Waiting Approval' description='Please, approve this transaction on your phone' />
+        <WaitInput title='Waiting Approval' description='Please, approve this transaction on your phone.' onCancel={onCancel} />
       )}
       { (!error && !waitingApproval && !waitingConfirmation && !loading) && (
       <>

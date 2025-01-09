@@ -86,12 +86,12 @@ export default function ResultsPage() {
     const address = getFirstAddress();
     const addressField = `address_details.a'${address}'`;
     const fields = fullnodeNanoContract.fields;
-    const addressDetails = get(fields, addressField, null);
+    const addressDetails = get(fields, addressField, null) as { value: Record<string, number> } | null;
     if (!addressDetails?.value) return null;
 
     return Object.entries(addressDetails.value).map(([bet, amount]) => ({
       bet,
-      amount: amount as number
+      amount: amount
     }));
   };
 
@@ -135,6 +135,8 @@ export default function ResultsPage() {
   }, [onWithdraw, maxWithdrawal]);
 
   const onCancel = useCallback(() => {
+    setWaitingApproval(false);
+    setWaitingConfirmation(false);
     setError(false);
   }, []);
 
@@ -145,18 +147,18 @@ export default function ResultsPage() {
   return (
     <main className="flex min-h-screen justify-center items-center p-6 flex-col bg-cover bg-papyrus-background">
       { waitingApproval && (
-        <WaitInput title='Waiting Approval' description='Please, approve the withdraw transaction on your phone' />
+        <WaitInput title='Waiting Approval' description='Please, approve this transaction on your phone.' onCancel={onCancel} />
       )}
 
       { waitingConfirmation && (
-        <WaitInput title='Waiting Network Confirmation' description='Waiting for a block to confirm this transaction.' />
+        <WaitInput title='Waiting Network Confirmation' description='Waiting for a block to confirm this transaction.' onCancel={onCancel} />
       )}
       { error && (
         <ResultError
           title='Error during confirmation'
           description='The connection was not approved on your phone. Please, try again.'
           tryAgainText='Try again'
-          cancelText='Go back'
+          cancelText='Go to home'
           onTryAgain={onTryAgain}
           onCancel={onCancel}
         />

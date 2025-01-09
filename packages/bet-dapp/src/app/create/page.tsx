@@ -122,8 +122,10 @@ export default function CreateNanoContractPage() {
   };
 
   const onCancel = useCallback(() => {
-    router.replace('/');
-  }, [router]);
+    setWaitingApproval(false);
+    setWaitingConfirmation(false);
+    setError(false);
+  }, []);
 
   return (
     <main className="flex min-h-screen items-center justify-center p-6 flex-col bg-cover bg-papyrus-background">
@@ -139,10 +141,10 @@ export default function CreateNanoContractPage() {
         />
       )}
       { waitingConfirmation && (
-        <WaitInput title='Waiting Network Confirmation' description='Waiting for a block to confirm this transaction.' />
+        <WaitInput title='Waiting Network Confirmation' description='Waiting for a block to confirm this transaction.' onCancel={onCancel} />
       )}
       { waitingApproval && (
-        <WaitInput title='Waiting Approval' description='Please, approve this transaction on your phone' />
+        <WaitInput title='Waiting Approval' description='Please, approve this transaction on your phone' onCancel={onCancel} />
       )}
       { (!error && !waitingApproval && !waitingConfirmation) && (
         <Card className="relative flex items-start bg-cover bg-center rounded-lg shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">
@@ -287,7 +289,7 @@ export default function CreateNanoContractPage() {
 
                 <div className='flex justify-center items-center pt-8'>
                   <Button
-                    className="bg-hathor-purple-500 text-white w-40 disabled:bg-[#21262D] disabled:text-[#484F58]"
+                    className="bg-hathor-yellow-500 hover:bg-hathor-yellow-600 text-black w-40 disabled:bg-[#21262D] disabled:text-[#484F58]"
                     type="submit"
                     onClick={(e) => !session ? handleNotConnected(e) : null}
                     disabled={!form.formState.isValid}

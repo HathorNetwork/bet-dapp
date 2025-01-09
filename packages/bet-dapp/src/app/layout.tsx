@@ -47,7 +47,7 @@ export default function RootLayout({
         <div className="fixed inset-0 bg-black/15 pointer-events-none" />
         { !walletConnectConnected && (
           <main className="flex min-h-screen items-center justify-center p-6 flex-col">
-            <Loader2 size={60} className='text-hathor-purple-500 animate-spin mt-8 mb-8' />
+            <Loader2 size={60} className='text-hathor-yellow-500 animate-spin mt-8 mb-8' />
           </main>
         )}
         { walletConnectConnected && (

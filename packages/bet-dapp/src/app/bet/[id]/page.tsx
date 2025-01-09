@@ -223,6 +223,8 @@ export default function BetPage() {
   }, [form, onSubmit]);
 
   const onCancel = useCallback(() => {
+    setWaitingApproval(false);
+    setWaitingConfirmation(false);
     setError(false);
   }, []);
 
@@ -263,121 +265,124 @@ export default function BetPage() {
   const betPercentages = calculateBetPercentages(fullnodeNanoContract, nanoContract?.options || []);
   return (
     <main className="flex min-h-screen items-center justify-center p-6 flex-col bg-cover bg-papyrus-background">
-      { error && (
-        <ResultError
-          title='Error during confirmation'
-          description='The bet was not approved on your phone. Please, try again.'
-          tryAgainText='Try again'
-          cancelText='Modify bet'
-          onTryAgain={onTryAgain}
-          onCancel={onCancel}
-        />
-      )}
-      { waitingApproval && (
-        <WaitInput title='Waiting Approval' description='Please, approve this transaction on your phone.' />
-      )}
-
-      { waitingConfirmation && (
-        <WaitInput title='Waiting Network Confirmation' description='Waiting for a block to confirm this transaction.' />
-      )}
-      { (!error && !waitingApproval && !waitingConfirmation) && (
       <>
-        <Header logo={false} title='Betting' subtitle={`${nanoContract.title} - ${nanoContract.description}`} />
-        <Card className="relative flex items-center bg-cover bg-center rounded-lg shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">
-          <CardContent className="w-full flex items-center justify-center flex-col">
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-md w-full flex flex-col">
-                  <FormField
-                    control={form.control}
-                    name="bet"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className='text-white text-xl subpixel-antialiased'>Your bet</FormLabel>
-                        {nanoContract.options.length === 2 ? (
-                          // Show side-by-side buttons for 2 options
-                          <OptionsContainer>
-                            {nanoContract.options.map((option) => (
-                              <BetOption
-                                key={option}
-                                type="button"
-                                selected={field.value === option}
-                                onClick={() => field.onChange(option)}
-                              >
-                                <span>{option}</span>
-                                <span>Total bet: {betPercentages[option] || 0}%</span>
-                              </BetOption>
-                            ))}
-                          </OptionsContainer>
-                        ) : (
-                          // Show dropdown for more than 2 options
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <SelectTrigger className="bg-[#21262D] border-0 text-white h-12 text-lg pl-6 [&>svg]:text-white">
-                              <SelectValue placeholder="Select answer" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-[#21262D] border-0">
-                              {nanoContract.options.map((option) => (
-                                <SelectItem 
-                                  key={option} 
-                                  value={option}
-                                  className="flex justify-between items-center text-white hover:bg-[#FFC107] hover:text-black focus:bg-[#FFC107] focus:text-black cursor-pointer py-3 pl-6 group"
-                                >
-                                  <div className="flex items-center gap-3">
-                                    <span className="text-lg font-medium">{option}</span>
-                                    <span className="text-sm text-gray-300 group-hover:text-black/70">- Total bet: {betPercentages[option] || 0}%</span>
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+        { error && (
+          <ResultError
+            title='Error during confirmation'
+            description='The connection was not approved on your phone. Please, try again.'
+            tryAgainText='Try again'
+            cancelText='Go to home'
+            onTryAgain={onTryAgain}
+            onCancel={onCancel}
+          />
+        )}
+
+        { waitingApproval && (
+          <WaitInput title='Waiting Approval' description='Please, approve this transaction on your phone.' onCancel={onCancel} />
+        )}
+
+        { waitingConfirmation && (
+          <WaitInput title='Waiting Network Confirmation' description='Waiting for a block to confirm this transaction.' onCancel={onCancel} />
+        )}
+        { (!error && !waitingApproval && !waitingConfirmation) && (
+          <>
+            <Header logo={false} title='Betting' subtitle={`${nanoContract.title} - ${nanoContract.description}`} />
+            <Card className="relative flex items-center bg-cover bg-center rounded-lg shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">
+              <CardContent className="w-full flex items-center justify-center flex-col">
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-md w-full flex flex-col">
+                      <FormField
+                        control={form.control}
+                        name="bet"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className='text-white text-xl subpixel-antialiased'>Your bet</FormLabel>
+                            {nanoContract.options.length === 2 ? (
+                              // Show side-by-side buttons for 2 options
+                              <OptionsContainer>
+                                {nanoContract.options.map((option) => (
+                                  <BetOption
+                                    key={option}
+                                    type="button"
+                                    selected={field.value === option}
+                                    onClick={() => field.onChange(option)}
+                                  >
+                                    <span>{option}</span>
+                                    <span>Total bet: {betPercentages[option] || 0}%</span>
+                                  </BetOption>
+                                ))}
+                              </OptionsContainer>
+                            ) : (
+                              // Show dropdown for more than 2 options
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <SelectTrigger className="bg-[#21262D] border-0 text-white h-12 text-lg pl-6 [&>svg]:text-white">
+                                  <SelectValue placeholder="Select answer" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-[#21262D] border-0">
+                                  {nanoContract.options.map((option) => (
+                                    <SelectItem 
+                                      key={option} 
+                                      value={option}
+                                      className="flex justify-between items-center text-white hover:bg-[#FFC107] hover:text-black focus:bg-[#FFC107] focus:text-black cursor-pointer py-3 pl-6 group"
+                                    >
+                                      <div className="flex items-center gap-3">
+                                        <span className="text-lg font-medium">{option}</span>
+                                        <span className="text-sm text-gray-300 group-hover:text-black/70">- Total bet: {betPercentages[option] || 0}%</span>
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            )}
+                            <FormMessage />
+                          </FormItem>
                         )}
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="amount"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className='text-white text-xl subpixel-antialiased'>Amount</FormLabel>
-                        <FormControl>
-                          <>
-                            {!bet && <Input type="number" placeholder={`E.g. 1000 ${EVENT_TOKEN_SYMBOL}`} className="w-full text-lg h-12 text-center" {...field} /> }
-                            { bet && <p className='h-12 bg-[#21262D] flex items-center justify-center text-white w-full text-lg font-semibold'>{bet.amount} {EVENT_TOKEN_SYMBOL}</p>}
-                          </>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      />
+                      <FormField
+                        control={form.control}
+                        name="amount"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className='text-white text-xl subpixel-antialiased'>Amount</FormLabel>
+                            <FormControl>
+                              <>
+                                {!bet && <Input type="number" placeholder={`E.g. 1000 ${EVENT_TOKEN_SYMBOL}`} className="w-full text-lg h-12 text-center" {...field} /> }
+                                { bet && <p className='h-12 bg-[#21262D] flex items-center justify-center text-white w-full text-lg font-semibold'>{bet.amount} {EVENT_TOKEN_SYMBOL}</p>}
+                              </>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                  <div className='flex justify-center items-center'>
-                    <Button 
-                      type="submit"
-                      disabled={!form.formState.isValid || !!bet || !canPlaceABet()}
-                      className="bg-hathor-yellow-500 hover:bg-hathor-yellow-600 text-black disabled:bg-[#21262D] disabled:text-[#484F58] w-full text-md h-12"
+                      <div className='flex justify-center items-center'>
+                        <Button 
+                          type="submit"
+                          disabled={!form.formState.isValid || !!bet || !canPlaceABet()}
+                          className="bg-hathor-yellow-500 hover:bg-hathor-yellow-600 text-black disabled:bg-[#21262D] disabled:text-[#484F58] w-full text-md h-12"
+                        >
+                          {connected ? 'Place bet!' : 'Connect wallet to place bet'}
+                        </Button>
+                      </div>
+                    </form>
+
+                    <div className="flex-grow border-t border-[#484F58] w-full max-w-md mt-12 mb-12"></div>
+
+                    <TotalBets hash={nanoContract.id} />
+
+                    <Button
+                      onClick={onSetResult}
+                      className="bg-hathor-yellow-500 hover:bg-hathor-yellow-600 text-black w-full max-w-md mt-12 h-12 text-md disabled:bg-[#21262D] disabled:text-[#484F58]"
+                      disabled={!canSetResult()}
                     >
-                      {connected ? 'Place bet!' : 'Connect wallet to place bet'}
+                      Set result
                     </Button>
-                  </div>
-                </form>
-
-                <div className="flex-grow border-t border-[#484F58] w-full max-w-md mt-12 mb-12"></div>
-
-                <TotalBets hash={nanoContract.id} />
-
-                <Button
-                  onClick={onSetResult}
-                  className="bg-hathor-yellow-500 hover:bg-hathor-yellow-600 text-black w-full max-w-md mt-12 h-12 text-md disabled:bg-[#21262D] disabled:text-[#484F58]"
-                  disabled={!canSetResult()}
-                >
-                  Set result
-                </Button>
-              </Form>
-          </CardContent>
-        </Card>
-        </>
-      )}
+                  </Form>
+              </CardContent>
+            </Card>
+          </>
+        )}
+      </>
       <Link href="/" className='flex justify-between mt-24'>
         <Image alt="Hathor" width={100} height={25} src={`${BASE_PATH}/logo.svg`}/>
       </Link>
