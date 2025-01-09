@@ -1,5 +1,7 @@
 FROM node:18-alpine AS base
 
+ARG ENVIRONMENT=production
+
 # Install dependencies only when needed
 FROM base AS builder
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
@@ -23,11 +25,21 @@ RUN \
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED=1
 
-ENV NEXT_PUBLIC_URL=https://betting.hathor.network/
+ARG NEXT_PUBLIC_URL=https://betting.hathor.network/
+ENV NEXT_PUBLIC_URL=$NEXT_PUBLIC_URL
 ENV NEXT_PUBLIC_BASE_PATH=/public
 
 COPY packages/bet-dapp ./packages/bet-dapp
-RUN cp ./packages/bet-dapp/next.config.production.mjs ./packages/bet-dapp/next.config.mjs
+
+# Selects the right next.config file based on the environment
+RUN if [ "$ENVIRONMENT" = "production" ]; then \
+  cp ./packages/bet-dapp/next.config.production.mjs ./packages/bet-dapp/next.config.mjs
+else if [ "$ENVIRONMENT" = "staging" ]; then \
+  cp ./packages/bet-dapp/next.config.staging.mjs ./packages/bet-dapp/next.config.mjs
+else \
+  echo "Invalid ARG environment"; \
+  exit 1; \
+fi
 
 RUN \
   yarn workspace bet-dapp run build

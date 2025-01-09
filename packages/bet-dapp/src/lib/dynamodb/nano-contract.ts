@@ -14,7 +14,7 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import dynamoDb from './dynamodb-client';
 
-export const TABLE_NAME = 'NanoContracts';
+export const TABLE_NAME = process.env.TABLE_NAME || 'NanoContracts';
 
 export interface NanoContract {
   id: string;

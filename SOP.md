@@ -36,7 +36,7 @@ aws sso login --profile nano-testnet
 ```
 ## Deploying new versions
 
-### Building and pushing the image
+### Building and pushing the production image
 
 ```bash
 aws ecr get-login-password --region ap-southeast-1 --profile nano-testnet | docker login --username AWS --password-stdin 471112952246.dkr.ecr.ap-southeast-1.amazonaws.com
@@ -44,6 +44,16 @@ aws ecr get-login-password --region ap-southeast-1 --profile nano-testnet | dock
 docker build -t 471112952246.dkr.ecr.ap-southeast-1.amazonaws.com/bet-dapp:latest .
 
 docker push 471112952246.dkr.ecr.ap-southeast-1.amazonaws.com/bet-dapp:latest
+```
+
+### Building and pushing the staging image
+
+```bash
+aws ecr get-login-password --region ap-southeast-1 --profile nano-testnet | docker login --username AWS --password-stdin 471112952246.dkr.ecr.ap-southeast-1.amazonaws.com
+
+docker build --build-arg ENVIRONMENT=staging --build-arg NEXT_PUBLIC_URL="https://staging.betting.hathor.network/" -t 471112952246.dkr.ecr.ap-southeast-1.amazonaws.com/bet-dapp:staging-latest .
+
+docker push 471112952246.dkr.ecr.ap-southeast-1.amazonaws.com/bet-dapp:staging-latest
 ```
 
 ### Accessing the instance
@@ -54,6 +64,8 @@ aws ec2 describe-instances --profile nano-testnet --filters "Name=tag:Name,Value
 
 ssh ec2-user@<instance-ip>
 ```
+
+To access the staging instance, just change the name tag to `bet-dapp-staging`.
 
 ### Login to Docker in the instance
 
