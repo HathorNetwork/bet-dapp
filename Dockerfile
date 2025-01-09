@@ -33,13 +33,13 @@ COPY packages/bet-dapp ./packages/bet-dapp
 
 # Selects the right next.config file based on the environment
 RUN if [ "$ENVIRONMENT" = "production" ]; then \
-  cp ./packages/bet-dapp/next.config.production.mjs ./packages/bet-dapp/next.config.mjs
-else if [ "$ENVIRONMENT" = "staging" ]; then \
-  cp ./packages/bet-dapp/next.config.staging.mjs ./packages/bet-dapp/next.config.mjs
-else \
-  echo "Invalid ARG environment"; \
-  exit 1; \
-fi
+    cp ./packages/bet-dapp/next.config.production.mjs ./packages/bet-dapp/next.config.mjs; \
+  else if [ "$ENVIRONMENT" = "staging" ]; then \
+    cp ./packages/bet-dapp/next.config.staging.mjs ./packages/bet-dapp/next.config.mjs; \
+  else \
+    echo "Invalid ARG environment"; \
+    exit 1; \
+  fi
 
 RUN \
   yarn workspace bet-dapp run build
