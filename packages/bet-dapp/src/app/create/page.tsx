@@ -148,7 +148,7 @@ export default function CreateNanoContractPage() {
         <Card className="relative flex items-start bg-cover bg-center rounded-lg shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">
           <CardContent className="w-full">
             <div className="text-center mb-16">
-              <h1 className='text-4xl subpixel-antialiased text-bold font-kuenstler text-white mb-2'>Create your Nano Contract</h1>
+              <h1 className='text-4xl subpixel-antialiased text-bold font-kuenstler text-white mb-2'>Create your Bet</h1>
               <p className='text-white'>Create your own betting contracts and claim your spot in the sands of Hathor!</p>
             </div>
 
