@@ -130,7 +130,13 @@ The table is defined in the file `terraform/bet-dapp/dynamodb.tf`
 
 Refer to the [Terraform documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/dynamodb_table) for more information on how to define the table.
 
-Apply the changes by running:
+Apply the changes in staging by running:
+
+```bash
+make apply-staging
+```
+
+Apply the changes in production by running:
 
 ```bash
 make apply
@@ -149,7 +155,13 @@ Refer to the Terraform documentation on the following resources for more informa
 - [aws_iam_instance_profile](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_instance_profile)
 - [aws_iam_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy)
 
-Apply the changes by running:
+Apply the changes in staging by running:
+
+```bash
+make apply-staging
+```
+
+Apply the changes in production by running:
 
 ```bash
 make apply
@@ -163,7 +175,7 @@ The provisioning script is defined in the file `terraform/bet-dapp/scripts/provi
 
 It's a cloud-init script that runs when the instance is created.
 
-If changes are needed inside the instance, ideally they should be written in this script and the instance should be recreated by running `make apply`.
+If changes are needed inside the instance, ideally they should be written in this script and the instance should be recreated by running `make apply` for production, or `make apply-staging` for staging.
 
 This will generate a downtime in the service, so it should be done with caution. To avoid this, you could create a new instance first, test the changes and then switch the Elastic IP to the new instance. Or just make the changes in the running instance, if you're in a hurry, then update the script later.
 
