@@ -27,6 +27,7 @@ import { Plus } from 'lucide-react';
 import { Label } from "@/components/ui/label";
 import { DateTimePicker } from '@/components/ui/datetime-picker';
 import NanoContract from '@hathor/wallet-lib/lib/nano_contracts/nano_contract';
+import { useToast } from '@/components/ui/use-toast';
 
 function formatLocalDateTime(date: Date): string {
   return format(date, 'yyyy-MM-dd\'T\'HH:mm');
@@ -55,7 +56,9 @@ export default function CreateNanoContractPage() {
   const [waitingApproval, setWaitingApproval] = useState<boolean>(false);
   const [waitingConfirmation, setWaitingConfirmation] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
+  const [pendingTx, setPendingTx] = useState<string | null>(null);
   const createPromiseRef = useRef<{ reject: (reason?: any) => void } | null>(null);
+  const { toast } = useToast();
 
   const router = useRouter();
 
@@ -91,6 +94,11 @@ export default function CreateNanoContractPage() {
       // Wrap createNc in a promise we can reject
       const nc = await new Promise<NanoContract>((resolve, reject) => {
         createPromiseRef.current = { reject };
+
+        // Generate a random tx hash for tracking
+        const txHash = Math.random().toString(36).substring(2);
+        setPendingTx(txHash);
+
         createNc(
           hathorRpc,
           values.title,
@@ -101,7 +109,31 @@ export default function CreateNanoContractPage() {
           EVENT_TOKEN,
           firstAddress,
           values.answers.map(a => a.text),
-        ).then(resolve).catch(reject);
+        ).then((result) => {
+          // If we got here, the transaction was approved in the wallet
+          // Show toast if we were cancelled in the dapp
+          if (createPromiseRef.current === null) {
+            toast({
+              title: "Transaction accepted",
+              description: "Your transaction was accepted in the wallet. Click here to see the status.",
+              action: (
+                <Button 
+                  onClick={() => {
+                    setWaitingConfirmation(true);
+                    waitForTransactionConfirmation(result.hash as string).then(() => {
+                      router.push(`/create/success/${result.hash}`);
+                    });
+                  }}
+                  variant="outline"
+                >
+                  View Status
+                </Button>
+              ),
+            });
+            return;
+          }
+          resolve(result);
+        }).catch(reject);
       });
 
       setWaitingApproval(false);
@@ -111,6 +143,27 @@ export default function CreateNanoContractPage() {
     } catch (e) {
       // Don't show error if it was cancelled
       if (e === 'cancelled') {
+        // If we have a pending tx, it means the user accepted in wallet after cancelling in dapp
+        if (pendingTx) {
+          toast({
+            title: "Transaction accepted",
+            description: "Your transaction was accepted in the wallet. Click here to see the status.",
+            action: (
+              <Button 
+                onClick={() => {
+                  setWaitingConfirmation(true);
+                  waitForTransactionConfirmation(pendingTx).then(() => {
+                    router.push(`/create/success/${pendingTx}`);
+                  });
+                }}
+                variant="outline"
+              >
+                View Status
+              </Button>
+            ),
+          });
+          return;
+        }
         return;
       }
       console.log('Got error: ', e);
@@ -118,7 +171,13 @@ export default function CreateNanoContractPage() {
     } finally {
       createPromiseRef.current = null;
       setWaitingApproval(false);
-      setWaitingConfirmation(false);
+      if (!pendingTx) {
+        setWaitingConfirmation(false);
+      }
+      // Only clear pendingTx if we're not showing the toast
+      if (!error && !waitingConfirmation) {
+        setPendingTx(null);
+      }
     }
   };
 
