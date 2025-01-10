@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Header } from '@/components/header';
 import { z } from 'zod';
@@ -26,6 +26,7 @@ import { BASE_PATH } from '@/constants';
 import { Plus } from 'lucide-react';
 import { Label } from "@/components/ui/label";
 import { DateTimePicker } from '@/components/ui/datetime-picker';
+import NanoContract from '@hathor/wallet-lib/lib/nano_contracts/nano_contract';
 
 function formatLocalDateTime(date: Date): string {
   return format(date, 'yyyy-MM-dd\'T\'HH:mm');
@@ -54,6 +55,7 @@ export default function CreateNanoContractPage() {
   const [waitingApproval, setWaitingApproval] = useState<boolean>(false);
   const [waitingConfirmation, setWaitingConfirmation] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
+  const createPromiseRef = useRef<{ reject: (reason?: any) => void } | null>(null);
 
   const router = useRouter();
 
@@ -85,26 +87,36 @@ export default function CreateNanoContractPage() {
     const firstAddress = getFirstAddress();
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
-      const nc = await createNc(
-        hathorRpc,
-        values.title,
-        values.description,
-        values.oracleType,
-        values.oracleType === 'random' ? firstAddress : values.oracle as string,
-        Math.ceil(values.timestamp.getTime() / 1000),
-        EVENT_TOKEN,
-        firstAddress,
-        values.answers.map(a => a.text),
-      );
+      
+      // Wrap createNc in a promise we can reject
+      const nc = await new Promise<NanoContract>((resolve, reject) => {
+        createPromiseRef.current = { reject };
+        createNc(
+          hathorRpc,
+          values.title,
+          values.description,
+          values.oracleType,
+          values.oracleType === 'random' ? firstAddress : values.oracle as string,
+          Math.ceil(values.timestamp.getTime() / 1000),
+          EVENT_TOKEN,
+          firstAddress,
+          values.answers.map(a => a.text),
+        ).then(resolve).catch(reject);
+      });
 
       setWaitingApproval(false);
       setWaitingConfirmation(true);
       await waitForTransactionConfirmation(nc.hash as string);
       router.push(`/create/success/${nc.hash}`);
     } catch (e) {
+      // Don't show error if it was cancelled
+      if (e === 'cancelled') {
+        return;
+      }
       console.log('Got error: ', e);
       setError(true);
     } finally {
+      createPromiseRef.current = null;
       setWaitingApproval(false);
       setWaitingConfirmation(false);
     }
@@ -122,6 +134,9 @@ export default function CreateNanoContractPage() {
   };
 
   const onCancel = useCallback(() => {
+    if (createPromiseRef.current) {
+      createPromiseRef.current.reject('cancelled');
+    }
     setWaitingApproval(false);
     setWaitingConfirmation(false);
     setError(false);
