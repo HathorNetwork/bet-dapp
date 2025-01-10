@@ -104,12 +104,15 @@ export default function SetResultPage() {
           // If we got here, the transaction was approved in the wallet
           // Show toast if we were cancelled in the dapp
           if (createPromiseRef.current === null) {
-            toast({
+            const { dismiss } = toast({
               title: "Transaction accepted",
               description: "Your transaction was accepted in the wallet. Click here to see the status.",
+              duration: 10000, // 10 seconds
               action: (
                 <Button 
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
+                    dismiss();
                     setWaitingConfirmation(true);
                     waitForTransactionConfirmation((result.response as unknown as Transaction).hash as string).then(() => {
                       setWaitingConfirmation(false);

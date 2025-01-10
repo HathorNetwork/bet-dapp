@@ -113,12 +113,15 @@ export default function CreateNanoContractPage() {
           // If we got here, the transaction was approved in the wallet
           // Show toast if we were cancelled in the dapp
           if (createPromiseRef.current === null) {
-            toast({
+            const { dismiss } = toast({
               title: "Transaction accepted",
               description: "Your transaction was accepted in the wallet. Click here to see the status.",
+              duration: 10000, // 10 seconds
               action: (
                 <Button 
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
+                    dismiss();
                     setWaitingConfirmation(true);
                     waitForTransactionConfirmation(result.hash as string).then(() => {
                       router.push(`/create/success/${result.hash}`);
@@ -145,12 +148,15 @@ export default function CreateNanoContractPage() {
       if (e === 'cancelled') {
         // If we have a pending tx, it means the user accepted in wallet after cancelling in dapp
         if (pendingTx) {
-          toast({
+          const { dismiss } = toast({
             title: "Transaction accepted",
             description: "Your transaction was accepted in the wallet. Click here to see the status.",
+            duration: 10000, // 10 seconds
             action: (
               <Button 
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  dismiss();
                   setWaitingConfirmation(true);
                   waitForTransactionConfirmation(pendingTx).then(() => {
                     router.push(`/create/success/${pendingTx}`);

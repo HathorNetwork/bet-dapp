@@ -23,7 +23,19 @@ const WalletConnectClientContext = createContext<IContext>({} as IContext);
 
 const web3Modal = new WalletConnectModal({
   projectId: DEFAULT_PROJECT_ID,
-  themeMode: 'dark'
+  themeMode: 'dark',
+  chains: [],
+  mobileWallets: [],
+  desktopWallets: [],
+  enableAuthMode: false,
+  enableExplorer: false,
+  explorerRecommendedWalletIds: 'NONE',
+  explorerExcludedWalletIds: 'ALL',
+  themeVariables: {
+    '--wcm-background-color': '#8F37FF',
+    '--wcm-font-family': 'Roboto, sans-serif',
+    '--wcm-accent-color': '#8F37FF'
+  }
 })
 
 export function WalletConnectClientContextProvider({

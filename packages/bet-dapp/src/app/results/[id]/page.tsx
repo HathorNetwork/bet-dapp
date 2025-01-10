@@ -138,12 +138,15 @@ export default function ResultsPage() {
           // If we got here, the transaction was approved in the wallet
           // Show toast if we were cancelled in the dapp
           if (createPromiseRef.current === null) {
-            toast({
+            const { dismiss } = toast({
               title: "Transaction accepted",
               description: "Your transaction was accepted in the wallet. Click here to see the status.",
+              duration: 10000, // 10 seconds
               action: (
                 <Button 
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
+                    dismiss();
                     setWaitingConfirmation(true);
                     waitForTransactionConfirmation((result.response as unknown as Transaction).hash as string).then(() => {
                       setWaitingConfirmation(false);
@@ -172,12 +175,15 @@ export default function ResultsPage() {
       if (e === 'cancelled') {
         // If we have a pending tx, it means the user accepted in wallet after cancelling in dapp
         if (pendingTx) {
-          toast({
+          const { dismiss } = toast({
             title: "Transaction accepted",
             description: "Your transaction was accepted in the wallet. Click here to see the status.",
+            duration: 10000, // 10 seconds
             action: (
               <Button 
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  dismiss();
                   setWaitingConfirmation(true);
                   waitForTransactionConfirmation(pendingTx).then(() => {
                     setWaitingConfirmation(false);
