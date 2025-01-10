@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Header } from '@/components/header';
 import { z } from 'zod';
@@ -31,6 +31,7 @@ import { IHistoryTx } from '@hathor/wallet-lib/lib/types';
 import { BASE_PATH } from '@/constants';
 import styled from 'styled-components';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { useToast } from '@/components/ui/use-toast';
 
 const formSchema = z.object({
   bet: z.string().min(2),
@@ -101,6 +102,9 @@ export default function BetPage() {
   }[]>([]);
   const [bet, setBet] = useState<null | { amount: number, bet: string }>(null);
   const [error, setError] = useState<boolean>(false);
+  const [pendingTx, setPendingTx] = useState<string | null>(null);
+  const createPromiseRef = useRef<{ reject: (reason?: any) => void } | null>(null);
+  const { toast } = useToast();
   const [nanoContract, setNanoContract] = useState<NanoContract | null>(null);
   const [fullnodeNanoContract, setFullnodeNanoContract] = useState<NanoContractStateAPIResponse | null>(null);
   const { session, connect, getFirstAddress } = useWalletConnectClient();
@@ -186,13 +190,51 @@ export default function BetPage() {
 
     try {
       const firstAddress = getFirstAddress();
-      const tx = await createBet(
-        hathorRpc,
-        firstAddress,
-        nanoContract.id,
-        values.bet,
-        values.amount
-      );
+
+      // Wrap createBet in a promise we can reject
+      const tx = await new Promise<any>((resolve, reject) => {
+        createPromiseRef.current = { reject };
+
+        // Generate a random tx hash for tracking
+        const txHash = Math.random().toString(36).substring(2);
+        setPendingTx(txHash);
+
+        createBet(
+          hathorRpc,
+          firstAddress,
+          nanoContract.id,
+          values.bet,
+          values.amount
+        ).then((result) => {
+          // If we got here, the transaction was approved in the wallet
+          // Show toast if we were cancelled in the dapp
+          if (createPromiseRef.current === null) {
+            toast({
+              title: "Transaction accepted",
+              description: "Your transaction was accepted in the wallet. Click here to see the status.",
+              action: (
+                <Button 
+                  onClick={() => {
+                    setWaitingConfirmation(true);
+                    waitForTransactionConfirmation((result.response as unknown as Transaction).hash as string).then(() => {
+                      setWaitingConfirmation(false);
+                      setBet({
+                        amount: values.amount,
+                        bet: values.bet
+                      });
+                    });
+                  }}
+                  variant="outline"
+                >
+                  View Status
+                </Button>
+              ),
+            });
+            return;
+          }
+          resolve(result);
+        }).catch(reject);
+      });
 
       setWaitingApproval(false);
       setWaitingConfirmation(true);
@@ -203,12 +245,48 @@ export default function BetPage() {
         bet: values.bet
       });
     } catch (e) {
+      // Don't show error if it was cancelled
+      if (e === 'cancelled') {
+        // If we have a pending tx, it means the user accepted in wallet after cancelling in dapp
+        if (pendingTx) {
+          toast({
+            title: "Transaction accepted",
+            description: "Your transaction was accepted in the wallet. Click here to see the status.",
+            action: (
+              <Button 
+                onClick={() => {
+                  setWaitingConfirmation(true);
+                  waitForTransactionConfirmation(pendingTx).then(() => {
+                    setBet({
+                      amount: values.amount,
+                      bet: values.bet
+                    });
+                  });
+                }}
+                variant="outline"
+              >
+                View Status
+              </Button>
+            ),
+          });
+          return;
+        }
+        return;
+      }
+      console.log('Got error: ', e);
       setError(true);
     } finally {
+      createPromiseRef.current = null;
       setWaitingApproval(false);
-      setWaitingConfirmation(false);
+      if (!pendingTx) {
+        setWaitingConfirmation(false);
+      }
+      // Only clear pendingTx if we're not showing the toast
+      if (!error && !waitingConfirmation) {
+        setPendingTx(null);
+      }
     }
-  }, [getFirstAddress, hathorRpc, connect, nanoContract ]);
+  }, [getFirstAddress, hathorRpc, connect, nanoContract, toast]);
 
   const onConnect = useCallback((e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
@@ -223,6 +301,9 @@ export default function BetPage() {
   }, [form, onSubmit]);
 
   const onCancel = useCallback(() => {
+    if (createPromiseRef.current) {
+      createPromiseRef.current.reject('cancelled');
+    }
     setWaitingApproval(false);
     setWaitingConfirmation(false);
     setError(false);

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Header } from '@/components/header';
 import Link from 'next/link';
@@ -27,6 +27,7 @@ import { useJsonRpc } from '@/contexts/JsonRpcContext';
 import { prettyValue } from '@hathor/wallet-lib/lib/utils/numbers';
 import { Transaction } from '@hathor/wallet-lib';
 import { BASE_PATH } from '@/constants';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function ResultsPage() {
   const router = useRouter();
@@ -38,6 +39,9 @@ export default function ResultsPage() {
   const [waitingConfirmation, setWaitingConfirmation] = useState<boolean>(false);
   const [maxWithdrawal, setMaxWithdrawal] = useState<number>(0);
   const [error, setError] = useState<boolean>(false);
+  const [pendingTx, setPendingTx] = useState<string | null>(null);
+  const createPromiseRef = useRef<{ reject: (reason?: any) => void } | null>(null);
+  const { toast } = useToast();
   const [totalInBets, setTotalInBets] = useState<number>(0);
 
   const { session, getFirstAddress, connect } = useWalletConnectClient();
@@ -115,19 +119,94 @@ export default function ResultsPage() {
 
     try {
       const firstAddress = getFirstAddress();
-      const tx = await withdraw(hathorRpc, firstAddress, nanoContract.id, amount, EVENT_TOKEN);
+
+      // Wrap withdraw in a promise we can reject
+      const tx = await new Promise<any>((resolve, reject) => {
+        createPromiseRef.current = { reject };
+
+        // Generate a random tx hash for tracking
+        const txHash = Math.random().toString(36).substring(2);
+        setPendingTx(txHash);
+
+        withdraw(
+          hathorRpc,
+          firstAddress,
+          nanoContract.id,
+          amount,
+          EVENT_TOKEN
+        ).then((result) => {
+          // If we got here, the transaction was approved in the wallet
+          // Show toast if we were cancelled in the dapp
+          if (createPromiseRef.current === null) {
+            toast({
+              title: "Transaction accepted",
+              description: "Your transaction was accepted in the wallet. Click here to see the status.",
+              action: (
+                <Button 
+                  onClick={() => {
+                    setWaitingConfirmation(true);
+                    waitForTransactionConfirmation((result.response as unknown as Transaction).hash as string).then(() => {
+                      setWaitingConfirmation(false);
+                      router.replace(`/thanks`);
+                    });
+                  }}
+                  variant="outline"
+                >
+                  View Status
+                </Button>
+              ),
+            });
+            return;
+          }
+          resolve(result);
+        }).catch(reject);
+      });
+
       setWaitingApproval(false);
       setWaitingConfirmation(true);
       await waitForTransactionConfirmation((tx.response as unknown as Transaction).hash as string);
-
+      setWaitingConfirmation(false);
       router.replace(`/thanks`);
     } catch (e) {
+      // Don't show error if it was cancelled
+      if (e === 'cancelled') {
+        // If we have a pending tx, it means the user accepted in wallet after cancelling in dapp
+        if (pendingTx) {
+          toast({
+            title: "Transaction accepted",
+            description: "Your transaction was accepted in the wallet. Click here to see the status.",
+            action: (
+              <Button 
+                onClick={() => {
+                  setWaitingConfirmation(true);
+                  waitForTransactionConfirmation(pendingTx).then(() => {
+                    setWaitingConfirmation(false);
+                    router.replace(`/thanks`);
+                  });
+                }}
+                variant="outline"
+              >
+                View Status
+              </Button>
+            ),
+          });
+          return;
+        }
+        return;
+      }
       setError(true);
     } finally {
+      createPromiseRef.current = null;
       setWaitingApproval(false);
-      setWaitingConfirmation(false);
+      if (!pendingTx) {
+        setWaitingConfirmation(false);
+      }
+      // Only clear pendingTx if we're not showing the toast
+      if (!error && !waitingConfirmation) {
+        setPendingTx(null);
+      }
     }
-  }, [hathorRpc, connect, getFirstAddress, nanoContract, router]);
+  }, [hathorRpc, connect, getFirstAddress, nanoContract, router, toast]);
 
   const onTryAgain = useCallback(() => {
     setError(false);
@@ -135,6 +214,9 @@ export default function ResultsPage() {
   }, [onWithdraw, maxWithdrawal]);
 
   const onCancel = useCallback(() => {
+    if (createPromiseRef.current) {
+      createPromiseRef.current.reject('cancelled');
+    }
     setWaitingApproval(false);
     setWaitingConfirmation(false);
     setError(false);
