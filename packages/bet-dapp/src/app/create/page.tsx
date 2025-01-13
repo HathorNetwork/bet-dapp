@@ -23,7 +23,7 @@ import { useRouter } from 'next/navigation';
 import { waitForTransactionConfirmation } from '@/lib/utils';
 import { EVENT_TOKEN, EVENT_TOKEN_SYMBOL } from '@/constants';
 import { BASE_PATH } from '@/constants';
-import { Plus } from 'lucide-react';
+import { Plus, Trash } from 'lucide-react';
 import { Label } from "@/components/ui/label";
 import { DateTimePicker } from '@/components/ui/datetime-picker';
 import NanoContract from '@hathor/wallet-lib/lib/nano_contracts/nano_contract';
@@ -273,7 +273,7 @@ export default function CreateNanoContractPage() {
                       name={`answers.${index}.text`}
                       render={({ field }) => (
                         <FormItem>
-                          <div className="flex items-center gap-8">
+                          <div className="flex items-center gap-4">
                             <FormLabel className="min-w-[80px] text-sm">Option {index + 1}</FormLabel>
                             <div className="flex-1">
                               <FormControl>
@@ -283,10 +283,11 @@ export default function CreateNanoContractPage() {
                             {index >= 2 && (
                               <Button 
                                 type="button"
-                                variant="secondary"
+                                variant="ghost"
                                 onClick={() => remove(index)}
+                                className="hover:bg-transparent w-[40px] h-[40px] p-0"
                               >
-                                Remove
+                                <Trash size={20} className="text-white hover:text-gray-300 min-w-[20px] min-h-[20px]" />
                               </Button>
                             )}
                           </div>
@@ -302,7 +303,7 @@ export default function CreateNanoContractPage() {
                       variant="outline"
                       className="flex items-center gap-2 bg-[#21262D] border-0 text-white hover:text-white hover:bg-[#2c3238]"
                     >
-                      <Plus size={16} /> Add another
+                      <Plus size={16} /> add another
                     </Button>
                   </div>
                 </div>
