@@ -3,7 +3,6 @@ import Image from 'next/image';
 import { WalletConnect } from './walletconnect';
 import Link from 'next/link';
 import { BASE_PATH } from '@/constants';
-import { Card } from './ui/card';
 
 export interface HeaderProps {
   logo?: boolean;
@@ -13,7 +12,7 @@ export interface HeaderProps {
 
 const Header = ({ logo, title, subtitle }: HeaderProps) => {
   return (
-    <div className='container p-0 justify-between flex flex-col sm:flex-row md:flex-row lg:flex-row max-w-4xl mb-8 sm:mb-16'>
+    <div className='container p-0 justify-between flex flex-col sm:flex-row md:flex-row lg:flex-row max-w-4xl mb-8 sm:mb-4'>
       { logo && (
         <Link href="/" className='flex justify-center sm:justify-between mb-4 sm:mb-0'>
           <Image alt="Hathor" width={100} height={25} src={`${BASE_PATH}/logo.svg`}/>
