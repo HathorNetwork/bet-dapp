@@ -385,7 +385,12 @@ export default function BetPage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className='text-white text-xl subpixel-antialiased'>Your bet</FormLabel>
-                            {nanoContract.options.length === 2 ? (
+                            {nanoContract.options.length === 0 ? (
+                              // Show text input when there are no options
+                              <FormControl>
+                                <Input placeholder="Enter your bet" {...field} className="bg-[#21262D] border-0 text-white h-12 text-lg pl-6" />
+                              </FormControl>
+                            ) : nanoContract.options.length === 2 ? (
                               // Show side-by-side buttons for 2 options
                               <OptionsContainer>
                                 {nanoContract.options.map((option) => (
