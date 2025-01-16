@@ -11,7 +11,7 @@ import { ArrowUpRight } from 'lucide-react';
 import { DataTable } from '@/components/transaction-history/data-table';
 import { columns } from '@/components/transaction-history/columns';
 import { useParams, useRouter } from 'next/navigation';
-import { NanoContractStateAPIResponse } from '@hathor/wallet-lib/lib/nano_contracts/types';
+import { NanoContractBlueprintInformationAPIResponse, NanoContractStateAPIResponse } from '@hathor/wallet-lib/lib/nano_contracts/types';
 import { getFullnodeNanoContractHistoryById } from '@/lib/api/getFullnodeNanoContractHistoryById';
 import { getFullnodeNanoContractById } from '@/lib/api/getFullnodeNanoContractById';
 import { get } from 'lodash';
@@ -28,6 +28,8 @@ import { prettyValue } from '@hathor/wallet-lib/lib/utils/numbers';
 import { Transaction } from '@hathor/wallet-lib';
 import { BASE_PATH } from '@/constants';
 import { useToast } from '@/components/ui/use-toast';
+import { getFullnodeTxById } from '@/lib/api/getFullnodeTxById';
+import { getFullnodeBlueprintInfoById } from '@/lib/api/getFullnodeBlueprintInfoById';
 
 export default function ResultsPage() {
   const router = useRouter();
@@ -73,8 +75,11 @@ export default function ResultsPage() {
         setMaxWithdrawal(fullnodeMaxWithdrawal);
       }
 
+      const fullnodeTx = await getFullnodeTxById(nc.id);
+      const blueprintInfo: NanoContractBlueprintInformationAPIResponse = await getFullnodeBlueprintInfoById(fullnodeTx.tx.nc_blueprint_id);
+
       const history = await getFullnodeNanoContractHistoryById(id)
-      const [_totalInBets, data] = await extractDataFromHistory(history);
+      const [_totalInBets, data] = await extractDataFromHistory(history, blueprintInfo);
 
       // @ts-ignore
       setData(data);

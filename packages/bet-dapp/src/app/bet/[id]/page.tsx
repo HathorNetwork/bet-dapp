@@ -22,7 +22,7 @@ import { ResultError } from '@/components/result-error';
 import { WaitInput } from '@/components/wait-input';
 import { EVENT_TOKEN_SYMBOL } from '@/constants';
 import { getFullnodeNanoContractById } from '@/lib/api/getFullnodeNanoContractById';
-import { NanoContractStateAPIResponse } from '@hathor/wallet-lib/lib/nano_contracts/types';
+import { NanoContractBlueprintInformationAPIResponse, NanoContractStateAPIResponse } from '@hathor/wallet-lib/lib/nano_contracts/types';
 import { get } from 'lodash';
 import { getFullnodeNanoContractHistoryById } from '@/lib/api/getFullnodeNanoContractHistoryById';
 import { extractDataFromHistory, waitForTransactionConfirmation } from '@/lib/utils';
@@ -32,6 +32,9 @@ import { BASE_PATH } from '@/constants';
 import styled from 'styled-components';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
+import { getFullnodeBlueprintInfoById } from '@/lib/api/getFullnodeBlueprintInfoById';
+import { FullNodeTx } from '@hathor/wallet-lib/lib/wallet/types';
+import { getFullnodeTxById } from '@/lib/api/getFullnodeTxById';
 
 const formSchema = z.object({
   bet: z.string().min(2),
@@ -107,6 +110,7 @@ export default function BetPage() {
   const { toast } = useToast();
   const [nanoContract, setNanoContract] = useState<NanoContract | null>(null);
   const [fullnodeNanoContract, setFullnodeNanoContract] = useState<NanoContractStateAPIResponse | null>(null);
+  const [blueprintInfo, setBlueprintInfo] = useState<NanoContractBlueprintInformationAPIResponse | null>(null);
   const { session, connect, getFirstAddress } = useWalletConnectClient();
 
   const updateNcData = useCallback(async (ncId: string) => {
@@ -115,13 +119,18 @@ export default function BetPage() {
     const nc = await getNanoContractById(ncId);
     setNanoContract(nc);
 
+    const fullnodeTx = await getFullnodeTxById(nc.id);
+
     // State on fullnode:
     const fullnodeNc: NanoContractStateAPIResponse = await getFullnodeNanoContractById(nc.id, firstAddress);
     setFullnodeNanoContract(fullnodeNc);
 
+    const blueprintInfo: NanoContractBlueprintInformationAPIResponse = await getFullnodeBlueprintInfoById(fullnodeTx.tx.nc_blueprint_id);
+    setBlueprintInfo(blueprintInfo);
+
     // History on fullnode:
     const history = await getFullnodeNanoContractHistoryById(nc.id)
-    const [_totalInBets, data] = await extractDataFromHistory(history);
+    const [_totalInBets, data] = await extractDataFromHistory(history, blueprintInfo);
     setHistory(data);
   }, [getFirstAddress]);
 
@@ -142,10 +151,14 @@ export default function BetPage() {
 
     let interval: ReturnType<typeof setInterval>;
     const fetchValue = async () => {
+      if (interval) {
+        clearInterval(interval);
+      }
       const firstAddress = getFirstAddress();
       const fullnodeNc: NanoContractStateAPIResponse = await getFullnodeNanoContractById(nanoContract.id, firstAddress, nanoContract.options);
       const fullnodeHistory: IHistoryTx[] = await getFullnodeNanoContractHistoryById(nanoContract.id);
-      const [_, data] = await extractDataFromHistory(fullnodeHistory);
+      // @ts-ignore
+      const [_, data] = await extractDataFromHistory(fullnodeHistory, blueprintInfo);
 
       if (fullnodeNc) {
         setFullnodeNanoContract(fullnodeNc);
@@ -168,7 +181,7 @@ export default function BetPage() {
     return () => {
       clearInterval(interval);
     };
-  }, [nanoContract, getFirstAddress, router]);
+  }, [nanoContract, blueprintInfo, getFirstAddress, router]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -345,7 +358,7 @@ export default function BetPage() {
 
   const canSetResult = () => {
     return (session != null)
-      && history.length > 0
+      // && history.length > 0
       && address === oracleAddress
       && !result;
   };
