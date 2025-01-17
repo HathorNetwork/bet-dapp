@@ -41,7 +41,7 @@ aws sso login --profile nano-testnet
 ```bash
 aws ecr get-login-password --region ap-southeast-1 --profile nano-testnet | docker login --username AWS --password-stdin 471112952246.dkr.ecr.ap-southeast-1.amazonaws.com
 
-docker build -t 471112952246.dkr.ecr.ap-southeast-1.amazonaws.com/bet-dapp:latest .
+docker build  --platform linux/amd64 -t 471112952246.dkr.ecr.ap-southeast-1.amazonaws.com/bet-dapp:latest .
 
 docker push 471112952246.dkr.ecr.ap-southeast-1.amazonaws.com/bet-dapp:latest
 ```
@@ -51,7 +51,7 @@ docker push 471112952246.dkr.ecr.ap-southeast-1.amazonaws.com/bet-dapp:latest
 ```bash
 aws ecr get-login-password --region ap-southeast-1 --profile nano-testnet | docker login --username AWS --password-stdin 471112952246.dkr.ecr.ap-southeast-1.amazonaws.com
 
-docker build --build-arg ENVIRONMENT=staging --build-arg NEXT_PUBLIC_URL="https://staging.betting.hathor.network/" -t 471112952246.dkr.ecr.ap-southeast-1.amazonaws.com/bet-dapp:staging-latest .
+docker build  --platform linux/amd64 --build-arg ENVIRONMENT=staging --build-arg NEXT_PUBLIC_URL="https://staging.betting.hathor.network/" -t 471112952246.dkr.ecr.ap-southeast-1.amazonaws.com/bet-dapp:staging-latest .
 
 docker push 471112952246.dkr.ecr.ap-southeast-1.amazonaws.com/bet-dapp:staging-latest
 ```
