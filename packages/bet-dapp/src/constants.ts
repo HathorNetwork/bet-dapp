@@ -28,7 +28,7 @@ export enum DEFAULT_HATHOR_EVENTS { }
 export const BET_BLUEPRINT = '0000015ec35e6fa7b333644281eaf42068edac9b4a87149bc837ec6b769c7e2c';
 export const NETWORK = 'testnet';
 
-export const EXPLORER_URL = 'https://explorer.alpha.nano-testnet.hathor.network/';
+export const EXPLORER_URL = 'https://explorer.bravo.nano-testnet.hathor.network/';
 // export const EXPLORER_URL = 'https://explorer.hackaton.hathor.network/';
 
 /*
