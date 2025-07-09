@@ -17,13 +17,14 @@ export const createBet = async (
     BET_BLUEPRINT, [{
       type: NanoContractActionType.DEPOSIT,
       token: EVENT_TOKEN,
-      amount: Math.round(amount * 100),
-      address: null,
+      // @ts-ignore
+      amount: `${Math.round(amount * 100)}`,
+      // address: 'WeBBm1LfKBH3V5rEL5DAHtjjDiAws3Z83m',
       changeAddress: address,
     }], [
-      address,
-      result,
-    ],
+    address,
+    result,
+  ],
     true,
     ncId,
   );

@@ -20,7 +20,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { NanoContract } from '@/lib/dynamodb/nano-contract';
 import { getFullnodeNanoContractHistoryById } from '@/lib/api/getFullnodeNanoContractHistoryById';
-import { waitForTransactionConfirmation } from '@/lib/utils';
+import { getOracleBuffer, waitForTransactionConfirmation } from '@/lib/utils';
 import { NanoContractTransactionParser, Network, Transaction } from '@hathor/wallet-lib';
 import { find } from 'lodash';
 import { BASE_PATH } from '@/constants';
@@ -98,7 +98,7 @@ export default function SetResultPage() {
         setResult(
           hathorRpcRef.current,
           nanoContract.id,
-          firstAddress,
+          getOracleBuffer(firstAddress),
           result,
         ).then((result) => {
           // If we got here, the transaction was approved in the wallet
@@ -109,7 +109,7 @@ export default function SetResultPage() {
               description: "Your transaction was accepted in the wallet. Click here to see the status.",
               duration: 10000, // 10 seconds
               action: (
-                <Button 
+                <Button
                   onClick={(e) => {
                     e.preventDefault();
                     dismiss();
@@ -145,7 +145,7 @@ export default function SetResultPage() {
             title: "Transaction accepted",
             description: "Your transaction was accepted in the wallet. Click here to see the status.",
             action: (
-              <Button 
+              <Button
                 onClick={() => {
                   setWaitingConfirmation(true);
                   waitForTransactionConfirmation(pendingTx).then(() => {
@@ -193,23 +193,25 @@ export default function SetResultPage() {
           const deserializer = new NanoContractTransactionParser(
             item.nc_blueprint_id as string,
             item.nc_method as string,
-            item.nc_pubkey as string,
+            item.nc_address as string,
             new Network('testnet'),
             item.nc_args as string
           );
 
           if (item.nc_method === 'initialize'
-              || item.nc_method === 'set_result'
-              || item.nc_method === 'withdraw') {
+            || item.nc_method === 'set_result'
+            || item.nc_method === 'withdraw') {
             continue;
           }
 
-          await deserializer.parseArguments()
+          await deserializer.parseArguments();
+          const parsedArgs = deserializer.parsedArgs;
 
-          const scoreArg = find(deserializer.parsedArgs, {
+          const scoreArg = find(parsedArgs, {
             name: 'score'
           });
-          const bet = scoreArg ? scoreArg.parsed : null;
+          console.log('Parsed args: ', parsedArgs);
+          const bet = scoreArg ? scoreArg.value : null;
 
           if (!bet) {
             continue;
@@ -260,7 +262,7 @@ export default function SetResultPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center p-6 flex-col bg-cover bg-papyrus-background">
-      { error && (
+      {error && (
         <ResultError
           title='Error during confirmation'
           description='The connection was not approved on your phone. Please, try again.'
@@ -270,20 +272,20 @@ export default function SetResultPage() {
           onCancel={onCancel}
         />
       )}
-      { loading && (
+      {loading && (
         <WaitInput title='Loading' description='Loading bet history, please wait.' />
       )}
-      { waitingConfirmation && (
+      {waitingConfirmation && (
         <WaitInput title='Waiting Network Confirmation' description='Waiting for a block to confirm this transaction.' onCancel={onCancel} />
       )}
-      { waitingApproval && (
+      {waitingApproval && (
         <WaitInput title='Waiting Approval' description='Please, approve this transaction on your phone.' onCancel={onCancel} />
       )}
-      { (!error && !waitingApproval && !waitingConfirmation && !loading) && (
-      <>
-        <Header logo={false} title='Betting' subtitle={`${nanoContract.title} - ${nanoContract.description}`} />
-        <Card className="relative flex items-center bg-cover bg-center rounded-lg rounded-tl-none shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">
-          <CardContent className="w-full flex items-center justify-center flex-col">
+      {(!error && !waitingApproval && !waitingConfirmation && !loading) && (
+        <>
+          <Header logo={false} title='Betting' subtitle={`${nanoContract.title} - ${nanoContract.description}`} />
+          <Card className="relative flex items-center bg-cover bg-center rounded-lg rounded-tl-none shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">
+            <CardContent className="w-full flex items-center justify-center flex-col">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-md w-full flex flex-col">
                   {nanoContract.oracleType !== 'random' && (
@@ -335,12 +337,12 @@ export default function SetResultPage() {
                   </div>
                 </form>
               </Form>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
         </>
       )}
       <Link href="/" className='flex justify-between mt-24'>
-        <Image alt="Hathor" width={100} height={25} src={`${BASE_PATH}/logo.svg`}/>
+        <Image alt="Hathor" width={100} height={25} src={`${BASE_PATH}/logo.svg`} />
       </Link>
     </main>
   );

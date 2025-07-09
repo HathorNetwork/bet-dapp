@@ -18,7 +18,8 @@ export const withdraw = async (
     [{
       type: NanoContractActionType.WITHDRAWAL,
       address,
-      amount,
+      // @ts-ignore
+      amount: `${amount}`,
       token,
       changeAddress: address,
     }],

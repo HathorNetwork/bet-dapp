@@ -1,7 +1,7 @@
 import { IHathorRpc } from '@/contexts/JsonRpcContext';
 import { SendNanoContractRpcRequest, SendNanoContractTxResponse, sendNanoContractTxRpcRequest } from 'hathor-rpc-handler-test';
 import { BET_BLUEPRINT } from '@/constants';
-import { getOracleBuffer, waitForTransactionConfirmation } from '@/lib/utils';
+import { getOracleBuffer } from '@/lib/utils';
 import NanoContract from '@hathor/wallet-lib/lib/nano_contracts/nano_contract';
 import { createNanoContractTx } from '@/lib/api/createNanoContractTx';
 
@@ -28,6 +28,8 @@ export const createNc = async (
     true,
     null,
   );
+
+  console.log(ncTxRpcReq);
 
   const result: SendNanoContractTxResponse = await hathorRpc.sendNanoContractTx(ncTxRpcReq);
   console.log('Got result from rpc', result);
