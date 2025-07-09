@@ -1,15 +1,12 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { Address, NanoContractTransactionParser, nanoUtils, ncApi, Network } from '@hathor/wallet-lib';
+import { Address, NanoContractTransactionParser, nanoUtils, Network } from '@hathor/wallet-lib';
 import { EVENT_TOKEN_SYMBOL, NETWORK, WAIT_CONFIRMATION_MAX_RETRIES } from "@/constants";
 import { IHistoryTx } from "@hathor/wallet-lib/lib/types";
-import { find, get, has } from "lodash";
+import { find, get } from "lodash";
 import { prettyValue } from "@hathor/wallet-lib/lib/utils/numbers";
 import { getFullnodeTxById } from "./api/getFullnodeTxById";
-import { MethodArgInfo, NanoContractBlueprintInformationAPIResponse, NanoContractParsedArgument } from "@hathor/wallet-lib/lib/nano_contracts/types";
-import { unpackToInt } from "@hathor/wallet-lib/lib/utils/buffer";
-import { NanoContractTransactionParseError } from "@hathor/wallet-lib/lib/errors";
-import Deserializer from "@hathor/wallet-lib/lib/nano_contracts/deserializer";
+import { NanoContractBlueprintInformationAPIResponse } from "@hathor/wallet-lib/lib/nano_contracts/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -24,7 +21,7 @@ export function formatDate(date: Date): string {
   const day = date.getDate();
   const hours = date.getHours();
   const minutes = date.getMinutes();
-  
+
   const formattedMonth = month < 10 ? `0${month}` : month;
   const formattedDay = day < 10 ? `0${day}` : day;
 
@@ -44,54 +41,6 @@ export function getAddressHex(address: string) {
   return (new Address(address)).decode().toString('hex');
 }
 
-
-async function parseArguments(cachedBlueprintInformation = null) {
-  if (cachedBlueprintInformation) {
-  }
-  const parsedArgs: NanoContractParsedArgument[] = [];
-  // @ts-ignore
-  if (!this.args) {
-    return;
-  }
-
-  // @ts-ignore
-  const deserializer = new Deserializer(this.network);
-  // Get the blueprint data from full node
-  // @ts-ignore
-  const blueprintInformation = cachedBlueprintInformation ? cachedBlueprintInformation : await ncApi.getBlueprintInformation(this.blueprintId);
-  // @ts-ignore
-  if (!has(blueprintInformation, `public_methods.${this.method}`)) {
-    // If this.method is not in the blueprint information public methods, then there's an error
-    throw new NanoContractTransactionParseError(
-      'Failed to parse nano contract transaction. Method not found.'
-    );
-  }
-
-  const methodArgs = get(
-    blueprintInformation,
-    // @ts-ignore
-    `public_methods.${this.method}.args`,
-    []
-  ) as MethodArgInfo[];
-  // @ts-ignore
-  let argsBuffer = Buffer.from(this.args, 'hex');
-  let size: number;
-  for (const arg of methodArgs) {
-    [size, argsBuffer] = unpackToInt(2, false, argsBuffer);
-    let parsed;
-    try {
-      parsed = deserializer.deserializeFromType(argsBuffer.slice(0, size), arg.type);
-    } catch {
-      throw new NanoContractTransactionParseError(`Failed to deserialize argument ${arg.type} .`);
-    }
-    parsedArgs.push({ ...arg, parsed });
-    argsBuffer = argsBuffer.slice(size);
-  }
-
-  // @ts-ignore
-  this.parsedArgs = parsedArgs;
-}
-
 export async function extractDataFromHistory(history: IHistoryTx[], blueprintInfo?: NanoContractBlueprintInformationAPIResponse): Promise<[number, {
   type: string,
   amount: string,
@@ -99,29 +48,29 @@ export async function extractDataFromHistory(history: IHistoryTx[], blueprintInf
   id: string,
   timestamp: Date,
 }[]]> {
+  console.log('History: ', history);
+
   const data = [];
 
   let totalInBets = 0;
   for (let i = 0; i < history.length; i++) {
     const item = history[i];
-    const deserializer = new NanoContractTransactionParser(
+    const ncParser = new NanoContractTransactionParser(
       item.nc_blueprint_id as string,
       item.nc_method as string,
-      item.nc_pubkey as string,
+      item.nc_address as string,
       new Network('testnet'),
-      item.nc_args as string
+      item.nc_args as string,
     );
 
     if (item.nc_method === 'initialize'
-        || item.nc_method === 'set_result') {
+      || item.nc_method === 'set_result') {
       continue;
     }
 
-    deserializer.parseArguments = parseArguments.bind(deserializer);
-    // @ts-ignore
-    await deserializer.parseArguments(blueprintInfo)
+    const parsedArgs = ncParser.parseArguments();
 
-    const bet = get(find(deserializer.parsedArgs, { name: 'score' }), 'parsed', '-') as string;
+    const bet = get(find(parsedArgs, { name: 'score' }), 'parsed', '-') as string;
 
     // @ts-ignore: nc_context is not yet in the lib
     const amount = item.nc_context.actions.reduce((acc, action) => {

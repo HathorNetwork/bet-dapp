@@ -39,7 +39,7 @@ export default function ResultsPage() {
   const [fullnodeNanoContract, setFullnodeNanoContract] = useState<NanoContractStateAPIResponse | null>(null);
   const [waitingApproval, setWaitingApproval] = useState<boolean>(false);
   const [waitingConfirmation, setWaitingConfirmation] = useState<boolean>(false);
-  const [maxWithdrawal, setMaxWithdrawal] = useState<number>(0);
+  const [maxWithdrawal, setMaxWithdrawal] = useState<BigInt>(BigInt(0));
   const [error, setError] = useState<boolean>(false);
   const [pendingTx, setPendingTx] = useState<string | null>(null);
   const createPromiseRef = useRef<{ reject: (reason?: any) => void } | null>(null);
@@ -72,6 +72,7 @@ export default function ResultsPage() {
       if (maxWithdrawalKey) {
         // @ts-ignore
         const fullnodeMaxWithdrawal = fullnodeNc.calls[maxWithdrawalKey].value;
+        console.log('fullnodeNc.calls', fullnodeNc.calls)
         setMaxWithdrawal(fullnodeMaxWithdrawal);
       }
 
@@ -148,7 +149,7 @@ export default function ResultsPage() {
               description: "Your transaction was accepted in the wallet. Click here to see the status.",
               duration: 10000, // 10 seconds
               action: (
-                <Button 
+                <Button
                   onClick={(e) => {
                     e.preventDefault();
                     dismiss();
@@ -185,7 +186,7 @@ export default function ResultsPage() {
             description: "Your transaction was accepted in the wallet. Click here to see the status.",
             duration: 10000, // 10 seconds
             action: (
-              <Button 
+              <Button
                 onClick={(e) => {
                   e.preventDefault();
                   dismiss();
@@ -239,14 +240,14 @@ export default function ResultsPage() {
 
   return (
     <main className="flex min-h-screen justify-center items-center p-6 flex-col bg-cover bg-papyrus-background">
-      { waitingApproval && (
+      {waitingApproval && (
         <WaitInput title='Waiting Approval' description='Please, approve this transaction on your phone.' onCancel={onCancel} />
       )}
 
-      { waitingConfirmation && (
+      {waitingConfirmation && (
         <WaitInput title='Waiting Network Confirmation' description='Waiting for a block to confirm this transaction.' onCancel={onCancel} />
       )}
-      { error && (
+      {error && (
         <ResultError
           title='Error during confirmation'
           description='The connection was not approved on your phone. Please, try again.'
@@ -256,26 +257,26 @@ export default function ResultsPage() {
           onCancel={onCancel}
         />
       )}
-      { (!error && !waitingApproval && !waitingConfirmation) && (
+      {(!error && !waitingApproval && !waitingConfirmation) && (
         <>
           <Header logo={false} title='Betting' subtitle={`${nanoContract.title} - ${nanoContract.description}`} />
           <div className='flex w-full justify-center items-center flex-col'>
             <Card className="flex justify-center items-center bg-cover bg-center rounded-lg max-w-4xl w-full p-8 sm:p-12 lg:p-16 border border-gray-800 min-h-[440px] min-w-sm">
               <CardContent className="w-full flex items-center justify-center flex-col max-w-md">
-                { result && (
+                {result && (
                   <>
                     <p className='text-white w-full mb-4 subpixel-antialiased text-2xl'>Winner 🥇</p>
-                    <div className='bg-hathor-green-500 text-white w-full h-12 text-lg flex items-center justify-center rounded-md'>{ result }</div>
+                    <div className='bg-hathor-green-500 text-white w-full h-12 text-lg flex items-center justify-center rounded-md'>{result}</div>
 
                     <p className='text-white w-full mb-4 subpixel-antialiased text-2xl mt-12'>Prize 💰</p>
-                    <Button disabled className='bg-hathor-purple-500 w-full text-white disabled:bg-[#21262D] disabled:text-white disabled:opacity-1 text-md h-12'>{ prettyValue(maxWithdrawal) } { EVENT_TOKEN_SYMBOL }</Button>
+                    <Button disabled className='bg-hathor-purple-500 w-full text-white disabled:bg-[#21262D] disabled:text-white disabled:opacity-1 text-md h-12'>{prettyValue(maxWithdrawal)} {EVENT_TOKEN_SYMBOL}</Button>
 
-                    { maxWithdrawal > 0 && (
+                    {maxWithdrawal > 0n && (
                       <>
-                        <p className='text-white w-full subpixel-antialiased text-2xl mt-12 text-center'>You won <span className='text-hathor-purple-500'>{ prettyValue(maxWithdrawal) } { EVENT_TOKEN_SYMBOL }</span>!</p>
+                        <p className='text-white w-full subpixel-antialiased text-2xl mt-12 text-center'>You won <span className='text-hathor-purple-500'>{prettyValue(maxWithdrawal)} {EVENT_TOKEN_SYMBOL}</span>!</p>
                         <p className='text-white text-md mb-8'>Click below to withdraw your tokens to your wallet.</p>
 
-                        <Button 
+                        <Button
                           onClick={() => onWithdraw(maxWithdrawal)}
                           className='bg-hathor-yellow-500 hover:bg-hathor-yellow-600 w-full text-white text-md h-12'
                         >
@@ -286,7 +287,7 @@ export default function ResultsPage() {
                   </>
                 )}
 
-                { !result && (
+                {!result && (
                   <>
                     <Button disabled className='bg-hathor-green-500 hover:bg-hathor-green-500 text-white w-full h-12 text-lg'>
                       No result set yet.
@@ -299,7 +300,7 @@ export default function ResultsPage() {
                   <TotalBets hash={nanoContract.id} />
                 </div>
 
-                { getUserBets() && (
+                {getUserBets() && (
                   <>
                     <div className='w-full mt-12'>
                       <span className='text-white text-lg'>My bets:</span>
@@ -312,7 +313,7 @@ export default function ResultsPage() {
                             <div className={`h-8 px-4 flex items-center rounded-full border ${bet.bet === result ? 'bg-[#1B4332] border-[#2E7D32]' : 'border-[#2F3336] bg-transparent'}`}>
                               <span className='text-white text-sm'>{bet.bet}</span>
                             </div>
-                            <Link 
+                            <Link
                               href={`${EXPLORER_URL}transaction/${nanoContract.id}`}
                               target="_blank"
                               className='text-xs text-[#B7BFC7] h-8 px-4 rounded-full border border-[#2F3336] bg-transparent hover:bg-transparent hover:text-[#B7BFC7] hover:border-[#2F3336] flex items-center'
@@ -347,7 +348,7 @@ export default function ResultsPage() {
       )}
 
       <Link href="/" className='flex justify-between mt-24'>
-        <Image alt="Hathor" width={100} height={25} src={`${BASE_PATH}/logo.svg`}/>
+        <Image alt="Hathor" width={100} height={25} src={`${BASE_PATH}/logo.svg`} />
       </Link>
     </main>
   );

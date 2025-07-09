@@ -134,6 +134,7 @@ export function WalletConnectClientContextProvider({
 
   const connect = useCallback(
     async (pairing: { topic: string } | undefined) => {
+      console.log('Will connect: ', pairing);
       if (!client) {
         throw new Error('WalletConnect is not initialized');
       }
@@ -145,7 +146,15 @@ export function WalletConnectClientContextProvider({
       try {
         const requiredNamespaces = {
           'hathor': {
-            methods: ['htr_signWithAddress', 'htr_sendNanoContractTx'],
+            methods: [
+              'htr_signWithAddress',
+              'htr_sendNanoContractTx',
+              'htr_createNanoContractCreateTokenTx',
+              'htr_createToken',
+              // 'htr_getConnectedNetwork',
+              // 'htr_sendTransaction',
+              'htr_signOracleData'
+            ],
             chains: ['hathor:testnet'],
             events: [],
           }
@@ -154,6 +163,11 @@ export function WalletConnectClientContextProvider({
         const { uri, approval } = await client.connect({
           pairingTopic: pairing?.topic,
           requiredNamespaces,
+        });
+
+        console.log({
+          uri,
+          approval
         });
 
         if (uri) {
@@ -169,7 +183,11 @@ export function WalletConnectClientContextProvider({
 
         const session = await approval();
         await onSessionConnected(session);
-        setPairings(client.pairing.getAll({ active: true }));
+        console.log('Session: ', session);
+
+        setPairings(
+          client.pairing.getAll({ active: true })
+        );
       } catch (e) {
         console.error(e);
       } finally {

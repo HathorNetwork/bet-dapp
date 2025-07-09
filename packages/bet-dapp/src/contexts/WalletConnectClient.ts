@@ -20,6 +20,9 @@ export async function initializeClient(): Promise<Client> {
       projectId: DEFAULT_PROJECT_ID,
       metadata: DEFAULT_APP_METADATA,
     });
+    client.core.relayer.once('relayer_connect', () => {
+      console.log('Test Suite: Relayer connected event received.');
+    });
     return client;
   } catch (error) {
     console.error('Failed to initialize WalletConnect client:', error);

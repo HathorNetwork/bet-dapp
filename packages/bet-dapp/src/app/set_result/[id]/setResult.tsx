@@ -17,16 +17,18 @@ export const setResult = async (
     NETWORK,
     result,
     oracle,
+    ncId,
   );
 
   const oracleData: SignOracleDataResponse = await hathorRpc.signOracleData(signOracleDataRpcReq);
-  const { signature } = oracleData.response;
+  const { signedData } = oracleData.response;
+
 
   const setResultNcTx = sendNanoContractTxRpcRequest(
     'set_result',
     BET_BLUEPRINT,
     [],
-    [signature],
+    [signedData],
     true,
     ncId,
   );
