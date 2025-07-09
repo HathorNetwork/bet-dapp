@@ -1,6 +1,6 @@
 import { IHathorRpc } from '@/contexts/JsonRpcContext';
 import { SendNanoContractRpcRequest, sendNanoContractTxRpcRequest } from 'hathor-rpc-handler-test';
-import { SendNanoContractTxResponse } from 'hathor-rpc-handler-test';
+import { SendNanoContractTxResponse } from '@hathor/hathor-rpc-handler';
 import { BET_BLUEPRINT, EVENT_TOKEN } from '@/constants';
 import { NanoContractActionType } from '@hathor/wallet-lib/lib/nano_contracts/types';
 import { getAddressHex } from '@/lib/utils';

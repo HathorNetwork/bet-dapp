@@ -4,7 +4,7 @@ import {
   SignOracleDataRpcRequest,
   sendNanoContractTxRpcRequest,
   signOracleDataRpcRequest
-} from 'hathor-rpc-handler-test';
+} from '@hathor/hathor-rpc-handler';
 import { BET_BLUEPRINT, NETWORK } from '@/constants';
 
 export const setResult = async (
