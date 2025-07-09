@@ -1,8 +1,11 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { WalletConnect } from './walletconnect';
 import Link from 'next/link';
 import { BASE_PATH } from '@/constants';
+import { Button } from './ui/button';
+import { useRequestSnap, useInvokeSnap } from 'snap-utils';
+import { Loader2 } from 'lucide-react';
 
 export interface HeaderProps {
   logo?: boolean;
@@ -11,6 +14,43 @@ export interface HeaderProps {
 }
 
 const Header = ({ logo, title, subtitle }: HeaderProps) => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const requestSnap = useRequestSnap();
+  const invokeSnap = useInvokeSnap();
+  const getSnapBalance = async () => {
+    setLoading(true);
+    const data = await invokeSnap({ method: 'balance', params: { tokens: ['00'] } });
+    setLoading(false);
+  }
+
+  const getSnapAddress = async () => {
+    setLoading(true);
+    const data = await invokeSnap({ method: 'address' });
+    setLoading(false);
+  }
+
+  React.useEffect(() => {
+    window.addEventListener("eip6963:announceProvider", (event) => {
+      /* event.detail contains the discovered provider interface. */
+      const providerDetail = event.detail
+
+      // If it didn't get here, the user doesn't have MetaMask installed
+
+      /* providerDetail.info.rdns is the best way to distinguish a wallet extension. */
+      if (providerDetail.info.rdns === "io.metamask") {
+        console.log("MetaMask successfully detected!")
+        // Now you can use Snaps officially!
+      } else if (providerDetail.info.rdns === "io.metamask.flask") {
+        console.log("MetaMask Flask successfully detected!")
+        // Now you can use Snaps!
+      } else {
+        console.error("Please install MetaMask Flask!")
+      }
+    });
+
+    window.dispatchEvent(new Event("eip6963:requestProvider"));
+  });
+
   return (
     <div className='container p-0 justify-between flex flex-col sm:flex-row md:flex-row lg:flex-row max-w-4xl mb-8 sm:mb-4'>
       { logo && (
@@ -29,7 +69,10 @@ const Header = ({ logo, title, subtitle }: HeaderProps) => {
         </div>
       )}
       <div className='flex items-center flex-shrink-0 mt-4 sm:mt-0'>
-        <WalletConnect />
+        <Button className="mr-2" onClick={getSnapAddress}>Get address</Button>
+        <Button className="mr-2" onClick={getSnapBalance}>Get balance</Button>
+        <Button onClick={requestSnap}>Snap</Button>
+        {loading && <Loader2 size={60} className='text-hathor-yellow-500 animate-spin ml-2' />}
       </div>
     </div>
   )
