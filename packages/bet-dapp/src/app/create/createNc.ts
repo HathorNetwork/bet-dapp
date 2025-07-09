@@ -1,5 +1,5 @@
 import { IHathorRpc } from '@/contexts/JsonRpcContext';
-import { SendNanoContractRpcRequest, SendNanoContractTxResponse, sendNanoContractTxRpcRequest } from 'hathor-rpc-handler-test';
+import { SendNanoContractRpcRequest, SendNanoContractTxResponse, sendNanoContractTxRpcRequest } from '@hathor/hathor-rpc-handler';
 import { BET_BLUEPRINT } from '@/constants';
 import { getOracleBuffer } from '@/lib/utils';
 import NanoContract from '@hathor/wallet-lib/lib/nano_contracts/nano_contract';

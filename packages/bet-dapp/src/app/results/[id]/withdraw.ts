@@ -1,7 +1,7 @@
 import { IHathorRpc } from '@/contexts/JsonRpcContext';
 import {
   sendNanoContractTxRpcRequest,
-} from 'hathor-rpc-handler-test';
+} from '@hathor/hathor-rpc-handler';
 import { BET_BLUEPRINT } from '@/constants';
 import { NanoContractActionType } from '@hathor/wallet-lib/lib/nano_contracts/types';
 
