@@ -19,13 +19,41 @@ const Header = ({ logo, title, subtitle }: HeaderProps) => {
   const invokeSnap = useInvokeSnap();
   const getSnapBalance = async () => {
     setLoading(true);
-    const data = await invokeSnap({ method: 'balance', params: { tokens: ['00'] } });
+    // Need to handle possible PromptRejectedError in case the user rejects the request
+    const data = await invokeSnap({ method: 'htr_getBalance', params: { tokens: ['00', '0000508f2178ecd30447e7497ed7d09c9d9897debc54feee9ad9d3a3ec6fbb83'] } });
+    console.log('Balance', data);
     setLoading(false);
   }
 
   const getSnapAddress = async () => {
     setLoading(true);
-    const data = await invokeSnap({ method: 'address' });
+    // Need to handle possible PromptRejectedError in case the user rejects the request
+    const data = await invokeSnap({ method: 'htr_getAddress', params: { type: 'index', index: 0 } });
+    console.log('Address', data);
+    setLoading(false);
+  }
+
+  const getSnapNetwork = async () => {
+    setLoading(true);
+    // Need to handle possible PromptRejectedError in case the user rejects the request
+    const data = await invokeSnap({ method: 'htr_getConnectedNetwork' });
+    console.log('Network', data);
+    setLoading(false);
+  }
+
+  const getSnapUtxos = async () => {
+    setLoading(true);
+    // Need to handle possible PromptRejectedError in case the user rejects the request
+    const data = await invokeSnap({ method: 'htr_getUtxos', params: { filterAddress: 'HMTUoDBsWn9qHb1dfNcLDsTT5qV9DWi1Dh' } });
+    console.log('Get utxos', data);
+    setLoading(false);
+  }
+
+  const getSnapSendTx = async () => {
+    setLoading(true);
+    // Need to handle possible PromptRejectedError in case the user rejects the request
+    const data = await invokeSnap({ method: 'htr_sendTransaction', params: { outputs: [{ address: 'HMTUoDBsWn9qHb1dfNcLDsTT5qV9DWi1Dh', value: '1' }] } });
+    console.log('Send tx', data);
     setLoading(false);
   }
 
@@ -71,6 +99,9 @@ const Header = ({ logo, title, subtitle }: HeaderProps) => {
       <div className='flex items-center flex-shrink-0 mt-4 sm:mt-0'>
         <Button className="mr-2" onClick={getSnapAddress}>Get address</Button>
         <Button className="mr-2" onClick={getSnapBalance}>Get balance</Button>
+        <Button className="mr-2" onClick={getSnapNetwork}>Get network</Button>
+        <Button className="mr-2" onClick={getSnapUtxos}>Get utxos</Button>
+        <Button className="mr-2" onClick={getSnapSendTx}>Send transaction</Button>
         <Button onClick={requestSnap}>Snap</Button>
         {loading && <Loader2 size={60} className='text-hathor-yellow-500 animate-spin ml-2' />}
       </div>
