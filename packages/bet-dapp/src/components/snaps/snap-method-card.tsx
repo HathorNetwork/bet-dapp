@@ -21,6 +21,7 @@ export interface SnapMethodCardProps {
   buttonLabel?: string;
   onError?: (error: any) => void;
   inputs?: SnapMethodInput[];
+  disabled?: boolean;
 }
 
 export const SnapMethodCard: React.FC<SnapMethodCardProps> = ({
@@ -30,6 +31,7 @@ export const SnapMethodCard: React.FC<SnapMethodCardProps> = ({
   buttonLabel = 'Execute',
   onError,
   inputs = [],
+  disabled = false,
 }) => {
 	const { error: metamaskContextError } = useMetaMaskContext();
 
@@ -246,7 +248,7 @@ export const SnapMethodCard: React.FC<SnapMethodCardProps> = ({
           </div>
           <Button
             onClick={handleExecute}
-            disabled={loading}
+            disabled={loading || disabled}
             className="ml-4 flex-shrink-0"
             size="sm"
           >

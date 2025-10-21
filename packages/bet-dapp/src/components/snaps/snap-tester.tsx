@@ -3,7 +3,7 @@ import { useRequestSnap, useInvokeSnap, useMetaMaskContext } from 'snap-utils';
 import { SnapMethodCard } from './snap-method-card';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { AlertTriangle, X, CheckCircle2, Unplug } from 'lucide-react';
+import { AlertTriangle, X } from 'lucide-react';
 import { NetworkData, useWalletState } from '@/contexts/WalletStateContext';
 
 interface SnapError {
@@ -26,6 +26,7 @@ export const SnapTester: React.FC = () => {
   const { installedSnap, setInstalledSnap, error: contextError, setError: setContextError } = useMetaMaskContext();
   const { walletState, updateAddress, updateBalance, updateUtxos, updateNetwork, clearWalletState } = useWalletState();
   const [globalErrors, setGlobalErrors] = useState<SnapError[]>([]);
+  const [isExecutingMethod, setIsExecutingMethod] = useState<boolean>(false);
 
   const isConnected = installedSnap !== null;
   const hasWalletData = walletState.addresses.size > 0 || walletState.balances.size > 0 || walletState.utxos.length > 0 || walletState.network !== null;
@@ -158,6 +159,7 @@ export const SnapTester: React.FC = () => {
   // Wrap snap methods with global error handler
   const wrapWithErrorHandler = <T extends any[], R>(fn: (...args: T) => Promise<R>) => {
     return async (...args: T): Promise<R> => {
+      setIsExecutingMethod(true);
       try {
         const wrappedResult = await fn(...args);
 	      console.log(`Result from wrapped function:`, wrappedResult);
@@ -166,6 +168,8 @@ export const SnapTester: React.FC = () => {
         console.log('Error caught in wrapper:', error);
         handleGlobalError(error);
         throw error;
+      } finally {
+        setIsExecutingMethod(false);
       }
     };
   };
@@ -559,6 +563,7 @@ export const SnapTester: React.FC = () => {
                       <div className="pt-2 border-t border-gray-700/50">
                         <Button
                           onClick={() => getSnapChangeNetwork()}
+                          disabled={isExecutingMethod}
                           size="sm"
                           variant="outline"
                           className="w-full border-hathor-yellow-500/50 text-hathor-yellow-400 hover:bg-hathor-yellow-500/10 hover:text-hathor-yellow-300"
@@ -639,6 +644,7 @@ export const SnapTester: React.FC = () => {
               return await getSnapAddress(addressIndex);
             }}
             onError={handleGlobalError}
+            disabled={isExecutingMethod}
             inputs={[
               {
                 name: 'addressIndex',
@@ -653,12 +659,14 @@ export const SnapTester: React.FC = () => {
             description="Get balances for HTR and specified tokens"
             onExecute={getSnapBalance}
             onError={handleGlobalError}
+            disabled={isExecutingMethod}
           />
           <SnapMethodCard
             title="Get Network"
             description="Get the currently connected network"
             onExecute={getSnapNetwork}
             onError={handleGlobalError}
+            disabled={isExecutingMethod}
           />
         </div>
       </section>
@@ -672,24 +680,28 @@ export const SnapTester: React.FC = () => {
             description="Retrieve unspent transaction outputs"
             onExecute={getSnapUtxos}
             onError={handleGlobalError}
+            disabled={isExecutingMethod}
           />
           <SnapMethodCard
             title="Send Transaction"
             description="Send a test transaction with data output"
             onExecute={getSnapSendTx}
             onError={handleGlobalError}
+            disabled={isExecutingMethod}
           />
           <SnapMethodCard
             title="Create Token"
             description="Create a new custom token (TST)"
             onExecute={getSnapCreateToken}
             onError={handleGlobalError}
+            disabled={isExecutingMethod}
           />
           <SnapMethodCard
             title="Sign with Address"
             description="Sign a message using address index 1"
             onExecute={getSnapSignWithAddress}
             onError={handleGlobalError}
+            disabled={isExecutingMethod}
           />
         </div>
       </section>
@@ -703,18 +715,21 @@ export const SnapTester: React.FC = () => {
             description="Execute a bet nano contract transaction"
             onExecute={getSnapSendNano}
             onError={handleGlobalError}
+            disabled={isExecutingMethod}
           />
           <SnapMethodCard
             title="Create Nano + Token"
             description="Initialize nano contract with token creation"
             onExecute={getSnapSendNanoCreateToken}
             onError={handleGlobalError}
+            disabled={isExecutingMethod}
           />
           <SnapMethodCard
             title="Sign Oracle Data"
             description="Sign oracle data for nano contract"
             onExecute={getSnapSignOracleData}
             onError={handleGlobalError}
+            disabled={isExecutingMethod}
           />
         </div>
       </section>
@@ -733,14 +748,14 @@ export const SnapTester: React.FC = () => {
             <div className="flex gap-2">
               <Button
                 onClick={() => getSnapChangeNetwork('testnet')}
-                disabled={walletState.network?.network === 'testnet'}
+                disabled={walletState.network?.network === 'testnet' || isExecutingMethod}
                 className="flex-1 bg-hathor-yellow-500 hover:bg-hathor-yellow-600 text-black font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Testnet
               </Button>
               <Button
                 onClick={() => getSnapChangeNetwork('mainnet')}
-                disabled={walletState.network?.network === 'mainnet'}
+                disabled={walletState.network?.network === 'mainnet' || isExecutingMethod}
                 className="flex-1 bg-hathor-yellow-500 hover:bg-hathor-yellow-600 text-black font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Mainnet
