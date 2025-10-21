@@ -4,6 +4,7 @@ import { SnapMethodCard } from './snap-method-card';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AlertTriangle, X, CheckCircle2, Unplug } from 'lucide-react';
+import { useWalletState } from '@/contexts/WalletStateContext';
 
 interface SnapError {
   id: string;
@@ -17,6 +18,7 @@ export const SnapTester: React.FC = () => {
   const requestSnap = useRequestSnap();
   const invokeSnap = useInvokeSnap();
   const { installedSnap, setInstalledSnap, error: contextError, setError: setContextError } = useMetaMaskContext();
+  const { updateAddress, updateBalance, updateUtxos, updateNetwork } = useWalletState();
   const [globalErrors, setGlobalErrors] = useState<SnapError[]>([]);
 
   const isConnected = installedSnap !== null;
@@ -56,10 +58,6 @@ export const SnapTester: React.FC = () => {
   // Global error handler
   const handleGlobalError = (error: any) => {
     const errorId = `${Date.now()}-${Math.random()}`;
-
-    console.log('handleGlobalError called with:', error);
-    console.log('Error type:', typeof error);
-    console.log('Error keys:', error && typeof error === 'object' ? Object.keys(error) : 'N/A');
 
     let message = 'An unknown error occurred';
     let code: number | undefined;
@@ -131,10 +129,25 @@ export const SnapTester: React.FC = () => {
 
   // Wallet Info Methods
   const getSnapAddress = wrapWithErrorHandler(async () => {
-    return await invokeSnap({
+    const result = await invokeSnap({
       method: 'htr_getAddress',
       params: { type: 'index', index: 0 }
     });
+
+    // Parse and store the address data
+    if (result) {
+      try {
+        const parsed = JSON.parse(result as string);
+        if (parsed.type === 2 && parsed.response) {
+          const { address, index, addressPath } = parsed.response;
+          updateAddress({ address, index, addressPath });
+        }
+      } catch (e) {
+        console.error('Failed to parse address response:', e);
+      }
+    }
+
+    return result;
   });
 
   const getSnapBalance = wrapWithErrorHandler(async () => {

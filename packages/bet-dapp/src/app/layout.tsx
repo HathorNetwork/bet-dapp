@@ -13,6 +13,7 @@ import React, { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import StyledComponentsRegistry from '@/lib/registry';
 import { MetaMaskProvider } from 'snap-utils';
+import { WalletStateProvider } from '@/contexts/WalletStateContext';
 
 
 config.setServerUrl(FULLNODE_URL);
@@ -56,8 +57,10 @@ export default function RootLayout({
           <WalletConnectClientContextProvider>
             <JsonRpcContextProvider>
               <MetaMaskProvider>
-                <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
-                <Toaster />
+                <WalletStateProvider>
+                  <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
+                  <Toaster />
+                </WalletStateProvider>
               </MetaMaskProvider>
             </JsonRpcContextProvider>
           </WalletConnectClientContextProvider>
