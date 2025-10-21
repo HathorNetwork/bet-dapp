@@ -60,7 +60,7 @@ export const SnapTester: React.FC = () => {
   // Watch for errors from MetaMask context (from useRequest hook)
   useEffect(() => {
     if (contextError) {
-      console.log('Context error detected:', contextError);
+      console.warn('Context error detected:', contextError);
       handleGlobalError(contextError);
       // Clear the context error after handling it
       setContextError(null);
@@ -152,7 +152,6 @@ export const SnapTester: React.FC = () => {
       timestamp: Date.now(),
     };
 
-    console.log('Created snap error:', snapError);
     setGlobalErrors((prev) => [...prev, snapError]);
   };
 
@@ -165,7 +164,7 @@ export const SnapTester: React.FC = () => {
 	      console.log(`Result from wrapped function:`, wrappedResult);
 				return wrappedResult;
       } catch (error) {
-        console.log('Error caught in wrapper:', error);
+        console.error('Error caught in wrapper:', error);
         handleGlobalError(error);
         throw error;
       } finally {
