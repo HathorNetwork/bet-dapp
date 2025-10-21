@@ -18,10 +18,11 @@ export const SnapTester: React.FC = () => {
   const requestSnap = useRequestSnap();
   const invokeSnap = useInvokeSnap();
   const { installedSnap, setInstalledSnap, error: contextError, setError: setContextError } = useMetaMaskContext();
-  const { updateAddress, updateBalance, updateUtxos, updateNetwork } = useWalletState();
+  const { walletState, updateAddress, updateBalance, updateUtxos, updateNetwork, clearWalletState } = useWalletState();
   const [globalErrors, setGlobalErrors] = useState<SnapError[]>([]);
 
   const isConnected = installedSnap !== null;
+  const hasWalletData = walletState.addresses.size > 0 || walletState.balances.size > 0 || walletState.utxos.length > 0 || walletState.network !== null;
 
   // Watch for errors from MetaMask context (from useRequest hook)
   useEffect(() => {
@@ -353,6 +354,164 @@ export const SnapTester: React.FC = () => {
             </Button>
           </div>
         </Card>
+      )}
+
+      {/* Wallet Context Data Display */}
+      {hasWalletData && (
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-hathor-yellow-500">Stored Wallet Data</h2>
+            <Button
+              onClick={clearWalletState}
+              variant="outline"
+              size="sm"
+              className="border-gray-600 text-gray-400 hover:bg-gray-800 hover:text-gray-300"
+            >
+              Clear All Data
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Addresses */}
+            {walletState.addresses.size > 0 && (
+              <Card className="p-4">
+                <h3 className="text-lg font-semibold mb-3 text-hathor-yellow-500">Addresses</h3>
+                <div className="space-y-3">
+                  {Array.from(walletState.addresses.values()).map((addressData) => (
+                    <div
+                      key={addressData.index}
+                      className="bg-gray-900/50 border border-gray-700 rounded p-3"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-400">Index:</span>
+                          <span className="text-sm font-mono text-gray-300">{addressData.index}</span>
+                        </div>
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="text-sm text-gray-400 flex-shrink-0">Address:</span>
+                          <span className="text-sm font-mono text-gray-300 break-all text-right">
+                            {addressData.address}
+                          </span>
+                        </div>
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="text-sm text-gray-400 flex-shrink-0">Path:</span>
+                          <span className="text-xs font-mono text-gray-500 break-all text-right">
+                            {addressData.addressPath}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between pt-2 border-t border-gray-700/50">
+                          <span className="text-xs text-gray-500">Last updated:</span>
+                          <span className="text-xs text-gray-500">
+                            {new Date(addressData.lastUpdated).toLocaleTimeString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
+
+            {/* Balances */}
+            {walletState.balances.size > 0 && (
+              <Card className="p-4">
+                <h3 className="text-lg font-semibold mb-3 text-hathor-yellow-500">Balances</h3>
+                <div className="space-y-3">
+                  {Array.from(walletState.balances.values()).map((balanceData) => (
+                    <div
+                      key={balanceData.token}
+                      className="bg-gray-900/50 border border-gray-700 rounded p-3"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="text-sm text-gray-400 flex-shrink-0">Token:</span>
+                          <span className="text-sm font-mono text-gray-300 break-all text-right">
+                            {balanceData.token === '00' ? 'HTR' : balanceData.token}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-400">Available:</span>
+                          <span className="text-sm font-mono text-green-400">{balanceData.available}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-400">Locked:</span>
+                          <span className="text-sm font-mono text-orange-400">{balanceData.locked}</span>
+                        </div>
+                        <div className="flex items-center justify-between pt-2 border-t border-gray-700/50">
+                          <span className="text-xs text-gray-500">Last updated:</span>
+                          <span className="text-xs text-gray-500">
+                            {new Date(balanceData.lastUpdated).toLocaleTimeString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
+
+            {/* Network */}
+            {walletState.network && (
+              <Card className="p-4">
+                <h3 className="text-lg font-semibold mb-3 text-hathor-yellow-500">Network</h3>
+                <div className="bg-gray-900/50 border border-gray-700 rounded p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-400">Current Network:</span>
+                    <span className="text-sm font-semibold text-hathor-yellow-400">
+                      {walletState.network}
+                    </span>
+                  </div>
+                </div>
+              </Card>
+            )}
+
+            {/* UTXOs */}
+            {walletState.utxos.length > 0 && (
+              <Card className="p-4 lg:col-span-2">
+                <h3 className="text-lg font-semibold mb-3 text-hathor-yellow-500">
+                  UTXOs ({walletState.utxos.length})
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {walletState.utxos.map((utxo, idx) => (
+                    <div
+                      key={`${utxo.txId}-${utxo.index}-${idx}`}
+                      className="bg-gray-900/50 border border-gray-700 rounded p-3"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="text-sm text-gray-400 flex-shrink-0">TX ID:</span>
+                          <span className="text-xs font-mono text-gray-300 break-all text-right">
+                            {utxo.txId}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-400">Index:</span>
+                          <span className="text-sm font-mono text-gray-300">{utxo.index}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-400">Value:</span>
+                          <span className="text-sm font-mono text-green-400">{utxo.value}</span>
+                        </div>
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="text-sm text-gray-400 flex-shrink-0">Token:</span>
+                          <span className="text-sm font-mono text-gray-300 break-all text-right">
+                            {utxo.token === '00' ? 'HTR' : utxo.token}
+                          </span>
+                        </div>
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="text-sm text-gray-400 flex-shrink-0">Address:</span>
+                          <span className="text-xs font-mono text-gray-500 break-all text-right">
+                            {utxo.address}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
+          </div>
+        </section>
       )}
 
       {/* Wallet Info Section */}
