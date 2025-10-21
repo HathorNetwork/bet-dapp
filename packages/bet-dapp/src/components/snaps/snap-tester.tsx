@@ -351,6 +351,23 @@ export const SnapTester: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Snap Connection Status - Compact indicator in top-right */}
+      {isConnected && (
+        <div className="flex justify-end">
+          <div className="inline-flex items-center gap-2 px-3 py-2 bg-green-500/10 border border-green-500/30 rounded-lg">
+            <CheckCircle2 className="h-4 w-4 text-green-500" />
+            <span className="text-sm text-green-400 font-medium">
+              Connected to Hathor Snap
+              {installedSnap?.version && (
+                <span className="ml-1 text-green-500/70 text-xs">
+                  (v{installedSnap.version})
+                </span>
+              )}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Global Error Display */}
       {globalErrors.length > 0 && (
         <div className="space-y-3">
@@ -392,35 +409,7 @@ export const SnapTester: React.FC = () => {
       )}
 
       {/* Connect Snap Section */}
-      {isConnected ? (
-        <Card className="p-6 bg-green-500/10 border-green-500/30">
-          <div className="flex items-center justify-between">
-            <div className="flex items-start gap-3">
-              <CheckCircle2 className="h-6 w-6 text-green-500 flex-shrink-0 mt-1" />
-              <div>
-                <h2 className="text-2xl font-bold mb-2 text-green-400">Connected to Hathor Snap</h2>
-                <p className="text-gray-400">
-                  Your snap is ready for testing
-                  {installedSnap?.version && (
-                    <span className="ml-2 text-gray-500 text-sm">
-                      (v{installedSnap.version})
-                    </span>
-                  )}
-                </p>
-              </div>
-            </div>
-            <Button
-              onClick={() => setInstalledSnap(null)}
-              size="lg"
-              variant="outline"
-              className="border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-red-300"
-            >
-              <Unplug className="mr-2 h-4 w-4" />
-              Disconnect
-            </Button>
-          </div>
-        </Card>
-      ) : (
+      {!isConnected && (
         <Card className="p-6 bg-hathor-yellow-500/10 border-hathor-yellow-500/30">
           <div className="flex items-center justify-between">
             <div>
