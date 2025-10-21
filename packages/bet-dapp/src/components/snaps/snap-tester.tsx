@@ -1,12 +1,22 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRequestSnap, useInvokeSnap } from 'snap-utils';
 import { SnapMethodCard } from './snap-method-card';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { AlertTriangle, X } from 'lucide-react';
+
+interface SnapError {
+  id: string;
+  code?: number;
+  message: string;
+  details?: string;
+  timestamp: number;
+}
 
 export const SnapTester: React.FC = () => {
   const requestSnap = useRequestSnap();
   const invokeSnap = useInvokeSnap();
+  const [globalErrors, setGlobalErrors] = useState<SnapError[]>([]);
 
   // MetaMask detection logic
   useEffect(() => {
@@ -30,33 +40,96 @@ export const SnapTester: React.FC = () => {
     };
   }, []);
 
+  // Global error handler
+  const handleGlobalError = (error: any) => {
+    const errorId = `${Date.now()}-${Math.random()}`;
+
+    let message = 'An unknown error occurred';
+    let code: number | undefined;
+    let details: string | undefined;
+
+    if (error && typeof error === 'object') {
+      // Handle Snap errors with code and data
+      if (error.code !== undefined) {
+        code = error.code;
+        message = error.message || 'Snap Error';
+
+        // Extract additional details from error.data
+        if (error.data) {
+          if (error.data.cause) {
+            const cause = error.data.cause;
+            if (cause.message) {
+              details = cause.message;
+            }
+            if (cause.errorCode) {
+              details = details ? `${details} (${cause.errorCode})` : cause.errorCode;
+            }
+          }
+          if (error.data.snapId) {
+            details = details ? `${details}\nSnap: ${error.data.snapId}` : `Snap: ${error.data.snapId}`;
+          }
+        }
+      } else if (error.message) {
+        message = error.message;
+      }
+    } else if (typeof error === 'string') {
+      message = error;
+    }
+
+    const snapError: SnapError = {
+      id: errorId,
+      code,
+      message,
+      details,
+      timestamp: Date.now(),
+    };
+
+    setGlobalErrors((prev) => [...prev, snapError]);
+  };
+
+  // Wrap snap methods with global error handler
+  const wrapWithErrorHandler = <T extends any[], R>(fn: (...args: T) => Promise<R>) => {
+    return async (...args: T): Promise<R> => {
+      try {
+        return await fn(...args);
+      } catch (error) {
+        handleGlobalError(error);
+        throw error;
+      }
+    };
+  };
+
+  const dismissError = (errorId: string) => {
+    setGlobalErrors((prev) => prev.filter((err) => err.id !== errorId));
+  };
+
   // Wallet Info Methods
-  const getSnapAddress = async () => {
+  const getSnapAddress = wrapWithErrorHandler(async () => {
     return await invokeSnap({
       method: 'htr_getAddress',
       params: { type: 'index', index: 0 }
     });
-  };
+  });
 
-  const getSnapBalance = async () => {
+  const getSnapBalance = wrapWithErrorHandler(async () => {
     return await invokeSnap({
       method: 'htr_getBalance',
       params: {
         tokens: ['00', '00000337f9db18c355a376697f64fd6e36945fc984d6569b4b0d86e2af185945']
       }
     });
-  };
+  });
 
-  const getSnapNetwork = async () => {
+  const getSnapNetwork = wrapWithErrorHandler(async () => {
     return await invokeSnap({ method: 'htr_getConnectedNetwork' });
-  };
+  });
 
   // Transaction Methods
-  const getSnapUtxos = async () => {
+  const getSnapUtxos = wrapWithErrorHandler(async () => {
     return await invokeSnap({ method: 'htr_getUtxos', params: {} });
-  };
+  });
 
-  const getSnapSendTx = async () => {
+  const getSnapSendTx = wrapWithErrorHandler(async () => {
     return await invokeSnap({
       method: 'htr_sendTransaction',
       params: {
@@ -66,9 +139,9 @@ export const SnapTester: React.FC = () => {
         ]
       }
     });
-  };
+  });
 
-  const getSnapCreateToken = async () => {
+  const getSnapCreateToken = wrapWithErrorHandler(async () => {
     return await invokeSnap({
       method: 'htr_createToken',
       params: {
@@ -84,17 +157,17 @@ export const SnapTester: React.FC = () => {
         data: ['ab', 'c']
       }
     });
-  };
+  });
 
-  const getSnapSignWithAddress = async () => {
+  const getSnapSignWithAddress = wrapWithErrorHandler(async () => {
     return await invokeSnap({
       method: 'htr_signWithAddress',
       params: { message: 'test', addressIndex: 1 }
     });
-  };
+  });
 
   // Nano Contract Methods
-  const getSnapSendNano = async () => {
+  const getSnapSendNano = wrapWithErrorHandler(async () => {
     return await invokeSnap({
       method: 'htr_sendNanoContractTx',
       params: {
@@ -104,9 +177,9 @@ export const SnapTester: React.FC = () => {
         args: ['WR5kCGJFvqaonCCTZDPDVMpu8fRnFXN51N', '1x0']
       }
     });
-  };
+  });
 
-  const getSnapSendNanoCreateToken = async () => {
+  const getSnapSendNanoCreateToken = wrapWithErrorHandler(async () => {
     return await invokeSnap({
       method: 'htr_createNanoContractCreateTokenTx',
       params: {
@@ -131,9 +204,9 @@ export const SnapTester: React.FC = () => {
         }
       }
     });
-  };
+  });
 
-  const getSnapSignOracleData = async () => {
+  const getSnapSignOracleData = wrapWithErrorHandler(async () => {
     return await invokeSnap({
       method: 'htr_signOracleData',
       params: {
@@ -142,18 +215,58 @@ export const SnapTester: React.FC = () => {
         oracle: 'WdcPHo2NwjSkGtcVUDbrE1SQrUzGdPgLvK'
       }
     });
-  };
+  });
 
   // Settings Methods
-  const getSnapChangeNetwork = async () => {
+  const getSnapChangeNetwork = wrapWithErrorHandler(async () => {
     return await invokeSnap({
       method: 'htr_changeNetwork',
       params: { newNetwork: 'testnet' }
     });
-  };
+  });
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Global Error Display */}
+      {globalErrors.length > 0 && (
+        <div className="space-y-3">
+          {globalErrors.map((error) => (
+            <div
+              key={error.id}
+              className="bg-red-900/20 border border-red-500/50 rounded-lg p-4 flex items-start gap-3"
+            >
+              <AlertTriangle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-red-400 font-semibold text-sm break-words">
+                      {error.message}
+                      {error.code !== undefined && (
+                        <span className="ml-2 text-red-500/70 font-mono">
+                          (Code: {error.code})
+                        </span>
+                      )}
+                    </h3>
+                  </div>
+                  <button
+                    onClick={() => dismissError(error.id)}
+                    className="text-red-400 hover:text-red-300 transition-colors flex-shrink-0"
+                    aria-label="Dismiss error"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                {error.details && (
+                  <p className="text-sm text-red-300/80 whitespace-pre-wrap break-words">
+                    {error.details}
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Connect Snap Section */}
       <Card className="p-6 bg-hathor-yellow-500/10 border-hathor-yellow-500/30">
         <div className="flex items-center justify-between">
