@@ -32,7 +32,21 @@ export const SnapTester: React.FC = () => {
       // Clear the context error after handling it
       setContextError(null);
     }
-  }, [contextError]);
+  }, [contextError, setContextError]);
+
+  // Lazy-load network data on component mount if not already loaded
+  useEffect(() => {
+    if (isConnected && !walletState.network) {
+      (async () => {
+        try {
+          await getSnapNetwork();
+        } catch (error) {
+          console.error('Failed to lazy-load network data:', error);
+        }
+      })();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isConnected, walletState.network]);
 
   // MetaMask detection logic
   useEffect(() => {
@@ -128,7 +142,26 @@ export const SnapTester: React.FC = () => {
     setGlobalErrors((prev) => prev.filter((err) => err.id !== errorId));
   };
 
-  // Wallet Info Methods
+  // Wallet Info Methods - getSnapNetwork defined first for lazy loading
+  const getSnapNetwork = wrapWithErrorHandler(async () => {
+    const result = await invokeSnap({ method: 'htr_getConnectedNetwork' });
+
+    // Parse and store the network data
+    if (result) {
+      try {
+        const parsed = JSON.parse(result as string);
+        if (parsed.type === 4 && parsed.response) {
+          const { network, genesisHash } = parsed.response;
+          updateNetwork({ network, genesisHash });
+        }
+      } catch (e) {
+        console.error('Failed to parse network response:', e);
+      }
+    }
+
+    return result;
+  });
+
 	const getSnapAddress = wrapWithErrorHandler(async (addressIndex = 0) => {
     const result = await invokeSnap({
       method: 'htr_getAddress',
@@ -177,25 +210,6 @@ export const SnapTester: React.FC = () => {
         }
       } catch (e) {
         console.error('Failed to parse balance response:', e);
-      }
-    }
-
-    return result;
-  });
-
-  const getSnapNetwork = wrapWithErrorHandler(async () => {
-    const result = await invokeSnap({ method: 'htr_getConnectedNetwork' });
-
-    // Parse and store the network data
-    if (result) {
-      try {
-        const parsed = JSON.parse(result as string);
-        if (parsed.type === 4 && parsed.response) {
-          const { network, genesisHash } = parsed.response;
-          updateNetwork({ network, genesisHash });
-        }
-      } catch (e) {
-        console.error('Failed to parse network response:', e);
       }
     }
 
