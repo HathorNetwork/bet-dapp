@@ -9,9 +9,27 @@ export interface AddressData {
 }
 
 export interface BalanceData {
-  token: string;
-  available: string;
-  locked: string;
+  token: {
+    id: string;
+    name: string;
+    symbol: string;
+  };
+  balance: {
+    unlocked: number;
+    locked: number;
+  };
+  tokenAuthorities: {
+    unlocked: {
+      mint: boolean;
+      melt: boolean;
+    };
+    locked: {
+      mint: boolean;
+      melt: boolean;
+    };
+  };
+  transactions: number;
+  lockExpires: number | null;
   lastUpdated: number;
 }
 
@@ -72,7 +90,7 @@ export const WalletStateProvider: React.FC<{ children: ReactNode }> = ({ childre
   const updateBalance = (balanceData: Omit<BalanceData, 'lastUpdated'>) => {
     setWalletState((prev) => {
       const newBalances = new Map(prev.balances);
-      newBalances.set(balanceData.token, {
+      newBalances.set(balanceData.token.id, {
         ...balanceData,
         lastUpdated: Date.now(),
       });

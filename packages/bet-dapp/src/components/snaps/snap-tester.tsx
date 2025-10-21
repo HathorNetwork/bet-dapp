@@ -152,12 +152,35 @@ export const SnapTester: React.FC = () => {
   });
 
   const getSnapBalance = wrapWithErrorHandler(async () => {
-    return await invokeSnap({
+    const result = await invokeSnap({
       method: 'htr_getBalance',
       params: {
         tokens: ['00', '00000337f9db18c355a376697f64fd6e36945fc984d6569b4b0d86e2af185945']
       }
     });
+
+    // Parse and store the balance data
+    if (result) {
+      try {
+        const parsed = JSON.parse(result as string);
+        if (parsed.type === 3 && Array.isArray(parsed.response)) {
+          // Update each token balance in the context
+          parsed.response.forEach((balanceItem: any) => {
+            updateBalance({
+              token: balanceItem.token,
+              balance: balanceItem.balance,
+              tokenAuthorities: balanceItem.tokenAuthorities,
+              transactions: balanceItem.transactions,
+              lockExpires: balanceItem.lockExpires,
+            });
+          });
+        }
+      } catch (e) {
+        console.error('Failed to parse balance response:', e);
+      }
+    }
+
+    return result;
   });
 
   const getSnapNetwork = wrapWithErrorHandler(async () => {
@@ -419,24 +442,43 @@ export const SnapTester: React.FC = () => {
                 <div className="space-y-3">
                   {Array.from(walletState.balances.values()).map((balanceData) => (
                     <div
-                      key={balanceData.token}
+                      key={balanceData.token.id}
                       className="bg-gray-900/50 border border-gray-700 rounded p-3"
                     >
                       <div className="space-y-1">
                         <div className="flex items-start justify-between gap-2">
                           <span className="text-sm text-gray-400 flex-shrink-0">Token:</span>
                           <span className="text-sm font-mono text-gray-300 break-all text-right">
-                            {balanceData.token === '00' ? 'HTR' : balanceData.token}
+                            {balanceData.token.symbol} ({balanceData.token.name})
+                          </span>
+                        </div>
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="text-xs text-gray-500 flex-shrink-0">Token ID:</span>
+                          <span className="text-xs font-mono text-gray-500 break-all text-right">
+                            {balanceData.token.id}
                           </span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-400">Available:</span>
-                          <span className="text-sm font-mono text-green-400">{balanceData.available}</span>
+                          <span className="text-sm text-gray-400">Unlocked:</span>
+                          <span className="text-sm font-mono text-green-400">{balanceData.balance.unlocked}</span>
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-gray-400">Locked:</span>
-                          <span className="text-sm font-mono text-orange-400">{balanceData.locked}</span>
+                          <span className="text-sm font-mono text-orange-400">{balanceData.balance.locked}</span>
                         </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-400">Transactions:</span>
+                          <span className="text-sm font-mono text-gray-300">{balanceData.transactions}</span>
+                        </div>
+                        {(balanceData.tokenAuthorities.unlocked.mint || balanceData.tokenAuthorities.unlocked.melt) && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-gray-500">Authorities:</span>
+                            <span className="text-xs font-mono text-blue-400">
+                              {balanceData.tokenAuthorities.unlocked.mint && 'MINT '}
+                              {balanceData.tokenAuthorities.unlocked.melt && 'MELT'}
+                            </span>
+                          </div>
+                        )}
                         <div className="flex items-center justify-between pt-2 border-t border-gray-700/50">
                           <span className="text-xs text-gray-500">Last updated:</span>
                           <span className="text-xs text-gray-500">
