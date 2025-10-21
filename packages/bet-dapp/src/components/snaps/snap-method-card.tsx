@@ -1,16 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Loader2, Copy, CheckCircle2, XCircle } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useMetaMaskContext } from 'snap-utils'
 
+export interface SnapMethodInput {
+  name: string;
+  label: string;
+  defaultValue: string;
+  placeholder?: string;
+}
+
 export interface SnapMethodCardProps {
   title: string;
   description: string;
-  onExecute: () => Promise<any>;
+  onExecute: (inputValues?: Record<string, string>) => Promise<any>;
   buttonLabel?: string;
   onError?: (error: any) => void;
+  inputs?: SnapMethodInput[];
 }
 
 export const SnapMethodCard: React.FC<SnapMethodCardProps> = ({
@@ -19,6 +29,7 @@ export const SnapMethodCard: React.FC<SnapMethodCardProps> = ({
   onExecute,
   buttonLabel = 'Execute',
   onError,
+  inputs = [],
 }) => {
 	const { error: metamaskContextError } = useMetaMaskContext();
 
@@ -28,6 +39,15 @@ export const SnapMethodCard: React.FC<SnapMethodCardProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
   const { toast } = useToast();
+
+  // Initialize input values with default values
+  const [inputValues, setInputValues] = useState<Record<string, string>>(() => {
+    const initial: Record<string, string> = {};
+    inputs.forEach(input => {
+      initial[input.name] = input.defaultValue;
+    });
+    return initial;
+  });
 
 	/**
 	 * Effect to handle errors coming from MetaMask context
@@ -39,13 +59,20 @@ export const SnapMethodCard: React.FC<SnapMethodCardProps> = ({
 		}
 	}, [expectingErrorResult, metamaskContextError]);
 
+  const handleInputChange = (name: string, value: string) => {
+    setInputValues(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   const handleExecute = async () => {
     setLoading(true);
     setError(null);
     setResult(null);
 
     try {
-      const data = await onExecute();
+      const data = await onExecute(inputValues);
 			if (!data) {
 				setExpectingErrorResult(true);
 				setError('An error occurred');
@@ -233,6 +260,25 @@ export const SnapMethodCard: React.FC<SnapMethodCardProps> = ({
             )}
           </Button>
         </div>
+
+        {inputs.length > 0 && (
+          <div className="grid gap-3 pt-2">
+            {inputs.map(input => (
+              <div key={input.name} className="grid gap-2">
+                <Label htmlFor={input.name} className="text-sm font-medium">
+                  {input.label}
+                </Label>
+                <Input
+                  id={input.name}
+                  value={inputValues[input.name] || ''}
+                  onChange={(e) => handleInputChange(input.name, e.target.value)}
+                  placeholder={input.placeholder}
+                  className="bg-gray-900/50 border-gray-700"
+                />
+              </div>
+            ))}
+          </div>
+        )}
 
         {hasResult && (
           <div className="mt-4 space-y-2">

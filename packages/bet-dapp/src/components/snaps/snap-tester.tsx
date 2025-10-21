@@ -129,10 +129,10 @@ export const SnapTester: React.FC = () => {
   };
 
   // Wallet Info Methods
-  const getSnapAddress = wrapWithErrorHandler(async () => {
+	const getSnapAddress = wrapWithErrorHandler(async (addressIndex = 0) => {
     const result = await invokeSnap({
       method: 'htr_getAddress',
-      params: { type: 'index', index: 0 }
+      params: { type: 'index', index: addressIndex }
     });
 
     // Parse and store the address data
@@ -520,9 +520,20 @@ export const SnapTester: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <SnapMethodCard
             title="Get Address"
-            description="Retrieve the wallet address at index 0"
-            onExecute={getSnapAddress}
+            description="Retrieve the wallet address at a specific index"
+            onExecute={async (inputValues) => {
+              const addressIndex = inputValues?.addressIndex ? parseInt(inputValues.addressIndex, 10) : 0;
+              return await getSnapAddress(addressIndex);
+            }}
             onError={handleGlobalError}
+            inputs={[
+              {
+                name: 'addressIndex',
+                label: 'Address Index',
+                defaultValue: '0',
+                placeholder: 'Enter address index (e.g., 0, 1, 2...)'
+              }
+            ]}
           />
           <SnapMethodCard
             title="Get Balance"
