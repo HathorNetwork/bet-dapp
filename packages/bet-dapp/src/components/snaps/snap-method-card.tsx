@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Copy, CheckCircle2, XCircle } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useMetaMaskContext } from 'snap-utils'
 
 export interface SnapMethodCardProps {
   title: string;
@@ -19,11 +20,24 @@ export const SnapMethodCard: React.FC<SnapMethodCardProps> = ({
   buttonLabel = 'Execute',
   onError,
 }) => {
+	const { error: metamaskContextError } = useMetaMaskContext();
+
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
+	const [expectingErrorResult, setExpectingErrorResult] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
   const { toast } = useToast();
+
+	/**
+	 * Effect to handle errors coming from MetaMask context
+	 */
+	useEffect(() => {
+		if (expectingErrorResult && metamaskContextError) {
+			setError(metamaskContextError.message || 'An error occurred');
+			setExpectingErrorResult(false);
+		}
+	}, [expectingErrorResult, metamaskContextError]);
 
   const handleExecute = async () => {
     setLoading(true);
@@ -33,8 +47,11 @@ export const SnapMethodCard: React.FC<SnapMethodCardProps> = ({
     try {
       const data = await onExecute();
 			if (!data) {
-				throw new Error(`No data returned from ${title} execution`);
+				setExpectingErrorResult(true);
+				setError('An error occurred');
+				return; // The error will soon be available in the metamask context
 			}
+			setError(null);
       setResult(data);
       setExpanded(true);
       toast({
@@ -189,7 +206,11 @@ export const SnapMethodCard: React.FC<SnapMethodCardProps> = ({
   };
 
   return (
-    <Card className="p-4 hover:border-hathor-yellow-500/50 transition-colors">
+    <Card className={`p-4 transition-colors ${
+      error
+        ? 'border-red-500/50 hover:border-red-500/70'
+        : 'hover:border-hathor-yellow-500/50'
+    }`}>
       <div className="flex flex-col space-y-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
