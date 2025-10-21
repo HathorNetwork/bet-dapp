@@ -42,11 +42,17 @@ export interface UtxoData {
   lastUpdated: number;
 }
 
+export interface NetworkData {
+  network: string;
+  genesisHash: string;
+  lastUpdated: number;
+}
+
 export interface WalletState {
   addresses: Map<number, AddressData>; // key: index
   balances: Map<string, BalanceData>; // key: token
   utxos: UtxoData[];
-  network: string | null;
+  network: NetworkData | null;
 }
 
 // Context Type
@@ -55,7 +61,7 @@ interface WalletStateContextType {
   updateAddress: (addressData: Omit<AddressData, 'lastUpdated'>) => void;
   updateBalance: (balanceData: Omit<BalanceData, 'lastUpdated'>) => void;
   updateUtxos: (utxos: Omit<UtxoData, 'lastUpdated'>[]) => void;
-  updateNetwork: (network: string) => void;
+  updateNetwork: (networkData: Omit<NetworkData, 'lastUpdated'>) => void;
   clearWalletState: () => void;
 }
 
@@ -110,8 +116,14 @@ export const WalletStateProvider: React.FC<{ children: ReactNode }> = ({ childre
   };
 
   // Update network
-  const updateNetwork = (network: string) => {
-    setWalletState((prev) => ({ ...prev, network }));
+  const updateNetwork = (networkData: Omit<NetworkData, 'lastUpdated'>) => {
+    setWalletState((prev) => ({
+      ...prev,
+      network: {
+        ...networkData,
+        lastUpdated: Date.now(),
+      },
+    }));
   };
 
   // Clear all wallet state

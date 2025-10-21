@@ -184,7 +184,22 @@ export const SnapTester: React.FC = () => {
   });
 
   const getSnapNetwork = wrapWithErrorHandler(async () => {
-    return await invokeSnap({ method: 'htr_getConnectedNetwork' });
+    const result = await invokeSnap({ method: 'htr_getConnectedNetwork' });
+
+    // Parse and store the network data
+    if (result) {
+      try {
+        const parsed = JSON.parse(result as string);
+        if (parsed.type === 4 && parsed.response) {
+          const { network, genesisHash } = parsed.response;
+          updateNetwork({ network, genesisHash });
+        }
+      } catch (e) {
+        console.error('Failed to parse network response:', e);
+      }
+    }
+
+    return result;
   });
 
   // Transaction Methods
@@ -497,11 +512,27 @@ export const SnapTester: React.FC = () => {
               <Card className="p-4">
                 <h3 className="text-lg font-semibold mb-3 text-hathor-yellow-500">Network</h3>
                 <div className="bg-gray-900/50 border border-gray-700 rounded p-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-400">Current Network:</span>
-                    <span className="text-sm font-semibold text-hathor-yellow-400">
-                      {walletState.network}
-                    </span>
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-400">Current Network:</span>
+                      <span className="text-sm font-semibold text-hathor-yellow-400">
+                        {walletState.network.network}
+                      </span>
+                    </div>
+                    {walletState.network.genesisHash && (
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="text-xs text-gray-500 flex-shrink-0">Genesis Hash:</span>
+                        <span className="text-xs font-mono text-gray-500 break-all text-right">
+                          {walletState.network.genesisHash}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between pt-2 border-t border-gray-700/50">
+                      <span className="text-xs text-gray-500">Last updated:</span>
+                      <span className="text-xs text-gray-500">
+                        {new Date(walletState.network.lastUpdated).toLocaleTimeString()}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </Card>
