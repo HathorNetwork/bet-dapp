@@ -350,9 +350,13 @@ export const SnapTester: React.FC = () => {
       method: 'htr_changeNetwork',
       params: { newNetwork: newNetwork }
     }).then((data) => {
-			clearWalletState();
 	    const typedData = (JSON.parse(data as string) ?? {}) as { type: number; response: { newNetwork: string } };
 
+			if (!typedData.response) {
+				return; // No-op if the change wasn't successful
+			}
+
+	    clearWalletState();
 	    const newData : NetworkData = {
 				network: typedData.response.newNetwork,
 				genesisHash: '',
@@ -737,30 +741,25 @@ export const SnapTester: React.FC = () => {
       <section>
         <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Settings</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Card className="p-6 bg-gray-900/50 border-gray-700">
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold mb-2">Change Network</h3>
-              <p className="text-sm text-gray-400">
-                Switch between Hathor networks
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                onClick={() => getSnapChangeNetwork('testnet')}
-                disabled={walletState.network?.network === 'testnet' || isExecutingMethod}
-                className="flex-1 bg-hathor-yellow-500 hover:bg-hathor-yellow-600 text-black font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Testnet
-              </Button>
-              <Button
-                onClick={() => getSnapChangeNetwork('mainnet')}
-                disabled={walletState.network?.network === 'mainnet' || isExecutingMethod}
-                className="flex-1 bg-hathor-yellow-500 hover:bg-hathor-yellow-600 text-black font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Mainnet
-              </Button>
-            </div>
-          </Card>
+          <SnapMethodCard
+            title="Change Network"
+            description="Switch between Hathor networks"
+            onError={handleGlobalError}
+            actionButtons={[
+              {
+                label: 'Testnet',
+                onExecute: () => getSnapChangeNetwork('testnet'),
+                disabled: isExecutingMethod || walletState.network?.network === 'testnet',
+                className: "flex-1 bg-hathor-yellow-500 hover:bg-hathor-yellow-600 text-black font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              },
+              {
+                label: 'Mainnet',
+                onExecute: () => getSnapChangeNetwork('mainnet'),
+                disabled: isExecutingMethod || walletState.network?.network === 'mainnet',
+                className: "flex-1 bg-hathor-yellow-500 hover:bg-hathor-yellow-600 text-black font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              }
+            ]}
+          />
         </div>
       </section>
     </div>

@@ -14,14 +14,23 @@ export interface SnapMethodInput {
   placeholder?: string;
 }
 
+export interface SnapActionButton {
+  label: string;
+  onExecute: () => Promise<any>;
+  disabled?: boolean;
+  variant?: 'default' | 'outline' | 'ghost';
+  className?: string;
+}
+
 export interface SnapMethodCardProps {
   title: string;
   description: string;
-  onExecute: (inputValues?: Record<string, string>) => Promise<any>;
+  onExecute?: (inputValues?: Record<string, string>) => Promise<any>;
   buttonLabel?: string;
   onError?: (error: any) => void;
   inputs?: SnapMethodInput[];
   disabled?: boolean;
+  actionButtons?: SnapActionButton[];
 }
 
 export const SnapMethodCard: React.FC<SnapMethodCardProps> = ({
@@ -32,10 +41,12 @@ export const SnapMethodCard: React.FC<SnapMethodCardProps> = ({
   onError,
   inputs = [],
   disabled = false,
+  actionButtons,
 }) => {
 	const { error: metamaskContextError } = useMetaMaskContext();
 
   const [loading, setLoading] = useState(false);
+  const [loadingButtonIndex, setLoadingButtonIndex] = useState<number | null>(null);
   const [result, setResult] = useState<any>(null);
 	const [expectingErrorResult, setExpectingErrorResult] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -69,6 +80,8 @@ export const SnapMethodCard: React.FC<SnapMethodCardProps> = ({
   };
 
   const handleExecute = async () => {
+    if (!onExecute) return;
+
     setLoading(true);
     setError(null);
     setResult(null);
@@ -104,6 +117,44 @@ export const SnapMethodCard: React.FC<SnapMethodCardProps> = ({
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleActionButtonClick = async (index: number, actionButton: SnapActionButton) => {
+    setLoadingButtonIndex(index);
+    setError(null);
+    setResult(null);
+
+    try {
+      const data = await actionButton.onExecute();
+      if (!data) {
+        setExpectingErrorResult(true);
+        setError('An error occurred');
+        return;
+      }
+      setError(null);
+      setResult(data);
+      setExpanded(true);
+      toast({
+        title: 'Success',
+        description: `${actionButton.label} executed successfully`,
+      });
+    } catch (err: any) {
+      const errorMessage = err.message || 'An error occurred';
+      setError(errorMessage);
+      setExpanded(true);
+
+      if (onError) {
+        onError(err);
+      }
+
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
+      setLoadingButtonIndex(null);
     }
   };
 
@@ -246,21 +297,23 @@ export const SnapMethodCard: React.FC<SnapMethodCardProps> = ({
             <h3 className="text-lg font-semibold mb-1">{title}</h3>
             <p className="text-sm text-gray-400">{description}</p>
           </div>
-          <Button
-            onClick={handleExecute}
-            disabled={loading || disabled}
-            className="ml-4 flex-shrink-0"
-            size="sm"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Loading
-              </>
-            ) : (
-              buttonLabel
-            )}
-          </Button>
+          {onExecute && !actionButtons && (
+            <Button
+              onClick={handleExecute}
+              disabled={loading || disabled}
+              className="ml-4 flex-shrink-0"
+              size="sm"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Loading
+                </>
+              ) : (
+                buttonLabel
+              )}
+            </Button>
+          )}
         </div>
 
         {inputs.length > 0 && (
@@ -278,6 +331,29 @@ export const SnapMethodCard: React.FC<SnapMethodCardProps> = ({
                   className="bg-gray-900/50 border-gray-700"
                 />
               </div>
+            ))}
+          </div>
+        )}
+
+        {actionButtons && actionButtons.length > 0 && (
+          <div className="flex gap-2 pt-2">
+            {actionButtons.map((actionButton, index) => (
+              <Button
+                key={index}
+                onClick={() => handleActionButtonClick(index, actionButton)}
+                disabled={actionButton.disabled || loadingButtonIndex !== null}
+                variant={actionButton.variant}
+                className={actionButton.className || "flex-1"}
+              >
+                {loadingButtonIndex === index ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Loading
+                  </>
+                ) : (
+                  actionButton.label
+                )}
+              </Button>
             ))}
           </div>
         )}
