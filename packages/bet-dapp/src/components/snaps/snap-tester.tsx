@@ -14,6 +14,12 @@ interface SnapError {
   timestamp: number;
 }
 
+/**
+ * Hardcoded snap ID for local development.
+ * Change if needed.
+ */
+const snapId = 'local:http://localhost:8080';
+
 export const SnapTester: React.FC = () => {
   const requestSnap = useRequestSnap();
   const invokeSnap = useInvokeSnap();
@@ -23,6 +29,32 @@ export const SnapTester: React.FC = () => {
 
   const isConnected = installedSnap !== null;
   const hasWalletData = walletState.addresses.size > 0 || walletState.balances.size > 0 || walletState.utxos.length > 0 || walletState.network !== null;
+
+  // Check if snap is already installed on mount
+  useEffect(() => {
+    const checkSnapInstalled = async () => {
+      if (!installedSnap) {
+	      console.log(`Checking if snap is already installed...`);
+        try {
+          // Use wallet_getSnaps to check if snap is already installed
+          const snaps = await (window as any).ethereum?.request({
+            method: 'wallet_getSnaps',
+          });
+	        console.log(`Retrieved installed snaps:`, snaps);
+
+          // Check if our snap is in the list
+          if (snaps && snaps[snapId]) {
+            setInstalledSnap(snaps[snapId]);
+            console.log('Snap already installed:', snaps[snapId]);
+          }
+        } catch (error) {
+          console.log('Could not check installed snaps:', error);
+        }
+      }
+    };
+
+	  checkSnapInstalled().catch(err => console.error('Error checking snap installation:', err));
+  }, [installedSnap, setInstalledSnap]);
 
   // Watch for errors from MetaMask context (from useRequest hook)
   useEffect(() => {
