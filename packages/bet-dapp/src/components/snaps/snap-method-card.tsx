@@ -61,6 +61,122 @@ export const SnapMethodCard: React.FC<SnapMethodCardProps> = ({
 
   const hasResult = result !== null || error !== null;
 
+  // Render prettified result with each top-level property in its own section
+  const renderResult = () => {
+    if (!result) return null;
+
+		const parsedResult = JSON.parse(result);
+
+    // Handle primitive values (string, number, boolean, null)
+    if (typeof parsedResult !== 'object' || parsedResult === null) {
+      return (
+        <div className="bg-gray-900/50 border border-gray-700 p-3 rounded">
+          <div className="text-sm font-mono text-hathor-yellow-400">
+            {String(parsedResult)}
+          </div>
+        </div>
+      );
+    }
+
+    // Handle arrays
+    if (Array.isArray(parsedResult)) {
+      return (
+        <div className="bg-gray-900/50 border border-gray-700 p-3 rounded overflow-auto max-h-64">
+          <pre className="text-sm font-mono">
+            {JSON.stringify(parsedResult, null, 2)}
+          </pre>
+        </div>
+      );
+    }
+
+    // Handle objects - display each top-level property in its own section
+    const entries = Object.entries(parsedResult);
+
+    if (entries.length === 0) {
+      return (
+        <div className="bg-gray-900/50 border border-gray-700 p-3 rounded">
+          <div className="text-sm text-gray-400 italic">Empty object</div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-3">
+        {entries.map(([key, value]) => {
+          // Render value properties
+          const renderValue = () => {
+            // Primitive values
+            if (typeof value !== 'object' || value === null) {
+              return (
+                <div className="px-3 py-2 text-sm font-mono text-gray-300 break-all">
+                  {String(value)}
+                </div>
+              );
+            }
+
+            // Arrays
+            if (Array.isArray(value)) {
+              if (value.length === 0) {
+                return <div className="px-3 py-2 text-sm text-gray-400 italic">Empty array</div>;
+              }
+
+              return (
+                <div className="divide-y divide-gray-700/50">
+                  {value.map((item, idx) => (
+                    <div key={idx} className="px-3 py-2 flex items-start gap-3">
+                      <span className="text-gray-500 text-sm flex-shrink-0">[{idx}]</span>
+                      <span className="text-sm font-mono text-gray-300 break-all flex-1 overflow-x-auto">
+                        {typeof item === 'object' ? JSON.stringify(item) : String(item)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              );
+            }
+
+            // Objects - show each property on its own line
+            const valueEntries = Object.entries(value);
+
+            if (valueEntries.length === 0) {
+              return <div className="px-3 py-2 text-sm text-gray-400 italic">Empty object</div>;
+            }
+
+            return (
+              <div className="divide-y divide-gray-700/50">
+                {valueEntries.map(([propKey, propValue]) => (
+                  <div key={propKey} className="px-3 py-2 flex items-start gap-3">
+                    <span className="text-gray-400 text-sm font-medium flex-shrink-0 min-w-[80px]">
+                      {propKey}:
+                    </span>
+                    <span className="text-sm font-mono text-gray-300 break-all flex-1 overflow-x-auto">
+                      {typeof propValue === 'object'
+                        ? JSON.stringify(propValue)
+                        : String(propValue)
+                      }
+                    </span>
+                  </div>
+                ))}
+              </div>
+            );
+          };
+
+          return (
+            <div key={key} className="bg-gray-900/50 border border-gray-700 rounded overflow-hidden">
+              <div className="bg-gray-800/50 px-3 py-2 border-b border-gray-700">
+                <span className="text-sm font-semibold text-hathor-yellow-500 break-all">
+                  {key}
+                </span>
+              </div>
+              <div className="max-h-64 overflow-y-auto">
+                {renderValue()}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <Card className="p-4 hover:border-hathor-yellow-500/50 transition-colors">
       <div className="flex flex-col space-y-3">
@@ -118,9 +234,7 @@ export const SnapMethodCard: React.FC<SnapMethodCardProps> = ({
                       <CheckCircle2 className="h-4 w-4" />
                       <span className="text-sm font-medium">Success</span>
                     </div>
-                    <pre className="bg-gray-900/50 border border-gray-700 p-3 rounded overflow-auto text-sm max-h-64">
-                      {JSON.stringify(result, null, 2)}
-                    </pre>
+                    {renderResult()}
                   </div>
                 )}
               </div>
