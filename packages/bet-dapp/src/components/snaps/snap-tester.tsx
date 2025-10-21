@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useRequestSnap, useInvokeSnap } from 'snap-utils';
+import { useRequestSnap, useInvokeSnap, useMetaMaskContext } from 'snap-utils';
 import { SnapMethodCard } from './snap-method-card';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { AlertTriangle, X } from 'lucide-react';
+import { AlertTriangle, X, CheckCircle2, Unplug } from 'lucide-react';
 
 interface SnapError {
   id: string;
@@ -16,7 +16,10 @@ interface SnapError {
 export const SnapTester: React.FC = () => {
   const requestSnap = useRequestSnap();
   const invokeSnap = useInvokeSnap();
+  const { installedSnap, setInstalledSnap } = useMetaMaskContext();
   const [globalErrors, setGlobalErrors] = useState<SnapError[]>([]);
+
+  const isConnected = installedSnap !== null;
 
   // MetaMask detection logic
   useEffect(() => {
@@ -268,23 +271,53 @@ export const SnapTester: React.FC = () => {
       )}
 
       {/* Connect Snap Section */}
-      <Card className="p-6 bg-hathor-yellow-500/10 border-hathor-yellow-500/30">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold mb-2">Connect to Hathor Snap</h2>
-            <p className="text-gray-400">
-              First, connect to the Hathor MetaMask Snap to enable testing
-            </p>
+      {isConnected ? (
+        <Card className="p-6 bg-green-500/10 border-green-500/30">
+          <div className="flex items-center justify-between">
+            <div className="flex items-start gap-3">
+              <CheckCircle2 className="h-6 w-6 text-green-500 flex-shrink-0 mt-1" />
+              <div>
+                <h2 className="text-2xl font-bold mb-2 text-green-400">Connected to Hathor Snap</h2>
+                <p className="text-gray-400">
+                  Your snap is ready for testing
+                  {installedSnap?.version && (
+                    <span className="ml-2 text-gray-500 text-sm">
+                      (v{installedSnap.version})
+                    </span>
+                  )}
+                </p>
+              </div>
+            </div>
+            <Button
+              onClick={() => setInstalledSnap(null)}
+              size="lg"
+              variant="outline"
+              className="border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-red-300"
+            >
+              <Unplug className="mr-2 h-4 w-4" />
+              Disconnect
+            </Button>
           </div>
-          <Button
-            onClick={requestSnap}
-            size="lg"
-            className="bg-hathor-yellow-500 hover:bg-hathor-yellow-600 text-black font-semibold"
-          >
-            Connect Snap
-          </Button>
-        </div>
-      </Card>
+        </Card>
+      ) : (
+        <Card className="p-6 bg-hathor-yellow-500/10 border-hathor-yellow-500/30">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold mb-2">Connect to Hathor Snap</h2>
+              <p className="text-gray-400">
+                First, connect to the Hathor MetaMask Snap to enable testing
+              </p>
+            </div>
+            <Button
+              onClick={requestSnap}
+              size="lg"
+              className="bg-hathor-yellow-500 hover:bg-hathor-yellow-600 text-black font-semibold"
+            >
+              Connect Snap
+            </Button>
+          </div>
+        </Card>
+      )}
 
       {/* Wallet Info Section */}
       <section>
