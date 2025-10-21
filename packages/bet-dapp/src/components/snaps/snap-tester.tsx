@@ -351,23 +351,6 @@ export const SnapTester: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Snap Connection Status - Compact indicator in top-right */}
-      {isConnected && (
-        <div className="flex justify-end">
-          <div className="inline-flex items-center gap-2 px-3 py-2 bg-green-500/10 border border-green-500/30 rounded-lg">
-            <CheckCircle2 className="h-4 w-4 text-green-500" />
-            <span className="text-sm text-green-400 font-medium">
-              Connected to Hathor Snap
-              {installedSnap?.version && (
-                <span className="ml-1 text-green-500/70 text-xs">
-                  (v{installedSnap.version})
-                </span>
-              )}
-            </span>
-          </div>
-        </div>
-      )}
-
       {/* Global Error Display */}
       {globalErrors.length > 0 && (
         <div className="space-y-3">
