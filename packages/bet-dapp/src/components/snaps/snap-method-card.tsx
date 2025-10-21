@@ -9,6 +9,7 @@ export interface SnapMethodCardProps {
   description: string;
   onExecute: () => Promise<any>;
   buttonLabel?: string;
+  onError?: (error: any) => void;
 }
 
 export const SnapMethodCard: React.FC<SnapMethodCardProps> = ({
@@ -16,6 +17,7 @@ export const SnapMethodCard: React.FC<SnapMethodCardProps> = ({
   description,
   onExecute,
   buttonLabel = 'Execute',
+  onError,
 }) => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
@@ -30,6 +32,9 @@ export const SnapMethodCard: React.FC<SnapMethodCardProps> = ({
 
     try {
       const data = await onExecute();
+			if (!data) {
+				throw new Error(`No data returned from ${title} execution`);
+			}
       setResult(data);
       setExpanded(true);
       toast({
@@ -40,6 +45,12 @@ export const SnapMethodCard: React.FC<SnapMethodCardProps> = ({
       const errorMessage = err.message || 'An error occurred';
       setError(errorMessage);
       setExpanded(true);
+
+      // Notify parent about the error
+      if (onError) {
+        onError(err);
+      }
+
       toast({
         title: 'Error',
         description: errorMessage,

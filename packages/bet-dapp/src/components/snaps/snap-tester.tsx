@@ -16,10 +16,20 @@ interface SnapError {
 export const SnapTester: React.FC = () => {
   const requestSnap = useRequestSnap();
   const invokeSnap = useInvokeSnap();
-  const { installedSnap, setInstalledSnap } = useMetaMaskContext();
+  const { installedSnap, setInstalledSnap, error: contextError, setError: setContextError } = useMetaMaskContext();
   const [globalErrors, setGlobalErrors] = useState<SnapError[]>([]);
 
   const isConnected = installedSnap !== null;
+
+  // Watch for errors from MetaMask context (from useRequest hook)
+  useEffect(() => {
+    if (contextError) {
+      console.log('Context error detected:', contextError);
+      handleGlobalError(contextError);
+      // Clear the context error after handling it
+      setContextError(null);
+    }
+  }, [contextError]);
 
   // MetaMask detection logic
   useEffect(() => {
@@ -46,6 +56,10 @@ export const SnapTester: React.FC = () => {
   // Global error handler
   const handleGlobalError = (error: any) => {
     const errorId = `${Date.now()}-${Math.random()}`;
+
+    console.log('handleGlobalError called with:', error);
+    console.log('Error type:', typeof error);
+    console.log('Error keys:', error && typeof error === 'object' ? Object.keys(error) : 'N/A');
 
     let message = 'An unknown error occurred';
     let code: number | undefined;
@@ -75,6 +89,11 @@ export const SnapTester: React.FC = () => {
       } else if (error.message) {
         message = error.message;
       }
+
+      // Check for stack trace
+      if (error.stack) {
+        details = details ? `${details}\n\nStack:\n${error.stack}` : `Stack:\n${error.stack}`;
+      }
     } else if (typeof error === 'string') {
       message = error;
     }
@@ -87,6 +106,7 @@ export const SnapTester: React.FC = () => {
       timestamp: Date.now(),
     };
 
+    console.log('Created snap error:', snapError);
     setGlobalErrors((prev) => [...prev, snapError]);
   };
 
@@ -94,8 +114,11 @@ export const SnapTester: React.FC = () => {
   const wrapWithErrorHandler = <T extends any[], R>(fn: (...args: T) => Promise<R>) => {
     return async (...args: T): Promise<R> => {
       try {
-        return await fn(...args);
+        const wrappedResult = await fn(...args);
+	      console.log(`Result from wrapped function:`, wrappedResult);
+				return wrappedResult;
       } catch (error) {
+        console.log('Error caught in wrapper:', error);
         handleGlobalError(error);
         throw error;
       }
@@ -327,16 +350,19 @@ export const SnapTester: React.FC = () => {
             title="Get Address"
             description="Retrieve the wallet address at index 0"
             onExecute={getSnapAddress}
+            onError={handleGlobalError}
           />
           <SnapMethodCard
             title="Get Balance"
             description="Get balances for HTR and specified tokens"
             onExecute={getSnapBalance}
+            onError={handleGlobalError}
           />
           <SnapMethodCard
             title="Get Network"
             description="Get the currently connected network"
             onExecute={getSnapNetwork}
+            onError={handleGlobalError}
           />
         </div>
       </section>
@@ -349,21 +375,25 @@ export const SnapTester: React.FC = () => {
             title="Get UTXOs"
             description="Retrieve unspent transaction outputs"
             onExecute={getSnapUtxos}
+            onError={handleGlobalError}
           />
           <SnapMethodCard
             title="Send Transaction"
             description="Send a test transaction with data output"
             onExecute={getSnapSendTx}
+            onError={handleGlobalError}
           />
           <SnapMethodCard
             title="Create Token"
             description="Create a new custom token (TST)"
             onExecute={getSnapCreateToken}
+            onError={handleGlobalError}
           />
           <SnapMethodCard
             title="Sign with Address"
             description="Sign a message using address index 1"
             onExecute={getSnapSignWithAddress}
+            onError={handleGlobalError}
           />
         </div>
       </section>
@@ -376,16 +406,19 @@ export const SnapTester: React.FC = () => {
             title="Send Nano TX"
             description="Execute a bet nano contract transaction"
             onExecute={getSnapSendNano}
+            onError={handleGlobalError}
           />
           <SnapMethodCard
             title="Create Nano + Token"
             description="Initialize nano contract with token creation"
             onExecute={getSnapSendNanoCreateToken}
+            onError={handleGlobalError}
           />
           <SnapMethodCard
             title="Sign Oracle Data"
             description="Sign oracle data for nano contract"
             onExecute={getSnapSignOracleData}
+            onError={handleGlobalError}
           />
         </div>
       </section>
@@ -398,6 +431,7 @@ export const SnapTester: React.FC = () => {
             title="Change Network"
             description="Switch to testnet network"
             onExecute={getSnapChangeNetwork}
+            onError={handleGlobalError}
           />
         </div>
       </section>
