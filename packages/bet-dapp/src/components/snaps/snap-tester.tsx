@@ -4,7 +4,7 @@ import { SnapMethodCard } from './snap-method-card';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AlertTriangle, X, CheckCircle2, Unplug } from 'lucide-react';
-import { useWalletState } from '@/contexts/WalletStateContext';
+import { NetworkData, useWalletState } from '@/contexts/WalletStateContext';
 
 interface SnapError {
   id: string;
@@ -342,10 +342,20 @@ export const SnapTester: React.FC = () => {
   });
 
   // Settings Methods
-  const getSnapChangeNetwork = wrapWithErrorHandler(async () => {
+	const getSnapChangeNetwork = wrapWithErrorHandler(async (newNetwork: 'testnet' | 'mainnet' = 'testnet') => {
     return await invokeSnap({
       method: 'htr_changeNetwork',
-      params: { newNetwork: 'testnet' }
+      params: { newNetwork: newNetwork }
+    }).then((data) => {
+			clearWalletState();
+	    const typedData = (JSON.parse(data as string) ?? {}) as { type: number; response: { newNetwork: string } };
+
+	    const newData : NetworkData = {
+				network: typedData.response.newNetwork,
+				genesisHash: '',
+				lastUpdated: Date.now(),
+			};
+	    updateNetwork(newData)
     });
   });
 
@@ -545,6 +555,18 @@ export const SnapTester: React.FC = () => {
                         </span>
                       </div>
                     )}
+                    {walletState.network.network !== 'testnet' && (
+                      <div className="pt-2 border-t border-gray-700/50">
+                        <Button
+                          onClick={() => getSnapChangeNetwork()}
+                          size="sm"
+                          variant="outline"
+                          className="w-full border-hathor-yellow-500/50 text-hathor-yellow-400 hover:bg-hathor-yellow-500/10 hover:text-hathor-yellow-300"
+                        >
+                          Switch to Testnet
+                        </Button>
+                      </div>
+                    )}
                     <div className="flex items-center justify-between pt-2 border-t border-gray-700/50">
                       <span className="text-xs text-gray-500">Last updated:</span>
                       <span className="text-xs text-gray-500">
@@ -701,12 +723,30 @@ export const SnapTester: React.FC = () => {
       <section>
         <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Settings</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <SnapMethodCard
-            title="Change Network"
-            description="Switch to testnet network"
-            onExecute={getSnapChangeNetwork}
-            onError={handleGlobalError}
-          />
+          <Card className="p-6 bg-gray-900/50 border-gray-700">
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold mb-2">Change Network</h3>
+              <p className="text-sm text-gray-400">
+                Switch between Hathor networks
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => getSnapChangeNetwork('testnet')}
+                disabled={walletState.network?.network === 'testnet'}
+                className="flex-1 bg-hathor-yellow-500 hover:bg-hathor-yellow-600 text-black font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Testnet
+              </Button>
+              <Button
+                onClick={() => getSnapChangeNetwork('mainnet')}
+                disabled={walletState.network?.network === 'mainnet'}
+                className="flex-1 bg-hathor-yellow-500 hover:bg-hathor-yellow-600 text-black font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Mainnet
+              </Button>
+            </div>
+          </Card>
         </div>
       </section>
     </div>
