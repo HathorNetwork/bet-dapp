@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useRequestSnap, useInvokeSnap, useMetaMaskContext } from 'snap-utils';
 import { SnapMethodCard } from './snap-method-card';
 import { GetBalanceCard } from './get-balance-card';
+import { GetUtxosCard } from './get-utxos-card';
 import { SendTxCard, SendTxParams } from './send-tx-card';
 import { CreateTokenCard, CreateTokenParams } from './create-token-card';
 import { SignWithAddressCard } from './sign-with-address-card';
@@ -462,10 +463,8 @@ export const SnapTester: React.FC = () => {
 	    <section>
 		    <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">UTXOs</h2>
 		    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-			    <SnapMethodCard
-				    title="Get UTXOs"
-				    description="Retrieve unspent transaction outputs"
-				    onExecute={async () => await getSnapUtxosSimple('00')}
+			    <GetUtxosCard
+				    onExecute={getSnapUtxosSimple}
 				    onError={handleGlobalError}
 				    disabled={isExecutingMethod}
 			    />

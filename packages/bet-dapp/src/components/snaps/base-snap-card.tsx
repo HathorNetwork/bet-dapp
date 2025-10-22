@@ -67,6 +67,7 @@ export const BaseSnapCard: React.FC<BaseSnapCardProps> = ({
         description: options.successMessage || `${title} executed successfully`,
       });
     } catch (err: any) {
+			console.warn(`[BaseSnapCard] executeWrapper error on ${title}`, err);
       const errorMessage = err.message || 'An error occurred';
       setError(errorMessage);
       setExpanded(true);
