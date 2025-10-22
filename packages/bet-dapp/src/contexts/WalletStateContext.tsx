@@ -132,15 +132,33 @@ export const WalletStateProvider: React.FC<{ children: ReactNode }> = ({ childre
     });
   };
 
-  // Update UTXOs (replaces entire array)
+  // Update UTXOs (merges with existing UTXOs, using txId+index as unique identifier)
   const updateUtxos = (utxos: Omit<UtxoData, 'lastUpdated'>[]) => {
-    setWalletState((prev) => ({
-      ...prev,
-      utxos: utxos.map(utxo => ({
-        ...utxo,
-        lastUpdated: Date.now(),
-      })),
-    }));
+    setWalletState((prev) => {
+      // Create a map of existing UTXOs for efficient lookup
+      const utxoMap = new Map<string, UtxoData>();
+
+      // Add existing UTXOs to map
+      prev.utxos.forEach(utxo => {
+        const key = `${utxo.txId}:${utxo.index}`;
+        utxoMap.set(key, utxo);
+      });
+
+      // Add or update UTXOs from new batch
+      utxos.forEach(utxo => {
+        const key = `${utxo.txId}:${utxo.index}`;
+        utxoMap.set(key, {
+          ...utxo,
+          lastUpdated: Date.now(),
+        });
+      });
+
+      // Convert map back to array
+      return {
+        ...prev,
+        utxos: Array.from(utxoMap.values()),
+      };
+    });
   };
 
   // Update network
