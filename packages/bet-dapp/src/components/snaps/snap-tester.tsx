@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useRequestSnap, useInvokeSnap, useMetaMaskContext } from 'snap-utils';
 import { SnapMethodCard } from './snap-method-card';
 import { GetBalanceCard } from './get-balance-card';
 import { SendTxCard, SendTxParams } from './send-tx-card';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { AlertTriangle, X, Copy, ChevronDown, ChevronRight } from 'lucide-react';
-import { NetworkData, useWalletState } from '@/contexts/WalletStateContext';
+import { AlertTriangle, X, Copy, ChevronDown, ChevronRight, ArrowUpRight } from 'lucide-react';
+import { NetworkData, useWalletState, UtxoData } from '@/contexts/WalletStateContext';
 
 interface SnapError {
   id: string;
@@ -38,6 +38,7 @@ export const SnapTester: React.FC = () => {
     changeAddress: ''
   });
   const [expandedTxs, setExpandedTxs] = useState<Set<string>>(new Set());
+  const sendTxCardRef = useRef<HTMLDivElement>(null);
 
   const isConnected = installedSnap !== null;
   const hasWalletData = walletState.addresses.size > 0 || walletState.balances.size > 0 || walletState.utxos.length > 0 || walletState.network !== null || walletState.xpub !== null || walletState.transactions.size > 0;
@@ -591,6 +592,45 @@ export const SnapTester: React.FC = () => {
     });
   };
 
+  /**
+   * Helper function to use a specific UTXO as input for send transaction
+   */
+  const handleUseUtxoAsInput = (utxo: UtxoData) => {
+    // Try to find a different address than the UTXO's address
+    let targetAddress = utxo.address;
+    const addresses = Array.from(walletState.addresses.values());
+    const differentAddress = addresses.find(addr => addr.address !== utxo.address);
+    if (differentAddress) {
+      targetAddress = differentAddress.address;
+    }
+
+    // Build the new params
+    const newParams: SendTxParams = {
+      outputs: [
+        {
+          type: 'address',
+          address: targetAddress,
+          value: utxo.value,
+          token: utxo.token === '00' ? '' : utxo.token, // Empty string for HTR, otherwise use token
+        },
+      ],
+      inputs: [
+        {
+          txId: utxo.txId,
+          index: String(utxo.index),
+        },
+      ],
+      changeAddress: '',
+    };
+
+    setSendTxParams(newParams);
+
+    // Scroll to the send transaction card
+    if (sendTxCardRef.current) {
+      sendTxCardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Global Error Display */}
@@ -944,6 +984,20 @@ export const SnapTester: React.FC = () => {
 	                          </span>
 	                        </div>
                         </div>
+
+                        {/* Use UTXO button */}
+                        <div className="pt-2 border-t border-gray-700/50">
+                          <Button
+                            onClick={() => handleUseUtxoAsInput(utxo)}
+                            disabled={utxo.locked}
+                            size="sm"
+                            variant="outline"
+                            className="w-full border-hathor-yellow-500/50 text-hathor-yellow-400 hover:bg-hathor-yellow-500/10 hover:text-hathor-yellow-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <ArrowUpRight className="h-3 w-3 mr-1" />
+                            Use as Input
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -1268,14 +1322,16 @@ export const SnapTester: React.FC = () => {
       <section>
 	      <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Transactions</h2>
 	      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <SendTxCard
-            onExecute={getSnapSendTx}
-            onError={handleGlobalError}
-            disabled={isExecutingMethod}
-            sendTxParams={sendTxParams}
-            setSendTxParams={setSendTxParams}
-            walletState={walletState}
-          />
+          <div ref={sendTxCardRef}>
+            <SendTxCard
+              onExecute={getSnapSendTx}
+              onError={handleGlobalError}
+              disabled={isExecutingMethod}
+              sendTxParams={sendTxParams}
+              setSendTxParams={setSendTxParams}
+              walletState={walletState}
+            />
+          </div>
           <SnapMethodCard
             title="Create Token"
             description="Create a new custom token (TST)"
