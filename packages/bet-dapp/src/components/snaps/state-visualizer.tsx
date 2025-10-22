@@ -1,7 +1,7 @@
 /**
  * State Visualizer Component
- * 
- * This component displays the stored wallet state data including addresses, balances, 
+ *
+ * This component displays the stored wallet state data including addresses, balances,
  * network info, xpub, UTXOs, and transactions.
  */
 
@@ -38,12 +38,12 @@ export const StateVisualizer: React.FC<StateVisualizerProps> = ({
   isExecutingMethod,
   getSnapChangeNetwork,
 }) => {
-  const hasWalletData = 
-    walletState.addresses.size > 0 || 
-    walletState.balances.size > 0 || 
-    walletState.utxos.length > 0 || 
-    walletState.network !== null || 
-    walletState.xpub !== null || 
+  const hasWalletData =
+    walletState.addresses.size > 0 ||
+    walletState.balances.size > 0 ||
+    walletState.utxos.length > 0 ||
+    walletState.network !== null ||
+    walletState.xpub !== null ||
     walletState.transactions.size > 0;
 
   if (!hasWalletData) {
@@ -64,7 +64,89 @@ export const StateVisualizer: React.FC<StateVisualizerProps> = ({
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4 mb-4">
+
+	      {/* Network */}
+	      {walletState.network && (
+		      <Card className="p-4">
+			      <h3 className="text-lg font-semibold mb-3 text-hathor-yellow-500">Network</h3>
+			      <div className="bg-gray-900/50 border border-gray-700 rounded p-3">
+				      <div className="space-y-1">
+					      <div className="flex items-center justify-between">
+						      <span className="text-sm text-gray-400">Current Network:</span>
+						      <span className="text-sm font-semibold text-hathor-yellow-400">
+                    {walletState.network.network}
+                  </span>
+					      </div>
+					      {walletState.network.genesisHash && (
+						      <div className="flex items-start justify-between gap-2">
+							      <span className="text-xs text-gray-500 flex-shrink-0">Genesis Hash:</span>
+							      <span className="text-xs font-mono text-gray-500 break-all text-right">
+                      {walletState.network.genesisHash}
+                    </span>
+						      </div>
+					      )}
+					      {walletState.network.network !== 'testnet' && (
+						      <div className="pt-2 border-t border-gray-700/50">
+							      <Button
+								      onClick={() => getSnapChangeNetwork()}
+								      disabled={isExecutingMethod}
+								      size="sm"
+								      variant="outline"
+								      className="w-full border-hathor-yellow-500/50 text-hathor-yellow-400 hover:bg-hathor-yellow-500/10 hover:text-hathor-yellow-300"
+							      >
+								      Switch to Testnet
+							      </Button>
+						      </div>
+					      )}
+					      <div className="flex items-center justify-between pt-2 border-t border-gray-700/50">
+						      <span className="text-xs text-gray-500">Last updated:</span>
+						      <span className="text-xs text-gray-500">
+                    {new Date(walletState.network.lastUpdated).toLocaleTimeString()}
+                  </span>
+					      </div>
+				      </div>
+			      </div>
+		      </Card>
+	      )}
+
+	      {/* Xpub */}
+	      {walletState.xpub && (
+		      <Card className="p-4">
+			      <h3 className="text-lg font-semibold mb-3 text-hathor-yellow-500">Extended Public Key</h3>
+			      <div className="bg-gray-900/50 border border-gray-700 rounded p-3">
+				      <div className="space-y-1">
+					      <div className="flex items-start justify-between gap-2">
+						      <span className="text-sm text-gray-400 flex-shrink-0">Xpub:</span>
+						      <div className="flex items-start gap-1.5 min-w-0">
+							      <button
+								      onClick={() => navigator.clipboard.writeText(walletState.xpub!.xpub)}
+								      className="text-gray-400 hover:text-hathor-yellow-400 transition-colors flex-shrink-0 mt-0.5"
+								      title="Copy to clipboard"
+							      >
+								      <Copy className="h-3 w-3" />
+							      </button>
+							      <span className="text-xs font-mono text-gray-300 break-all text-right">
+                      {walletState.xpub.xpub}
+                    </span>
+						      </div>
+					      </div>
+					      <div className="flex items-center justify-between pt-2 border-t border-gray-700/50">
+						      <span className="text-xs text-gray-500">Last updated:</span>
+						      <span className="text-xs text-gray-500">
+                    {new Date(walletState.xpub.lastUpdated).toLocaleTimeString()}
+                  </span>
+					      </div>
+				      </div>
+			      </div>
+		      </Card>
+	      )}
+
+			</div>
+
+	    <hr className="border-t border-gray-700/50 my-4" />
+
+	    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Addresses */}
         {walletState.addresses.size > 0 && (
           <Card className="p-4">
@@ -199,82 +281,6 @@ export const StateVisualizer: React.FC<StateVisualizerProps> = ({
                   </div>
                 </div>
               ))}
-            </div>
-          </Card>
-        )}
-
-        {/* Network */}
-        {walletState.network && (
-          <Card className="p-4">
-            <h3 className="text-lg font-semibold mb-3 text-hathor-yellow-500">Network</h3>
-            <div className="bg-gray-900/50 border border-gray-700 rounded p-3">
-              <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-400">Current Network:</span>
-                  <span className="text-sm font-semibold text-hathor-yellow-400">
-                    {walletState.network.network}
-                  </span>
-                </div>
-                {walletState.network.genesisHash && (
-                  <div className="flex items-start justify-between gap-2">
-                    <span className="text-xs text-gray-500 flex-shrink-0">Genesis Hash:</span>
-                    <span className="text-xs font-mono text-gray-500 break-all text-right">
-                      {walletState.network.genesisHash}
-                    </span>
-                  </div>
-                )}
-                {walletState.network.network !== 'testnet' && (
-                  <div className="pt-2 border-t border-gray-700/50">
-                    <Button
-                      onClick={() => getSnapChangeNetwork()}
-                      disabled={isExecutingMethod}
-                      size="sm"
-                      variant="outline"
-                      className="w-full border-hathor-yellow-500/50 text-hathor-yellow-400 hover:bg-hathor-yellow-500/10 hover:text-hathor-yellow-300"
-                    >
-                      Switch to Testnet
-                    </Button>
-                  </div>
-                )}
-                <div className="flex items-center justify-between pt-2 border-t border-gray-700/50">
-                  <span className="text-xs text-gray-500">Last updated:</span>
-                  <span className="text-xs text-gray-500">
-                    {new Date(walletState.network.lastUpdated).toLocaleTimeString()}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* Xpub */}
-        {walletState.xpub && (
-          <Card className="p-4">
-            <h3 className="text-lg font-semibold mb-3 text-hathor-yellow-500">Extended Public Key</h3>
-            <div className="bg-gray-900/50 border border-gray-700 rounded p-3">
-              <div className="space-y-1">
-                <div className="flex items-start justify-between gap-2">
-                  <span className="text-sm text-gray-400 flex-shrink-0">Xpub:</span>
-                  <div className="flex items-start gap-1.5 min-w-0">
-                    <button
-                      onClick={() => navigator.clipboard.writeText(walletState.xpub!.xpub)}
-                      className="text-gray-400 hover:text-hathor-yellow-400 transition-colors flex-shrink-0 mt-0.5"
-                      title="Copy to clipboard"
-                    >
-                      <Copy className="h-3 w-3" />
-                    </button>
-                    <span className="text-xs font-mono text-gray-300 break-all text-right">
-                      {walletState.xpub.xpub}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between pt-2 border-t border-gray-700/50">
-                  <span className="text-xs text-gray-500">Last updated:</span>
-                  <span className="text-xs text-gray-500">
-                    {new Date(walletState.xpub.lastUpdated).toLocaleTimeString()}
-                  </span>
-                </div>
-              </div>
             </div>
           </Card>
         )}
