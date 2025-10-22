@@ -3,7 +3,9 @@ import { useRequestSnap, useInvokeSnap, useMetaMaskContext } from 'snap-utils';
 import { SnapMethodCard } from './snap-method-card';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { AlertTriangle, X, Copy } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { AlertTriangle, X, Copy, Plus, Minus } from 'lucide-react';
 import { NetworkData, useWalletState } from '@/contexts/WalletStateContext';
 
 interface SnapError {
@@ -27,6 +29,7 @@ export const SnapTester: React.FC = () => {
   const { walletState, updateAddress, updateBalance, updateUtxos, updateNetwork, updateXpub, clearWalletState } = useWalletState();
   const [globalErrors, setGlobalErrors] = useState<SnapError[]>([]);
   const [isExecutingMethod, setIsExecutingMethod] = useState<boolean>(false);
+  const [balanceTokens, setBalanceTokens] = useState<string[]>(['00']);
 
   const isConnected = installedSnap !== null;
   const hasWalletData = walletState.addresses.size > 0 || walletState.balances.size > 0 || walletState.utxos.length > 0 || walletState.network !== null || walletState.xpub !== null;
@@ -220,10 +223,13 @@ export const SnapTester: React.FC = () => {
   });
 
   const getSnapBalance = wrapWithErrorHandler(async () => {
+    // Filter out empty tokens
+    const filteredTokens = balanceTokens.filter(token => token.trim() !== '');
+
     const result = await invokeSnap({
       method: 'htr_getBalance',
       params: {
-        tokens: ['00', '00000337f9db18c355a376697f64fd6e36945fc984d6569b4b0d86e2af185945']
+        tokens: filteredTokens
       }
     });
 
@@ -303,6 +309,60 @@ export const SnapTester: React.FC = () => {
   // Transaction Methods
   const getSnapUtxos = wrapWithErrorHandler(async () => {
     const result = await invokeSnap({ method: 'htr_getUtxos', params: {} });
+
+    // Parse and store the UTXO data
+    if (result) {
+      try {
+        const parsed = JSON.parse(result as string);
+        if (parsed.type === 5 && parsed.response && Array.isArray(parsed.response.utxos)) {
+          const utxos = parsed.response.utxos.map((utxo: any) => ({
+            txId: utxo.tx_id,
+            index: utxo.index,
+            value: String(utxo.amount),
+            token: '00', // Default to HTR token, update if token info is available
+            address: utxo.address,
+            locked: utxo.locked || false,
+          }));
+          updateUtxos(utxos);
+        }
+      } catch (e) {
+        console.error('Failed to parse UTXOs response:', e);
+      }
+    }
+
+    return result;
+  });
+
+  const getSnapUtxosAdvanced = wrapWithErrorHandler(async (inputValues?: Record<string, string>) => {
+    // Build params object from input values, only including non-empty values
+    const params: any = {};
+
+    if (inputValues?.maxUtxos && inputValues.maxUtxos.trim()) {
+      params.maxUtxos = parseInt(inputValues.maxUtxos, 10);
+    }
+    if (inputValues?.token && inputValues.token.trim()) {
+      params.token = inputValues.token.trim();
+    }
+    if (inputValues?.filterAddress && inputValues.filterAddress.trim()) {
+      params.filterAddress = inputValues.filterAddress.trim();
+    }
+    if (inputValues?.authorities && inputValues.authorities.trim()) {
+      params.authorities = parseInt(inputValues.authorities, 10);
+    }
+    if (inputValues?.amountSmallerThan && inputValues.amountSmallerThan.trim()) {
+      params.amountSmallerThan = parseInt(inputValues.amountSmallerThan, 10);
+    }
+    if (inputValues?.amountBiggerThan && inputValues.amountBiggerThan.trim()) {
+      params.amountBiggerThan = parseInt(inputValues.amountBiggerThan, 10);
+    }
+    if (inputValues?.maximumAmount && inputValues.maximumAmount.trim()) {
+      params.maximumAmount = parseInt(inputValues.maximumAmount, 10);
+    }
+    if (inputValues?.onlyAvailableUtxos && inputValues.onlyAvailableUtxos.trim()) {
+      params.onlyAvailableUtxos = inputValues.onlyAvailableUtxos.toLowerCase() === 'true';
+    }
+
+    const result = await invokeSnap({ method: 'htr_getUtxos', params });
 
     // Parse and store the UTXO data
     if (result) {
@@ -586,9 +646,18 @@ export const SnapTester: React.FC = () => {
                         </div>
                         <div className="flex items-start justify-between gap-2">
                           <span className="text-xs text-gray-500 flex-shrink-0">Token ID:</span>
-                          <span className="text-xs font-mono text-gray-500 break-all text-right">
-                            {balanceData.token.id}
-                          </span>
+	                        <div className="flex items-start gap-1.5 min-w-0">
+		                        <button
+			                        onClick={() => navigator.clipboard.writeText(balanceData.token.id)}
+			                        className="text-gray-500 hover:text-hathor-yellow-400 transition-colors flex-shrink-0 mt-0.5"
+			                        title="Copy to clipboard"
+		                        >
+			                        <Copy className="h-3 w-3" />
+		                        </button>
+		                        <span className="text-xs font-mono text-gray-500 break-all text-right">
+	                            {balanceData.token.id}
+	                          </span>
+	                        </div>
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-gray-400">Unlocked:</span>
@@ -789,13 +858,68 @@ export const SnapTester: React.FC = () => {
               }
             ]}
           />
-          <SnapMethodCard
-            title="Get Balance"
-            description="Get balances for HTR and specified tokens"
-            onExecute={getSnapBalance}
-            onError={handleGlobalError}
-            disabled={isExecutingMethod}
-          />
+          <Card className="p-4 hover:border-hathor-yellow-500/50">
+            <div className="flex flex-col space-y-3">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold mb-1">Get Balance</h3>
+                  <p className="text-sm text-gray-400">Get balances for specified tokens</p>
+                </div>
+                <Button
+                  onClick={getSnapBalance}
+                  disabled={isExecutingMethod}
+                  className="ml-4 flex-shrink-0"
+                  size="sm"
+                >
+                  Execute
+                </Button>
+              </div>
+
+              <div className="space-y-2 pt-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Token IDs</Label>
+                  <Button
+                    onClick={() => setBalanceTokens([...balanceTokens, ''])}
+                    variant="outline"
+                    size="sm"
+                    className="h-7 px-2"
+                  >
+                    <Plus className="h-3 w-3 mr-1" />
+                    Add Token
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  {balanceTokens.map((token, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <Input
+                        value={token}
+                        onChange={(e) => {
+                          const newTokens = [...balanceTokens];
+                          newTokens[index] = e.target.value;
+                          setBalanceTokens(newTokens);
+                        }}
+                        placeholder="Token ID (e.g., 00 for HTR)"
+                        className="bg-gray-900/50 border-gray-700 flex-1"
+                      />
+                      {balanceTokens.length > 1 && (
+                        <Button
+                          onClick={() => {
+                            const newTokens = balanceTokens.filter((_, i) => i !== index);
+                            setBalanceTokens(newTokens);
+                          }}
+                          variant="ghost"
+                          size="sm"
+                          className="h-9 w-9 p-0 text-gray-400 hover:text-red-400"
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Card>
           <SnapMethodCard
             title="Get Network"
             description="Get the currently connected network (does not require confirmation)"
@@ -820,17 +944,81 @@ export const SnapTester: React.FC = () => {
         </div>
       </section>
 
+	    {/* UTXO Section */}
+	    <section>
+		    <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">UTXOs</h2>
+		    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+			    <SnapMethodCard
+				    title="Get UTXOs"
+				    description="Retrieve unspent transaction outputs"
+				    onExecute={getSnapUtxos}
+				    onError={handleGlobalError}
+				    disabled={isExecutingMethod}
+			    />
+			    <SnapMethodCard
+				    title="Get UTXOs (Advanced)"
+				    description="Retrieve UTXOs with advanced filtering options"
+				    onExecute={getSnapUtxosAdvanced}
+				    onError={handleGlobalError}
+				    disabled={isExecutingMethod}
+				    inputs={[
+					    {
+						    name: 'maxUtxos',
+						    label: 'Max UTXOs',
+						    defaultValue: '',
+						    placeholder: 'Maximum number of UTXOs to return'
+					    },
+					    {
+						    name: 'token',
+						    label: 'Token ID',
+						    defaultValue: '',
+						    placeholder: 'Filter by token (e.g., 00 for HTR)'
+					    },
+					    {
+						    name: 'filterAddress',
+						    label: 'Address',
+						    defaultValue: '',
+						    placeholder: 'Filter by specific address'
+					    },
+					    {
+						    name: 'authorities',
+						    label: 'Authorities',
+						    defaultValue: '',
+						    placeholder: 'Filter by authority mask (number)'
+					    },
+					    {
+						    name: 'amountSmallerThan',
+						    label: 'Amount <',
+						    defaultValue: '',
+						    placeholder: 'Maximum amount per UTXO'
+					    },
+					    {
+						    name: 'amountBiggerThan',
+						    label: 'Amount >',
+						    defaultValue: '',
+						    placeholder: 'Minimum amount per UTXO'
+					    },
+					    {
+						    name: 'maximumAmount',
+						    label: 'Total Max Amount',
+						    defaultValue: '',
+						    placeholder: 'Maximum total amount'
+					    },
+					    {
+						    name: 'onlyAvailableUtxos',
+						    label: 'Available Only',
+						    defaultValue: '',
+						    placeholder: 'true or false'
+					    }
+				    ]}
+			    />
+		    </div>
+	    </section>
+
       {/* Transaction Section */}
       <section>
-        <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Transactions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <SnapMethodCard
-            title="Get UTXOs"
-            description="Retrieve unspent transaction outputs"
-            onExecute={getSnapUtxos}
-            onError={handleGlobalError}
-            disabled={isExecutingMethod}
-          />
+	      <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Transactions</h2>
+	      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <SnapMethodCard
             title="Send Transaction"
             description="Send a test transaction with data output"
