@@ -372,7 +372,7 @@ export const SnapTester: React.FC = () => {
             txId: utxo.tx_id,
             index: utxo.index,
             value: String(utxo.amount),
-            token: '00', // Default to HTR token, update if token info is available
+            token: params.token ?? '00', // Default to HTR token, update if token info is available
             address: utxo.address,
             locked: utxo.locked || false,
           }));
@@ -495,6 +495,16 @@ export const SnapTester: React.FC = () => {
 	    updateNetwork(newData)
     });
   });
+
+  /**
+   * Helper function to get token information from balances.
+   * Returns token info if found in wallet state, otherwise null.
+   * Used for graceful degradation when displaying token information.
+   */
+  const getTokenInfo = (tokenId: string): { id: string; symbol: string; name: string } | null => {
+    const balanceData = walletState.balances.get(tokenId);
+    return balanceData ? balanceData.token : null;
+  };
 
   return (
     <div className="space-y-6">
@@ -806,9 +816,33 @@ export const SnapTester: React.FC = () => {
                         </div>
                         <div className="flex items-start justify-between gap-2">
                           <span className="text-sm text-gray-400 flex-shrink-0">Token:</span>
-                          <span className="text-sm font-mono text-gray-300 break-all text-right">
-                            {utxo.token === '00' ? 'HTR' : utxo.token}
-                          </span>
+                          {(() => {
+                            const tokenInfo = getTokenInfo(utxo.token);
+                            if (tokenInfo) {
+                              // Nice display: Symbol (Name)
+                              return (
+                                <span className="text-sm font-mono text-gray-300 break-all text-right">
+                                  {tokenInfo.symbol} ({tokenInfo.name})
+                                </span>
+                              );
+                            } else {
+                              // Fallback: Raw token ID with copy button
+                              return (
+                                <div className="flex items-start gap-1.5 min-w-0">
+                                  <button
+                                    onClick={() => navigator.clipboard.writeText(utxo.token)}
+                                    className="text-gray-500 hover:text-hathor-yellow-400 transition-colors flex-shrink-0 mt-0.5"
+                                    title="Copy to clipboard"
+                                  >
+                                    <Copy className="h-3 w-3" />
+                                  </button>
+                                  <span className="text-xs font-mono text-gray-500 break-all text-right">
+                                    {utxo.token}
+                                  </span>
+                                </div>
+                              );
+                            }
+                          })()}
                         </div>
                         <div className="flex items-start justify-between gap-2">
                           <span className="text-sm text-gray-400 flex-shrink-0">Address:</span>
