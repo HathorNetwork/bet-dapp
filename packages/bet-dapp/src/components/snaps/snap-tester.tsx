@@ -196,10 +196,10 @@ export const SnapTester: React.FC = () => {
 	    const wrapperName = fn?.name || 'anonymous'
 	    try {
         const wrappedResult = await fn(...args);
-	      console.log(`Result from wrapped function: ${wrapperName}`, { args, result: wrappedResult });
+	      console.log(`Result from wrapped function: `, { wrapperName, args, result: wrappedResult });
 				return wrappedResult;
       } catch (error) {
-        console.error(`Error caught in wrapper function: ${wrapperName}`, error);
+        console.error(`Error caught in wrapper function: `, { wrapperName, args, error });
         handleGlobalError(error);
         throw error;
       } finally {
