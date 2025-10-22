@@ -527,6 +527,8 @@ export const SnapTester: React.FC = () => {
       }
     }
 
+	  console.log(`Invoking createToken with params:`, invokeParams);
+
     const result = await invokeSnap({
       method: 'htr_createToken',
       params: invokeParams
