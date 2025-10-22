@@ -3,7 +3,8 @@ import { BaseSnapCard } from './base-snap-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Plus, Minus } from 'lucide-react';
+import { Loader2, Plus, Minus, Download } from 'lucide-react';
+import { getKnownTokenIds } from '@/lib/tokenStorage';
 
 export interface GetBalanceCardProps {
   onExecute: () => Promise<any>;
@@ -36,6 +37,24 @@ export const GetBalanceCard: React.FC<GetBalanceCardProps> = ({
     newTokens[index] = value;
     setBalanceTokens(newTokens);
   };
+
+  const handleImportKnownTokens = () => {
+    const knownTokenIds = getKnownTokenIds();
+    if (knownTokenIds.length > 0) {
+      // Merge with existing tokens, avoiding duplicates
+      const existingTokens = new Set(balanceTokens.filter(t => t.trim() !== ''));
+      const newTokens = knownTokenIds.filter(id => !existingTokens.has(id));
+
+      if (newTokens.length > 0) {
+        setBalanceTokens([...balanceTokens.filter(t => t.trim() !== ''), ...newTokens]);
+      }
+    }
+  };
+
+  const knownTokenIds = getKnownTokenIds();
+  const availableToImport = knownTokenIds.filter(
+    id => !balanceTokens.includes(id)
+  ).length;
 
   return (
     <BaseSnapCard
@@ -71,15 +90,31 @@ export const GetBalanceCard: React.FC<GetBalanceCardProps> = ({
           <div className="space-y-2 pt-2">
             <div className="flex items-center justify-between">
               <Label className="text-sm font-medium">Token IDs</Label>
-              <Button
-                onClick={handleAddToken}
-                variant="outline"
-                size="sm"
-                className="h-7 px-2"
-              >
-                <Plus className="h-3 w-3 mr-1" />
-                Add Token
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleImportKnownTokens}
+                  variant="outline"
+                  size="sm"
+                  className="h-7 px-2"
+                >
+                  <Download className="h-3 w-3 mr-1" />
+                  Import Known
+                  {availableToImport > 0 && (
+                    <span className="ml-1 text-xs text-gray-400">
+                      ({availableToImport} available)
+                    </span>
+                  )}
+                </Button>
+                <Button
+                  onClick={handleAddToken}
+                  variant="outline"
+                  size="sm"
+                  className="h-7 px-2"
+                >
+                  <Plus className="h-3 w-3 mr-1" />
+                  Add Token
+                </Button>
+              </div>
             </div>
             <div className="space-y-2">
               {balanceTokens.map((token, index) => (
