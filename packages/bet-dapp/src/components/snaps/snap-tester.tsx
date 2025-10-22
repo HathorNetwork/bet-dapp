@@ -5,7 +5,7 @@ import { GetBalanceCard } from './get-balance-card';
 import { SendTxCard, SendTxParams } from './send-tx-card';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { AlertTriangle, X, Copy, ChevronDown, ChevronRight, ArrowUpRight } from 'lucide-react';
+import { AlertTriangle, X, Copy, ChevronDown, ChevronRight, ArrowUpRight, Loader2 } from 'lucide-react';
 import { NetworkData, useWalletState, UtxoData } from '@/contexts/WalletStateContext';
 
 interface SnapError {
@@ -38,6 +38,7 @@ export const SnapTester: React.FC = () => {
     changeAddress: ''
   });
   const [expandedTxs, setExpandedTxs] = useState<Set<string>>(new Set());
+  const [loadingTokenUtxos, setLoadingTokenUtxos] = useState<Set<string>>(new Set());
   const sendTxCardRef = useRef<HTMLDivElement>(null);
 
   const isConnected = installedSnap !== null;
@@ -316,8 +317,11 @@ export const SnapTester: React.FC = () => {
   });
 
   // Transaction Methods
-  const getSnapUtxos = wrapWithErrorHandler(async () => {
-    const result = await invokeSnap({ method: 'htr_getUtxos', params: {} });
+  const getSnapUtxosSimple = wrapWithErrorHandler(async (tokenUid: string = '00') => {
+    const result = await invokeSnap({
+      method: 'htr_getUtxos',
+      params: { token: tokenUid }
+    });
 
     // Parse and store the UTXO data
     if (result) {
@@ -328,7 +332,7 @@ export const SnapTester: React.FC = () => {
             txId: utxo.tx_id,
             index: utxo.index,
             value: String(utxo.amount),
-            token: '00', // Default to HTR token, update if token info is available
+            token: tokenUid,
             address: utxo.address,
             locked: utxo.locked || false,
           }));
@@ -593,6 +597,29 @@ export const SnapTester: React.FC = () => {
   };
 
   /**
+   * Helper function to fetch UTXOs for a specific token
+   */
+  const handleFetchUtxosForToken = async (tokenId: string) => {
+    setLoadingTokenUtxos(prev => {
+      const newSet = new Set(prev);
+      newSet.add(tokenId);
+      return newSet;
+    });
+
+    try {
+      await getSnapUtxosSimple(tokenId);
+    } catch (error) {
+      console.error('Failed to fetch UTXOs for token:', error);
+    } finally {
+      setLoadingTokenUtxos(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(tokenId);
+        return newSet;
+      });
+    }
+  };
+
+  /**
    * Helper function to use a specific UTXO as input for send transaction
    */
   const handleUseUtxoAsInput = (utxo: UtxoData) => {
@@ -814,6 +841,27 @@ export const SnapTester: React.FC = () => {
                             </span>
                           </div>
                         )}
+
+                        {/* Fetch UTXOs button */}
+                        <div className="pt-2 border-t border-gray-700/50">
+                          <Button
+                            onClick={() => handleFetchUtxosForToken(balanceData.token.id)}
+                            disabled={loadingTokenUtxos.has(balanceData.token.id) || isExecutingMethod}
+                            size="sm"
+                            variant="outline"
+                            className="w-full border-hathor-yellow-500/50 text-hathor-yellow-400 hover:bg-hathor-yellow-500/10 hover:text-hathor-yellow-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {loadingTokenUtxos.has(balanceData.token.id) ? (
+                              <>
+                                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                Fetching...
+                              </>
+                            ) : (
+                              'Fetch UTXOs for Token'
+                            )}
+                          </Button>
+                        </div>
+
                         <div className="flex items-center justify-between pt-2 border-t border-gray-700/50">
                           <span className="text-xs text-gray-500">Last updated:</span>
                           <span className="text-xs text-gray-500">
@@ -1254,7 +1302,7 @@ export const SnapTester: React.FC = () => {
 			    <SnapMethodCard
 				    title="Get UTXOs"
 				    description="Retrieve unspent transaction outputs"
-				    onExecute={getSnapUtxos}
+				    onExecute={async () => await getSnapUtxosSimple('00')}
 				    onError={handleGlobalError}
 				    disabled={isExecutingMethod}
 			    />
