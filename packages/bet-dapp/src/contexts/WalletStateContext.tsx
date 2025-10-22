@@ -39,6 +39,7 @@ export interface UtxoData {
   value: string;
   token: string;
   address: string;
+  locked: boolean;
   lastUpdated: number;
 }
 

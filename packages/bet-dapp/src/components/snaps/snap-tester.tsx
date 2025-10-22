@@ -253,7 +253,29 @@ export const SnapTester: React.FC = () => {
 
   // Transaction Methods
   const getSnapUtxos = wrapWithErrorHandler(async () => {
-    return await invokeSnap({ method: 'htr_getUtxos', params: {} });
+    const result = await invokeSnap({ method: 'htr_getUtxos', params: {} });
+
+    // Parse and store the UTXO data
+    if (result) {
+      try {
+        const parsed = JSON.parse(result as string);
+        if (parsed.type === 5 && parsed.response && Array.isArray(parsed.response.utxos)) {
+          const utxos = parsed.response.utxos.map((utxo: any) => ({
+            txId: utxo.tx_id,
+            index: utxo.index,
+            value: String(utxo.amount),
+            token: '00', // Default to HTR token, update if token info is available
+            address: utxo.address,
+            locked: utxo.locked || false,
+          }));
+          updateUtxos(utxos);
+        }
+      } catch (e) {
+        console.error('Failed to parse UTXOs response:', e);
+      }
+    }
+
+    return result;
   });
 
   const getSnapSendTx = wrapWithErrorHandler(async () => {
@@ -611,7 +633,7 @@ export const SnapTester: React.FC = () => {
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-gray-400">Value:</span>
-                          <span className="text-sm font-mono text-green-400">{utxo.value}</span>
+                          <span className={`text-sm font-mono ${utxo.locked ? 'text-orange-400' : 'text-green-400'}`}>{utxo.value}{utxo.locked && ' (Locked)'}</span>
                         </div>
                         <div className="flex items-start justify-between gap-2">
                           <span className="text-sm text-gray-400 flex-shrink-0">Token:</span>
