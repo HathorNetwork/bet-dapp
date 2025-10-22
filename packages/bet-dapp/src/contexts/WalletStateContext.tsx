@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 export interface AddressData {
   address: string;
   index: number;
-  addressPath: string;
+  addressPath?: string;
   lastUpdated: number;
 }
 

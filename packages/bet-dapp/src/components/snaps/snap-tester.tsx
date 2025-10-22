@@ -67,12 +67,12 @@ export const SnapTester: React.FC = () => {
     }
   }, [contextError, setContextError]);
 
-  // Lazy-load network data on component mount if not already loaded
+  // Lazy-load Wallet Information data on component mount if not already loaded
   useEffect(() => {
     if (isConnected && !walletState.network) {
       (async () => {
         try {
-          await getSnapNetwork();
+          await getSnapWalletInformation();
         } catch (error) {
           console.error('Failed to lazy-load network data:', error);
         }
@@ -245,6 +245,34 @@ export const SnapTester: React.FC = () => {
         }
       } catch (e) {
         console.error('Failed to parse balance response:', e);
+      }
+    }
+
+    return result;
+  });
+
+  const getSnapWalletInformation = wrapWithErrorHandler(async () => {
+    const result = await invokeSnap({ method: 'htr_getWalletInformation' });
+
+    // Parse and store the wallet information data
+    if (result) {
+      try {
+        const parsed = JSON.parse(result as string);
+        if (parsed.type === 12 && parsed.response) {
+          const { network, address0 } = parsed.response;
+
+          // Update network data
+          if (network) {
+            updateNetwork({ network, genesisHash: '' });
+          }
+
+          // Update address at index 0 (without path)
+          if (address0) {
+            updateAddress({ address: address0, index: 0 });
+          }
+        }
+      } catch (e) {
+        console.error('Failed to parse wallet information response:', e);
       }
     }
 
@@ -488,12 +516,14 @@ export const SnapTester: React.FC = () => {
                             {addressData.address}
                           </span>
                         </div>
-                        <div className="flex items-start justify-between gap-2">
-                          <span className="text-sm text-gray-400 flex-shrink-0">Path:</span>
-                          <span className="text-xs font-mono text-gray-500 break-all text-right">
-                            {addressData.addressPath}
-                          </span>
-                        </div>
+                        {addressData.addressPath && (
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="text-sm text-gray-400 flex-shrink-0">Path:</span>
+                            <span className="text-xs font-mono text-gray-500 break-all text-right">
+                              {addressData.addressPath}
+                            </span>
+                          </div>
+                        )}
                         <div className="flex items-center justify-between pt-2 border-t border-gray-700/50">
                           <span className="text-xs text-gray-500">Last updated:</span>
                           <span className="text-xs text-gray-500">
@@ -688,8 +718,15 @@ export const SnapTester: React.FC = () => {
           />
           <SnapMethodCard
             title="Get Network"
-            description="Get the currently connected network"
+            description="Get the currently connected network (does not require confirmation)"
             onExecute={getSnapNetwork}
+            onError={handleGlobalError}
+            disabled={isExecutingMethod}
+          />
+          <SnapMethodCard
+            title="Get Wallet Information"
+            description="Retrieve Network and Address 0 simultaneously (does not require confirmation)"
+            onExecute={getSnapWalletInformation}
             onError={handleGlobalError}
             disabled={isExecutingMethod}
           />
