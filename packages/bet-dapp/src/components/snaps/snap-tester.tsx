@@ -193,12 +193,13 @@ export const SnapTester: React.FC = () => {
   const wrapWithErrorHandler = <T extends any[], R>(fn: (...args: T) => Promise<R>) => {
     return async (...args: T): Promise<R> => {
       setIsExecutingMethod(true);
-      try {
+	    const wrapperName = fn?.name || 'anonymous'
+	    try {
         const wrappedResult = await fn(...args);
-	      console.log(`Result from wrapped function:`, wrappedResult);
+	      console.log(`Result from wrapped function: ${wrapperName}`, { args, result: wrappedResult });
 				return wrappedResult;
       } catch (error) {
-        console.error('Error caught in wrapper:', error);
+        console.error(`Error caught in wrapper function: ${wrapperName}`, error);
         handleGlobalError(error);
         throw error;
       } finally {

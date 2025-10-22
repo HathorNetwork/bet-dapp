@@ -21,7 +21,7 @@ export const GetUtxosCard: React.FC<GetUtxosCardProps> = ({
   const handleExecute = async () => {
     setLoading(true);
     try {
-      await onExecute(tokenId);
+      return await onExecute(tokenId);
     } finally {
       setLoading(false);
     }
