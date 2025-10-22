@@ -17,6 +17,7 @@ interface StateVisualizerProps {
   clearUtxos: () => void;
   handleFetchUtxosForToken: (tokenId: string) => void;
   handleUseUtxoAsInput: (utxo: UtxoData) => void;
+  handleGetXpub: () => void;
   getTokenInfo: (tokenId: string) => { name: string; symbol: string } | null;
   expandedTxs: Set<string>;
   toggleTxExpansion: (hash: string) => void;
@@ -31,6 +32,7 @@ export const StateVisualizer: React.FC<StateVisualizerProps> = ({
   clearUtxos,
   handleFetchUtxosForToken,
   handleUseUtxoAsInput,
+	handleGetXpub,
   getTokenInfo,
   expandedTxs,
   toggleTxExpansion,
@@ -111,10 +113,10 @@ export const StateVisualizer: React.FC<StateVisualizerProps> = ({
 	      )}
 
 	      {/* Xpub */}
-	      {walletState.xpub && (
-		      <Card className="p-4">
-			      <h3 className="text-lg font-semibold mb-3 text-hathor-yellow-500">Extended Public Key</h3>
-			      <div className="bg-gray-900/50 border border-gray-700 rounded p-3">
+	      <Card className="p-4">
+		      <h3 className="text-lg font-semibold mb-3 text-hathor-yellow-500">Extended Public Key</h3>
+		      <div className="bg-gray-900/50 border border-gray-700 rounded p-3">
+			      {walletState.xpub && (
 				      <div className="space-y-1">
 					      <div className="flex items-start justify-between gap-2">
 						      <span className="text-sm text-gray-400 flex-shrink-0">Xpub:</span>
@@ -127,20 +129,43 @@ export const StateVisualizer: React.FC<StateVisualizerProps> = ({
 								      <Copy className="h-3 w-3" />
 							      </button>
 							      <span className="text-xs font-mono text-gray-300 break-all text-right">
-                      {walletState.xpub.xpub}
-                    </span>
+                    {walletState.xpub.xpub}
+                  </span>
 						      </div>
 					      </div>
 					      <div className="flex items-center justify-between pt-2 border-t border-gray-700/50">
 						      <span className="text-xs text-gray-500">Last updated:</span>
 						      <span className="text-xs text-gray-500">
-                    {new Date(walletState.xpub.lastUpdated).toLocaleTimeString()}
-                  </span>
+                  {new Date(walletState.xpub.lastUpdated).toLocaleTimeString()}
+                </span>
 					      </div>
 				      </div>
-			      </div>
-		      </Card>
-	      )}
+			      )}
+			      {!walletState.xpub && (
+				      <div className="space-y-1">
+					      <div className="text-sm text-gray-500">No extended public key stored.</div>
+					      <div className="pt-2 border-t border-gray-700/50">
+						      <Button
+							      onClick={() => handleGetXpub()}
+							      disabled={isExecutingMethod}
+							      size="sm"
+							      variant="outline"
+							      className="w-full border-hathor-yellow-500/50 text-hathor-yellow-400 hover:bg-hathor-yellow-500/10 hover:text-hathor-yellow-300 disabled:opacity-50 disabled:cursor-not-allowed"
+						      >
+							      {isExecutingMethod ? (
+								      <>
+									      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+									      Fetching...
+								      </>
+							      ) : (
+								      'Fetch xPub for Wallet'
+							      )}
+						      </Button>
+					      </div>
+				      </div>
+			      )}
+		      </div>
+	      </Card>
 
 			</div>
 

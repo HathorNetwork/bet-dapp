@@ -408,6 +408,7 @@ export const SnapTester: React.FC = () => {
 		    clearUtxos={clearUtxos}
 		    handleFetchUtxosForToken={handleFetchUtxosForToken}
 		    handleUseUtxoAsInput={handleUseUtxoAsInput}
+		    handleGetXpub={getSnapXpub}
 		    getTokenInfo={getTokenInfo}
 		    expandedTxs={expandedTxs}
 		    toggleTxExpansion={toggleTxExpansion}
