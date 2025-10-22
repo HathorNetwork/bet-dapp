@@ -53,6 +53,16 @@ export interface SnapHandlerDependencies {
   balanceTokens?: string[];
 }
 
+// Add params interface for sending Nano Contract transactions
+export interface SendNanoParams {
+  method: string;
+  blueprint_id?: string;
+  nc_id?: string;
+  actions?: unknown[];
+  args: unknown[];
+  push_tx: boolean;
+}
+
 export const createSnapHandlers = (deps: SnapHandlerDependencies) => {
   const {
     invokeSnap,
@@ -417,15 +427,26 @@ export const createSnapHandlers = (deps: SnapHandlerDependencies) => {
       });
     },
 
-    getSnapSendNano: async () => {
+    getSnapSendNano: async (params: SendNanoParams) => {
+      const invokeParams: any = {
+        method: params.method,
+        args: params.args,
+        push_tx: params.push_tx,
+      };
+
+      if (params.blueprint_id && String(params.blueprint_id).trim()) {
+        invokeParams.blueprint_id = params.blueprint_id;
+      }
+      if (params.nc_id && String(params.nc_id).trim()) {
+        invokeParams.nc_id = params.nc_id;
+      }
+      if (params.actions && Array.isArray(params.actions) && params.actions.length > 0) {
+        invokeParams.actions = params.actions;
+      }
+
       return await invokeSnap({
         method: 'htr_sendNanoContractTx',
-        params: {
-          'nc_id': '00000d69f91f375fb76095010963579018b4a9c68549dc7466b09cf97305b490',
-          method: 'bet',
-          actions: [{ type: 'deposit', token: '00', amount: '1' }],
-          args: ['WR5kCGJFvqaonCCTZDPDVMpu8fRnFXN51N', '1x0']
-        }
+        params: invokeParams,
       });
     },
 

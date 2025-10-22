@@ -13,6 +13,8 @@ import { AlertTriangle, X } from 'lucide-react';
 import { useWalletState, UtxoData } from '@/contexts/WalletStateContext';
 import { createSnapHandlers } from './snap-method-handlers';
 import { StateVisualizer } from './state-visualizer';
+import { SendNanoCard } from './send-nano-card';
+import type { SendNanoParams } from './snap-method-handlers';
 
 interface SnapError {
   id: string;
@@ -62,8 +64,16 @@ export const SnapTester: React.FC = () => {
   const [loadingTokenUtxos, setLoadingTokenUtxos] = useState<Set<string>>(new Set());
   const sendTxCardRef = useRef<HTMLDivElement>(null);
 
+  // New state for Send Nano TX params
+  const [sendNanoParams, setSendNanoParams] = useState<SendNanoParams>({
+    method: 'bet',
+    nc_id: '00000d69f91f375fb76095010963579018b4a9c68549dc7466b09cf97305b490',
+    actions: [{ type: 'deposit', token: '00', amount: '1' }],
+    args: ['WR5kCGJFvqaonCCTZDPDVMpu8fRnFXN51N', '1x0'],
+    push_tx: false,
+  });
+
   const isConnected = installedSnap !== null;
-  const hasWalletData = walletState.addresses.size > 0 || walletState.balances.size > 0 || walletState.utxos.length > 0 || walletState.network !== null || walletState.xpub !== null || walletState.transactions.size > 0;
 
   // Check if snap is already installed on mount
   useEffect(() => {
@@ -564,12 +574,12 @@ export const SnapTester: React.FC = () => {
       <section>
         <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Nano Contracts</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <SnapMethodCard
-            title="Send Nano TX"
-            description="Execute a bet nano contract transaction"
+          <SendNanoCard
             onExecute={getSnapSendNano}
             onError={handleGlobalError}
             disabled={isExecutingMethod}
+            sendNanoParams={sendNanoParams}
+            setSendNanoParams={setSendNanoParams}
           />
           <SnapMethodCard
             title="Create Nano + Token"
