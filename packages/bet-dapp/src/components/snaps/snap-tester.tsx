@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useRequestSnap, useInvokeSnap, useMetaMaskContext } from 'snap-utils';
 import { SnapMethodCard } from './snap-method-card';
 import { GetBalanceCard } from './get-balance-card';
+import { SendTxCard, SendTxParams } from './send-tx-card';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AlertTriangle, X, Copy } from 'lucide-react';
@@ -29,6 +30,14 @@ export const SnapTester: React.FC = () => {
   const [globalErrors, setGlobalErrors] = useState<SnapError[]>([]);
   const [isExecutingMethod, setIsExecutingMethod] = useState<boolean>(false);
   const [balanceTokens, setBalanceTokens] = useState<string[]>(['00']);
+  const [sendTxParams, setSendTxParams] = useState<SendTxParams>({
+    outputs: [
+      { type: 'address', address: 'WafpWYepbV13FVM9Qp9brmBTXgjrn3dnfx', value: '10', token: '' },
+      { type: 'data', dataType: '', data: 'abc d' }
+    ],
+    inputs: [],
+    changeAddress: ''
+  });
 
   const isConnected = installedSnap !== null;
   const hasWalletData = walletState.addresses.size > 0 || walletState.balances.size > 0 || walletState.utxos.length > 0 || walletState.network !== null || walletState.xpub !== null;
@@ -386,15 +395,48 @@ export const SnapTester: React.FC = () => {
     return result;
   });
 
-  const getSnapSendTx = wrapWithErrorHandler(async () => {
+  const getSnapSendTx = wrapWithErrorHandler(async (params: SendTxParams) => {
+    // Build the outputs array based on the params
+    const outputs = params.outputs.map(output => {
+      if (output.type === 'address') {
+        const addressOutput: any = {
+          address: output.address,
+          value: output.value
+        };
+        if (output.token && output.token.trim()) {
+          addressOutput.token = output.token;
+        }
+        return addressOutput;
+      } else {
+        const dataOutput: any = {
+          data: output.data
+        };
+        if (output.dataType && output.dataType.trim()) {
+          dataOutput.type = output.dataType;
+        }
+        return dataOutput;
+      }
+    });
+
+    // Build the params object
+    const invokeParams: any = { outputs };
+
+    // Add inputs if provided
+    if (params.inputs && params.inputs.length > 0) {
+      invokeParams.inputs = params.inputs.map(input => ({
+        txId: input.txId,
+        index: parseInt(input.index, 10)
+      }));
+    }
+
+    // Add change address if provided
+    if (params.changeAddress && params.changeAddress.trim()) {
+      invokeParams.changeAddress = params.changeAddress;
+    }
+
     return await invokeSnap({
       method: 'htr_sendTransaction',
-      params: {
-        outputs: [
-          { address: 'WafpWYepbV13FVM9Qp9brmBTXgjrn3dnfx', value: '10' },
-          { data: 'abc d' }
-        ]
-      }
+      params: invokeParams
     });
   });
 
@@ -997,12 +1039,12 @@ export const SnapTester: React.FC = () => {
       <section>
 	      <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Transactions</h2>
 	      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <SnapMethodCard
-            title="Send Transaction"
-            description="Send a test transaction with data output"
+          <SendTxCard
             onExecute={getSnapSendTx}
             onError={handleGlobalError}
             disabled={isExecutingMethod}
+            sendTxParams={sendTxParams}
+            setSendTxParams={setSendTxParams}
           />
           <SnapMethodCard
             title="Create Token"
