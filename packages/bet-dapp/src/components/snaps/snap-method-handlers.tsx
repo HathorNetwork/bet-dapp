@@ -456,13 +456,13 @@ export const createSnapHandlers = (deps: SnapHandlerDependencies) => {
       });
     },
 
-    getSnapSignOracleData: async () => {
+    getSnapSignOracleData: async (ncId: string, data: string, oracle: string) => {
       return await invokeSnap({
         method: 'htr_signOracleData',
         params: {
-          nc_id: '00000d69f91f375fb76095010963579018b4a9c68549dc7466b09cf97305b490',
-          data: '1x0',
-          oracle: 'WdcPHo2NwjSkGtcVUDbrE1SQrUzGdPgLvK'
+          nc_id: ncId,
+          data: data,
+          oracle: oracle
         }
       });
     },

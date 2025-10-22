@@ -5,6 +5,7 @@ import { GetBalanceCard } from './get-balance-card';
 import { SendTxCard, SendTxParams } from './send-tx-card';
 import { CreateTokenCard, CreateTokenParams } from './create-token-card';
 import { SignWithAddressCard } from './sign-with-address-card';
+import { SignOracleDataCard } from './sign-oracle-data-card';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AlertTriangle, X } from 'lucide-react';
@@ -577,12 +578,11 @@ export const SnapTester: React.FC = () => {
             onError={handleGlobalError}
             disabled={isExecutingMethod}
           />
-          <SnapMethodCard
-            title="Sign Oracle Data"
-            description="Sign oracle data for nano contract"
+          <SignOracleDataCard
             onExecute={getSnapSignOracleData}
             onError={handleGlobalError}
             disabled={isExecutingMethod}
+            walletState={walletState}
           />
         </div>
       </section>
