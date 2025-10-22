@@ -54,12 +54,29 @@ export interface XpubData {
   lastUpdated: number;
 }
 
+export interface TransactionData {
+  hash: string;
+  inputs: any[];
+  outputs: any[];
+  signalBits: number;
+  version: number;
+  weight: number;
+  nonce: number;
+  timestamp: number;
+  parents: string[];
+  tokens: any[];
+  headers: any[];
+  _dataToSignCache?: any;
+  lastUpdated: number;
+}
+
 export interface WalletState {
   addresses: Map<number, AddressData>; // key: index
   balances: Map<string, BalanceData>; // key: token
   utxos: UtxoData[];
   network: NetworkData | null;
   xpub: XpubData | null;
+  transactions: Map<string, TransactionData>; // key: hash
 }
 
 // Context Type
@@ -70,6 +87,7 @@ interface WalletStateContextType {
   updateUtxos: (utxos: Omit<UtxoData, 'lastUpdated'>[]) => void;
   updateNetwork: (networkData: Omit<NetworkData, 'lastUpdated'>) => void;
   updateXpub: (xpubData: Omit<XpubData, 'lastUpdated'>) => void;
+  updateTransaction: (transactionData: Omit<TransactionData, 'lastUpdated'>) => void;
   clearWalletState: () => void;
 }
 
@@ -83,6 +101,7 @@ const initialState: WalletState = {
   utxos: [],
   network: null,
   xpub: null,
+  transactions: new Map(),
 };
 
 // Provider Component
@@ -146,6 +165,18 @@ export const WalletStateProvider: React.FC<{ children: ReactNode }> = ({ childre
     }));
   };
 
+  // Update transaction by hash
+  const updateTransaction = (transactionData: Omit<TransactionData, 'lastUpdated'>) => {
+    setWalletState((prev) => {
+      const newTransactions = new Map(prev.transactions);
+      newTransactions.set(transactionData.hash, {
+        ...transactionData,
+        lastUpdated: Date.now(),
+      });
+      return { ...prev, transactions: newTransactions };
+    });
+  };
+
   // Clear all wallet state
   const clearWalletState = () => {
     setWalletState(initialState);
@@ -158,6 +189,7 @@ export const WalletStateProvider: React.FC<{ children: ReactNode }> = ({ childre
     updateUtxos,
     updateNetwork,
     updateXpub,
+    updateTransaction,
     clearWalletState,
   };
 

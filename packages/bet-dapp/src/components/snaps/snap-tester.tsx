@@ -5,7 +5,7 @@ import { GetBalanceCard } from './get-balance-card';
 import { SendTxCard, SendTxParams } from './send-tx-card';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { AlertTriangle, X, Copy } from 'lucide-react';
+import { AlertTriangle, X, Copy, ChevronDown, ChevronRight } from 'lucide-react';
 import { NetworkData, useWalletState } from '@/contexts/WalletStateContext';
 
 interface SnapError {
@@ -26,21 +26,21 @@ export const SnapTester: React.FC = () => {
   const requestSnap = useRequestSnap();
   const invokeSnap = useInvokeSnap();
   const { installedSnap, setInstalledSnap, error: contextError, setError: setContextError } = useMetaMaskContext();
-  const { walletState, updateAddress, updateBalance, updateUtxos, updateNetwork, updateXpub, clearWalletState } = useWalletState();
+  const { walletState, updateAddress, updateBalance, updateUtxos, updateNetwork, updateXpub, updateTransaction, clearWalletState } = useWalletState();
   const [globalErrors, setGlobalErrors] = useState<SnapError[]>([]);
   const [isExecutingMethod, setIsExecutingMethod] = useState<boolean>(false);
   const [balanceTokens, setBalanceTokens] = useState<string[]>(['00']);
   const [sendTxParams, setSendTxParams] = useState<SendTxParams>({
     outputs: [
-      { type: 'address', address: 'WafpWYepbV13FVM9Qp9brmBTXgjrn3dnfx', value: '10', token: '' },
-      { type: 'data', dataType: '', data: 'abc d' }
+      { type: 'address', address: '', value: '1', token: '' },
     ],
     inputs: [],
     changeAddress: ''
   });
+  const [expandedTxs, setExpandedTxs] = useState<Set<string>>(new Set());
 
   const isConnected = installedSnap !== null;
-  const hasWalletData = walletState.addresses.size > 0 || walletState.balances.size > 0 || walletState.utxos.length > 0 || walletState.network !== null || walletState.xpub !== null;
+  const hasWalletData = walletState.addresses.size > 0 || walletState.balances.size > 0 || walletState.utxos.length > 0 || walletState.network !== null || walletState.xpub !== null || walletState.transactions.size > 0;
 
   // Check if snap is already installed on mount
   useEffect(() => {
@@ -434,10 +434,38 @@ export const SnapTester: React.FC = () => {
       invokeParams.changeAddress = params.changeAddress;
     }
 
-    return await invokeSnap({
+    const result = await invokeSnap({
       method: 'htr_sendTransaction',
       params: invokeParams
     });
+
+    // Parse and store the transaction data
+    if (result) {
+      try {
+        const parsed = JSON.parse(result as string);
+        if (parsed.type === 8 && parsed.response) {
+          const txData = parsed.response;
+          updateTransaction({
+            hash: txData.hash,
+            inputs: txData.inputs || [],
+            outputs: txData.outputs || [],
+            signalBits: txData.signalBits,
+            version: txData.version,
+            weight: txData.weight,
+            nonce: txData.nonce,
+            timestamp: txData.timestamp,
+            parents: txData.parents || [],
+            tokens: txData.tokens || [],
+            headers: txData.headers || [],
+            _dataToSignCache: txData._dataToSignCache,
+          });
+        }
+      } catch (e) {
+        console.error('Failed to parse transaction response:', e);
+      }
+    }
+
+    return result;
   });
 
   const getSnapCreateToken = wrapWithErrorHandler(async () => {
@@ -546,6 +574,21 @@ export const SnapTester: React.FC = () => {
   const getTokenInfo = (tokenId: string): { id: string; symbol: string; name: string } | null => {
     const balanceData = walletState.balances.get(tokenId);
     return balanceData ? balanceData.token : null;
+  };
+
+  /**
+   * Helper function to toggle transaction expansion
+   */
+  const toggleTxExpansion = (txHash: string) => {
+    setExpandedTxs(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(txHash)) {
+        newSet.delete(txHash);
+      } else {
+        newSet.add(txHash);
+      }
+      return newSet;
+    });
   };
 
   return (
@@ -904,6 +947,192 @@ export const SnapTester: React.FC = () => {
                       </div>
                     </div>
                   ))}
+                </div>
+              </Card>
+            )}
+
+            {/* Transactions */}
+            {walletState.transactions.size > 0 && (
+              <Card className="p-4 lg:col-span-2">
+                <h3 className="text-lg font-semibold mb-3 text-hathor-yellow-500">
+                  Transactions ({walletState.transactions.size})
+                </h3>
+                <div className="space-y-3">
+                  {Array.from(walletState.transactions.values()).map((tx) => {
+                    const isExpanded = expandedTxs.has(tx.hash);
+                    return (
+                      <div
+                        key={tx.hash}
+                        className="bg-gray-900/50 border border-gray-700 rounded"
+                      >
+                        {/* Compact Header */}
+                        <div
+                          className="p-3 cursor-pointer hover:bg-gray-800/50 transition-colors"
+                          onClick={() => toggleTxExpansion(tx.hash)}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2 min-w-0 flex-1">
+                              {isExpanded ? (
+                                <ChevronDown className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                              ) : (
+                                <ChevronRight className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                              )}
+                              <span className="text-sm text-gray-400 flex-shrink-0">TX:</span>
+                              <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigator.clipboard.writeText(tx.hash);
+                                  }}
+                                  className="text-gray-300 hover:text-hathor-yellow-400 transition-colors flex-shrink-0"
+                                  title="Copy to clipboard"
+                                >
+                                  <Copy className="h-3 w-3" />
+                                </button>
+                                <span className="text-xs font-mono text-gray-300 break-all">
+                                  {tx.hash}
+                                </span>
+                              </div>
+                            </div>
+                            <span className="text-xs text-gray-500 flex-shrink-0">
+                              {new Date(tx.timestamp * 1000).toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Expanded Details */}
+                        {isExpanded && (
+                          <div className="border-t border-gray-700 p-3 space-y-3">
+                            {/* Basic Info */}
+                            <div className="grid grid-cols-2 gap-2 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-gray-400">Version:</span>
+                                <span className="text-gray-300 font-mono">{tx.version}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-400">Weight:</span>
+                                <span className="text-gray-300 font-mono">{tx.weight.toFixed(2)}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-400">Nonce:</span>
+                                <span className="text-gray-300 font-mono">{tx.nonce}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-400">Signal Bits:</span>
+                                <span className="text-gray-300 font-mono">{tx.signalBits}</span>
+                              </div>
+                            </div>
+
+                            {/* Parents */}
+                            {tx.parents.length > 0 && (
+                              <div>
+                                <div className="text-sm text-gray-400 mb-1">Parents:</div>
+                                <div className="space-y-1">
+                                  {tx.parents.map((parent, idx) => (
+                                    <div key={idx} className="flex items-center gap-1.5">
+                                      <button
+                                        onClick={() => navigator.clipboard.writeText(parent)}
+                                        className="text-gray-500 hover:text-hathor-yellow-400 transition-colors flex-shrink-0"
+                                        title="Copy to clipboard"
+                                      >
+                                        <Copy className="h-3 w-3" />
+                                      </button>
+                                      <span className="text-xs font-mono text-gray-500 break-all">
+                                        {parent}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Inputs */}
+                            {tx.inputs.length > 0 && (
+                              <div>
+                                <div className="text-sm text-gray-400 mb-1">
+                                  Inputs ({tx.inputs.length}):
+                                </div>
+                                <div className="space-y-2">
+                                  {tx.inputs.map((input, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="bg-gray-800/50 rounded p-2 space-y-1"
+                                    >
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="text-xs text-gray-500">Hash:</span>
+                                        <button
+                                          onClick={() => navigator.clipboard.writeText(input.hash)}
+                                          className="text-gray-500 hover:text-hathor-yellow-400 transition-colors flex-shrink-0"
+                                          title="Copy to clipboard"
+                                        >
+                                          <Copy className="h-3 w-3" />
+                                        </button>
+                                        <span className="text-xs font-mono text-gray-400 break-all">
+                                          {input.hash}
+                                        </span>
+                                      </div>
+                                      <div className="text-xs text-gray-500">
+                                        Index: <span className="text-gray-400">{input.index}</span>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Outputs */}
+                            {tx.outputs.length > 0 && (
+                              <div>
+                                <div className="text-sm text-gray-400 mb-1">
+                                  Outputs ({tx.outputs.length}):
+                                </div>
+                                <div className="space-y-2">
+                                  {tx.outputs.map((output, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="bg-gray-800/50 rounded p-2 space-y-1"
+                                    >
+                                      <div className="text-xs text-gray-500">
+                                        Value: <span className="text-green-400 font-mono">{output.value}</span>
+                                      </div>
+                                      <div className="text-xs text-gray-500">
+                                        Token Data: <span className="text-gray-400">{output.tokenData}</span>
+                                      </div>
+                                      {output.decodedScript && (
+                                        <div className="text-xs text-gray-500">
+                                          Script: <span className="text-gray-400">{output.decodedScript}</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Tokens */}
+                            {tx.tokens.length > 0 && (
+                              <div>
+                                <div className="text-sm text-gray-400 mb-1">
+                                  Tokens ({tx.tokens.length}):
+                                </div>
+                                <div className="text-xs font-mono text-gray-500">
+                                  {JSON.stringify(tx.tokens, null, 2)}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Last Updated */}
+                            <div className="flex items-center justify-between pt-2 border-t border-gray-700/50">
+                              <span className="text-xs text-gray-500">Last updated:</span>
+                              <span className="text-xs text-gray-500">
+                                {new Date(tx.lastUpdated).toLocaleTimeString()}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </Card>
             )}
