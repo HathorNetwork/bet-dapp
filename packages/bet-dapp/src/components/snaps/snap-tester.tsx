@@ -24,12 +24,12 @@ export const SnapTester: React.FC = () => {
   const requestSnap = useRequestSnap();
   const invokeSnap = useInvokeSnap();
   const { installedSnap, setInstalledSnap, error: contextError, setError: setContextError } = useMetaMaskContext();
-  const { walletState, updateAddress, updateBalance, updateUtxos, updateNetwork, clearWalletState } = useWalletState();
+  const { walletState, updateAddress, updateBalance, updateUtxos, updateNetwork, updateXpub, clearWalletState } = useWalletState();
   const [globalErrors, setGlobalErrors] = useState<SnapError[]>([]);
   const [isExecutingMethod, setIsExecutingMethod] = useState<boolean>(false);
 
   const isConnected = installedSnap !== null;
-  const hasWalletData = walletState.addresses.size > 0 || walletState.balances.size > 0 || walletState.utxos.length > 0 || walletState.network !== null;
+  const hasWalletData = walletState.addresses.size > 0 || walletState.balances.size > 0 || walletState.utxos.length > 0 || walletState.network !== null || walletState.xpub !== null;
 
   // Check if snap is already installed on mount
   useEffect(() => {
@@ -273,6 +273,27 @@ export const SnapTester: React.FC = () => {
         }
       } catch (e) {
         console.error('Failed to parse wallet information response:', e);
+      }
+    }
+
+    return result;
+  });
+
+  const getSnapXpub = wrapWithErrorHandler(async () => {
+    const result = await invokeSnap({ method: 'htr_getXpub' });
+
+    // Parse and store the xpub data
+    if (result) {
+      try {
+        const parsed = JSON.parse(result as string);
+        if (parsed.type === 11 && parsed.response) {
+          const { xpub } = parsed.response;
+          if (xpub) {
+            updateXpub({ xpub });
+          }
+        }
+      } catch (e) {
+        console.error('Failed to parse xpub response:', e);
       }
     }
 
@@ -638,6 +659,29 @@ export const SnapTester: React.FC = () => {
               </Card>
             )}
 
+            {/* Xpub */}
+            {walletState.xpub && (
+              <Card className="p-4">
+                <h3 className="text-lg font-semibold mb-3 text-hathor-yellow-500">Extended Public Key</h3>
+                <div className="bg-gray-900/50 border border-gray-700 rounded p-3">
+                  <div className="space-y-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="text-sm text-gray-400 flex-shrink-0">Xpub:</span>
+                      <span className="text-xs font-mono text-gray-300 break-all text-right">
+                        {walletState.xpub.xpub}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between pt-2 border-t border-gray-700/50">
+                      <span className="text-xs text-gray-500">Last updated:</span>
+                      <span className="text-xs text-gray-500">
+                        {new Date(walletState.xpub.lastUpdated).toLocaleTimeString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            )}
+
             {/* UTXOs */}
             {walletState.utxos.length > 0 && (
               <Card className="p-4 lg:col-span-2">
@@ -727,6 +771,13 @@ export const SnapTester: React.FC = () => {
             title="Get Wallet Information"
             description="Retrieve Network and Address 0 simultaneously (does not require confirmation)"
             onExecute={getSnapWalletInformation}
+            onError={handleGlobalError}
+            disabled={isExecutingMethod}
+          />
+          <SnapMethodCard
+            title="Get Xpub"
+            description="Retrieve the extended public key (xpub)"
+            onExecute={getSnapXpub}
             onError={handleGlobalError}
             disabled={isExecutingMethod}
           />

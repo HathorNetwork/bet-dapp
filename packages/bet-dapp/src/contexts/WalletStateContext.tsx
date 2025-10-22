@@ -49,11 +49,17 @@ export interface NetworkData {
   lastUpdated: number;
 }
 
+export interface XpubData {
+  xpub: string;
+  lastUpdated: number;
+}
+
 export interface WalletState {
   addresses: Map<number, AddressData>; // key: index
   balances: Map<string, BalanceData>; // key: token
   utxos: UtxoData[];
   network: NetworkData | null;
+  xpub: XpubData | null;
 }
 
 // Context Type
@@ -63,6 +69,7 @@ interface WalletStateContextType {
   updateBalance: (balanceData: Omit<BalanceData, 'lastUpdated'>) => void;
   updateUtxos: (utxos: Omit<UtxoData, 'lastUpdated'>[]) => void;
   updateNetwork: (networkData: Omit<NetworkData, 'lastUpdated'>) => void;
+  updateXpub: (xpubData: Omit<XpubData, 'lastUpdated'>) => void;
   clearWalletState: () => void;
 }
 
@@ -75,6 +82,7 @@ const initialState: WalletState = {
   balances: new Map(),
   utxos: [],
   network: null,
+  xpub: null,
 };
 
 // Provider Component
@@ -127,6 +135,17 @@ export const WalletStateProvider: React.FC<{ children: ReactNode }> = ({ childre
     }));
   };
 
+  // Update xpub
+  const updateXpub = (xpubData: Omit<XpubData, 'lastUpdated'>) => {
+    setWalletState((prev) => ({
+      ...prev,
+      xpub: {
+        ...xpubData,
+        lastUpdated: Date.now(),
+      },
+    }));
+  };
+
   // Clear all wallet state
   const clearWalletState = () => {
     setWalletState(initialState);
@@ -138,6 +157,7 @@ export const WalletStateProvider: React.FC<{ children: ReactNode }> = ({ childre
     updateBalance,
     updateUtxos,
     updateNetwork,
+    updateXpub,
     clearWalletState,
   };
 
