@@ -26,7 +26,7 @@ export const SnapTester: React.FC = () => {
   const requestSnap = useRequestSnap();
   const invokeSnap = useInvokeSnap();
   const { installedSnap, setInstalledSnap, error: contextError, setError: setContextError } = useMetaMaskContext();
-  const { walletState, updateAddress, updateBalance, updateUtxos, updateNetwork, updateXpub, updateTransaction, clearWalletState } = useWalletState();
+  const { walletState, updateAddress, updateBalance, updateUtxos, updateNetwork, updateXpub, updateTransaction, clearUtxos, clearWalletState } = useWalletState();
   const [globalErrors, setGlobalErrors] = useState<SnapError[]>([]);
   const [isExecutingMethod, setIsExecutingMethod] = useState<boolean>(false);
   const [balanceTokens, setBalanceTokens] = useState<string[]>(['00']);
@@ -954,9 +954,19 @@ export const SnapTester: React.FC = () => {
             {/* UTXOs */}
             {walletState.utxos.length > 0 && (
               <Card className="p-4 lg:col-span-2">
-                <h3 className="text-lg font-semibold mb-3 text-hathor-yellow-500">
-                  UTXOs ({walletState.utxos.length})
-                </h3>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-semibold text-hathor-yellow-500">
+                    UTXOs ({walletState.utxos.length})
+                  </h3>
+                  <Button
+                    onClick={clearUtxos}
+                    variant="outline"
+                    size="sm"
+                    className="border-gray-600 text-gray-400 hover:bg-gray-800 hover:text-gray-300"
+                  >
+                    Clear UTXOs
+                  </Button>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {walletState.utxos.map((utxo, idx) => (
                     <div

@@ -88,6 +88,7 @@ interface WalletStateContextType {
   updateNetwork: (networkData: Omit<NetworkData, 'lastUpdated'>) => void;
   updateXpub: (xpubData: Omit<XpubData, 'lastUpdated'>) => void;
   updateTransaction: (transactionData: Omit<TransactionData, 'lastUpdated'>) => void;
+  clearUtxos: () => void;
   clearWalletState: () => void;
 }
 
@@ -195,6 +196,14 @@ export const WalletStateProvider: React.FC<{ children: ReactNode }> = ({ childre
     });
   };
 
+  // Clear only UTXOs
+  const clearUtxos = () => {
+    setWalletState((prev) => ({
+      ...prev,
+      utxos: [],
+    }));
+  };
+
   // Clear all wallet state
   const clearWalletState = () => {
     setWalletState(initialState);
@@ -208,6 +217,7 @@ export const WalletStateProvider: React.FC<{ children: ReactNode }> = ({ childre
     updateNetwork,
     updateXpub,
     updateTransaction,
+    clearUtxos,
     clearWalletState,
   };
 
