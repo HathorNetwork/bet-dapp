@@ -1274,6 +1274,7 @@ export const SnapTester: React.FC = () => {
             disabled={isExecutingMethod}
             sendTxParams={sendTxParams}
             setSendTxParams={setSendTxParams}
+            walletState={walletState}
           />
           <SnapMethodCard
             title="Create Token"

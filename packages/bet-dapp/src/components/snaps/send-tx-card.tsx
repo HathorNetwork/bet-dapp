@@ -3,7 +3,7 @@ import { BaseSnapCard } from './base-snap-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Plus, Minus } from 'lucide-react';
+import { Loader2, Plus, Minus, ArrowRightLeft } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { WalletState } from '@/contexts/WalletStateContext';
 
 export interface Output {
   type: 'address' | 'data';
@@ -40,6 +41,7 @@ export interface SendTxCardProps {
   disabled?: boolean;
   sendTxParams: SendTxParams;
   setSendTxParams: (params: SendTxParams) => void;
+  walletState: WalletState;
 }
 
 export const SendTxCard: React.FC<SendTxCardProps> = ({
@@ -48,6 +50,7 @@ export const SendTxCard: React.FC<SendTxCardProps> = ({
   disabled = false,
   sendTxParams,
   setSendTxParams,
+  walletState,
 }) => {
   const [loading, setLoading] = useState(false);
 
@@ -104,6 +107,49 @@ export const SendTxCard: React.FC<SendTxCardProps> = ({
     setSendTxParams({ ...sendTxParams, changeAddress: value });
   };
 
+  // Helper function: Move UTXO Around
+  const handleMoveUtxoAround = () => {
+    // Get the first available UTXO
+    const firstUtxo = walletState.utxos.length > 0 ? walletState.utxos[0] : null;
+
+    if (!firstUtxo) {
+      // No UTXOs available
+      if (onError) {
+        onError({ message: 'No UTXOs available in wallet state' });
+      }
+      return;
+    }
+
+    // Try to find a different address than the UTXO's address
+    let targetAddress = firstUtxo.address;
+    const addresses = Array.from(walletState.addresses.values());
+    const differentAddress = addresses.find(addr => addr.address !== firstUtxo.address);
+    if (differentAddress) {
+      targetAddress = differentAddress.address;
+    }
+
+    // Build the new params
+    const newParams: SendTxParams = {
+      outputs: [
+        {
+          type: 'address',
+          address: targetAddress,
+          value: firstUtxo.value,
+          token: firstUtxo.token === '00' ? '' : firstUtxo.token, // Empty string for HTR, otherwise use token
+        },
+      ],
+      inputs: [
+        {
+          txId: firstUtxo.txId,
+          index: String(firstUtxo.index),
+        },
+      ],
+      changeAddress: '',
+    };
+
+    setSendTxParams(newParams);
+  };
+
   return (
     <BaseSnapCard
       title="Send Transaction"
@@ -112,28 +158,40 @@ export const SendTxCard: React.FC<SendTxCardProps> = ({
     >
       {(executeWrapper) => (
         <>
-          <Button
-            onClick={async () => {
-              setLoading(true);
-              try {
-                await executeWrapper(() => onExecute(sendTxParams));
-              } finally {
-                setLoading(false);
-              }
-            }}
-            disabled={loading || disabled}
-            className="ml-auto flex-shrink-0"
-            size="sm"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Loading
-              </>
-            ) : (
-              'Execute'
-            )}
-          </Button>
+          <div className="flex gap-2 ml-auto">
+            <Button
+              onClick={handleMoveUtxoAround}
+              disabled={loading || disabled || walletState.utxos.length === 0}
+              variant="outline"
+              size="sm"
+              title="Auto-fill form using first available UTXO"
+            >
+              <ArrowRightLeft className="mr-2 h-4 w-4" />
+              Move UTXO Around
+            </Button>
+            <Button
+              onClick={async () => {
+                setLoading(true);
+                try {
+                  await executeWrapper(() => onExecute(sendTxParams));
+                } finally {
+                  setLoading(false);
+                }
+              }}
+              disabled={loading || disabled}
+              className="flex-shrink-0"
+              size="sm"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Loading
+                </>
+              ) : (
+                'Execute'
+              )}
+            </Button>
+          </div>
 
           <div className="space-y-4 pt-2">
             {/* Outputs Section */}
