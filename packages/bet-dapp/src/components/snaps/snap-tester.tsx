@@ -4,13 +4,13 @@ import { SnapMethodCard } from './snap-method-card';
 import { GetBalanceCard } from './get-balance-card';
 import { SendTxCard, SendTxParams } from './send-tx-card';
 import { CreateTokenCard, CreateTokenParams } from './create-token-card';
+import { SignWithAddressCard } from './sign-with-address-card';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { AlertTriangle, X, Copy, ChevronDown, ChevronRight, ArrowUpRight, Loader2 } from 'lucide-react';
+import { AlertTriangle, X } from 'lucide-react';
 import { useWalletState, UtxoData } from '@/contexts/WalletStateContext';
 import { createSnapHandlers } from './snap-method-handlers';
 import { StateVisualizer } from './state-visualizer';
-import { getKnownTokenIds } from '@/lib/tokenStorage';
 
 interface SnapError {
   id: string;
@@ -550,12 +550,11 @@ export const SnapTester: React.FC = () => {
             setCreateTokenParams={setCreateTokenParams}
             walletState={walletState}
           />
-          <SnapMethodCard
-            title="Sign with Address"
-            description="Sign a message using address index 1"
+          <SignWithAddressCard
             onExecute={getSnapSignWithAddress}
             onError={handleGlobalError}
             disabled={isExecutingMethod}
+            walletState={walletState}
           />
         </div>
       </section>

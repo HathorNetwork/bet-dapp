@@ -410,10 +410,10 @@ export const createSnapHandlers = (deps: SnapHandlerDependencies) => {
       return result;
     },
 
-    getSnapSignWithAddress: async () => {
+    getSnapSignWithAddress: async (message: string = 'test', addressIndex: number = 0) => {
       return await invokeSnap({
         method: 'htr_signWithAddress',
-        params: { message: 'test', addressIndex: 1 }
+        params: { message, addressIndex }
       });
     },
 
@@ -489,4 +489,3 @@ export const createSnapHandlers = (deps: SnapHandlerDependencies) => {
     },
   };
 };
-
