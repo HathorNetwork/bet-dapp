@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, CheckCircle2 } from 'lucide-react';
+import { Loader2, CheckCircle2, Copy } from 'lucide-react';
 import { WalletState } from '@/contexts/WalletStateContext';
 import { AddressSelector } from './address-selector';
 
@@ -27,12 +27,12 @@ export const SignOracleDataCard: React.FC<SignOracleDataCardProps> = ({
   const [oracle, setOracle] = useState('');
   const [parsedResult, setParsedResult] = useState<{
     data: string;
-    signature: string;
-    address: {
-      address: string;
-      index: number;
-      addressPath: string;
+    signedData: {
+      type: string;
+      signature: string;
+      value: string;
     };
+    oracle: string;
   } | null>(null);
 
   const validateNcId = (value: string): boolean => {
@@ -67,12 +67,12 @@ export const SignOracleDataCard: React.FC<SignOracleDataCardProps> = ({
     setParsedResult(null);
     try {
       const result = await onExecute(ncId, data, oracle);
-      
-      // Parse the result (expected to be similar to signWithAddress)
+
+      // Parse the result (type 7 for signOracleData)
       if (result) {
         try {
           const parsed = JSON.parse(result as string);
-          if (parsed.type === 1 && parsed.response) {
+          if (parsed.type === 7 && parsed.response) {
             setParsedResult(parsed.response);
           }
         } catch (e) {
@@ -171,7 +171,7 @@ export const SignOracleDataCard: React.FC<SignOracleDataCardProps> = ({
                   <CheckCircle2 className="h-5 w-5" />
                   <span>Oracle Data Signed Successfully</span>
                 </div>
-                
+
                 <div className="space-y-3 text-sm">
                   {/* Data */}
                   <div>
@@ -183,30 +183,35 @@ export const SignOracleDataCard: React.FC<SignOracleDataCardProps> = ({
 
                   {/* Signature */}
                   <div>
-                    <Label className="text-xs text-gray-400">Signature</Label>
+                    <Label className="text-xs text-gray-400">
+                      Signature&nbsp;
+                      <button
+                        onClick={() => navigator.clipboard.writeText(parsedResult?.signedData.signature)}
+                        className="text-gray-500 hover:text-hathor-yellow-400 transition-colors flex-shrink-0"
+                        title="Copy to clipboard"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </button>
+                    </Label>
                     <div className="mt-1 p-2 bg-gray-900/50 rounded border border-gray-700 font-mono text-xs text-gray-200 break-all">
-                      {parsedResult.signature}
+                      {parsedResult.signedData.signature}
                     </div>
                   </div>
 
-                  {/* Address Details */}
+                  {/* Oracle Address */}
                   <div>
-                    <Label className="text-xs text-gray-400">Signed with Address</Label>
-                    <div className="mt-1 space-y-2">
-                      <div className="p-2 bg-gray-900/50 rounded border border-gray-700">
-                        <div className="text-xs text-gray-400">Address</div>
-                        <div className="font-mono text-gray-200 break-all">{parsedResult.address.address}</div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="p-2 bg-gray-900/50 rounded border border-gray-700">
-                          <div className="text-xs text-gray-400">Index</div>
-                          <div className="font-mono text-gray-200">{parsedResult.address.index}</div>
-                        </div>
-                        <div className="p-2 bg-gray-900/50 rounded border border-gray-700">
-                          <div className="text-xs text-gray-400">Address Path</div>
-                          <div className="font-mono text-xs text-gray-200">{parsedResult.address.addressPath}</div>
-                        </div>
-                      </div>
+                    <Label className="text-xs text-gray-400">
+                      Oracle Address&nbsp;
+                      <button
+                        onClick={() => navigator.clipboard.writeText(parsedResult?.oracle)}
+                        className="text-gray-500 hover:text-hathor-yellow-400 transition-colors flex-shrink-0"
+                        title="Copy to clipboard"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </button>
+                    </Label>
+                    <div className="mt-1 p-2 bg-gray-900/50 rounded border border-gray-700 font-mono text-gray-200 break-all">
+                      {parsedResult.oracle}
                     </div>
                   </div>
                 </div>
@@ -218,4 +223,3 @@ export const SignOracleDataCard: React.FC<SignOracleDataCardProps> = ({
     </BaseSnapCard>
   );
 };
-
