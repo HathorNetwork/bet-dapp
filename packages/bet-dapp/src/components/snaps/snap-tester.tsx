@@ -536,7 +536,7 @@ export const SnapTester: React.FC = () => {
     if (result) {
       try {
         const parsed = JSON.parse(result as string);
-        if (parsed.type === 8 && parsed.response) {
+        if (parsed.type === 6 && parsed.response) {
           const txData = parsed.response;
           updateTransaction({
             hash: txData.hash,
@@ -551,6 +551,8 @@ export const SnapTester: React.FC = () => {
             tokens: txData.tokens || [],
             headers: txData.headers || [],
             _dataToSignCache: txData._dataToSignCache,
+	          name: txData.name,
+	          symbol: txData.symbol,
           });
         }
       } catch (e) {

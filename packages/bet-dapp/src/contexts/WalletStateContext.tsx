@@ -67,6 +67,8 @@ export interface TransactionData {
   tokens: any[];
   headers: any[];
   _dataToSignCache?: any;
+  name?: string; // Token name (for token creation transactions)
+  symbol?: string; // Token symbol (for token creation transactions)
   lastUpdated: number;
 }
 
