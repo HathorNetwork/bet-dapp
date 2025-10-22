@@ -3,7 +3,7 @@ import { useRequestSnap, useInvokeSnap, useMetaMaskContext } from 'snap-utils';
 import { SnapMethodCard } from './snap-method-card';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { AlertTriangle, X } from 'lucide-react';
+import { AlertTriangle, X, Copy } from 'lucide-react';
 import { NetworkData, useWalletState } from '@/contexts/WalletStateContext';
 
 interface SnapError {
@@ -533,9 +533,18 @@ export const SnapTester: React.FC = () => {
                         </div>
                         <div className="flex items-start justify-between gap-2">
                           <span className="text-sm text-gray-400 flex-shrink-0">Address:</span>
-                          <span className="text-sm font-mono text-gray-300 break-all text-right">
-                            {addressData.address}
-                          </span>
+	                        <div className="flex items-start gap-1.5 min-w-0">
+		                        <button
+			                        onClick={() => navigator.clipboard.writeText(addressData.address)}
+			                        className="text-gray-400 hover:text-hathor-yellow-400 transition-colors flex-shrink-0 mt-0.5"
+			                        title="Copy to clipboard"
+		                        >
+			                        <Copy className="h-3 w-3" />
+		                        </button>
+		                        <span className="text-sm font-mono text-gray-300 break-all text-right">
+	                            {addressData.address}
+	                          </span>
+	                        </div>
                         </div>
                         {addressData.addressPath && (
                           <div className="flex items-start justify-between gap-2">
@@ -667,9 +676,18 @@ export const SnapTester: React.FC = () => {
                   <div className="space-y-1">
                     <div className="flex items-start justify-between gap-2">
                       <span className="text-sm text-gray-400 flex-shrink-0">Xpub:</span>
-                      <span className="text-xs font-mono text-gray-300 break-all text-right">
-                        {walletState.xpub.xpub}
-                      </span>
+                      <div className="flex items-start gap-1.5 min-w-0">
+                        <button
+                          onClick={() => navigator.clipboard.writeText(walletState.xpub!.xpub)}
+                          className="text-gray-400 hover:text-hathor-yellow-400 transition-colors flex-shrink-0 mt-0.5"
+                          title="Copy to clipboard"
+                        >
+                          <Copy className="h-3 w-3" />
+                        </button>
+                        <span className="text-xs font-mono text-gray-300 break-all text-right">
+                          {walletState.xpub.xpub}
+                        </span>
+                      </div>
                     </div>
                     <div className="flex items-center justify-between pt-2 border-t border-gray-700/50">
                       <span className="text-xs text-gray-500">Last updated:</span>
@@ -697,9 +715,18 @@ export const SnapTester: React.FC = () => {
                       <div className="space-y-1">
                         <div className="flex items-start justify-between gap-2">
                           <span className="text-sm text-gray-400 flex-shrink-0">TX ID:</span>
-                          <span className="text-xs font-mono text-gray-300 break-all text-right">
-                            {utxo.txId}
-                          </span>
+	                        <div className="flex items-start gap-1.5 min-w-0">
+		                        <button
+			                        onClick={() => navigator.clipboard.writeText(utxo.txId)}
+			                        className="text-gray-300 hover:text-hathor-yellow-400 transition-colors flex-shrink-0 mt-0.5"
+			                        title="Copy to clipboard"
+		                        >
+			                        <Copy className="h-3 w-3" />
+		                        </button>
+		                        <span className="text-xs font-mono text-gray-300 break-all text-right">
+	                            {utxo.txId}
+	                          </span>
+	                        </div>
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-gray-400">Index:</span>
@@ -717,9 +744,18 @@ export const SnapTester: React.FC = () => {
                         </div>
                         <div className="flex items-start justify-between gap-2">
                           <span className="text-sm text-gray-400 flex-shrink-0">Address:</span>
-                          <span className="text-xs font-mono text-gray-500 break-all text-right">
-                            {utxo.address}
-                          </span>
+	                        <div className="flex items-start gap-1.5 min-w-0">
+		                        <button
+			                        onClick={() => navigator.clipboard.writeText(utxo.address)}
+			                        className="text-gray-400 hover:text-hathor-yellow-400 transition-colors flex-shrink-0 mt-0.5"
+			                        title="Copy to clipboard"
+		                        >
+			                        <Copy className="h-3 w-3" />
+		                        </button>
+		                        <span className="text-xs font-mono text-gray-500 break-all text-right">
+	                            {utxo.address}
+	                          </span>
+	                        </div>
                         </div>
                       </div>
                     </div>
