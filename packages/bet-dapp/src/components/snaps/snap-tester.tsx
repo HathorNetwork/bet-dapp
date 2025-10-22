@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useRequestSnap, useInvokeSnap, useMetaMaskContext } from 'snap-utils';
 import { SnapMethodCard } from './snap-method-card';
+import { GetBalanceCard } from './get-balance-card';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { AlertTriangle, X, Copy, Plus, Minus } from 'lucide-react';
+import { AlertTriangle, X, Copy } from 'lucide-react';
 import { NetworkData, useWalletState } from '@/contexts/WalletStateContext';
 
 interface SnapError {
@@ -858,68 +857,13 @@ export const SnapTester: React.FC = () => {
               }
             ]}
           />
-          <Card className="p-4 hover:border-hathor-yellow-500/50">
-            <div className="flex flex-col space-y-3">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold mb-1">Get Balance</h3>
-                  <p className="text-sm text-gray-400">Get balances for specified tokens</p>
-                </div>
-                <Button
-                  onClick={getSnapBalance}
-                  disabled={isExecutingMethod}
-                  className="ml-4 flex-shrink-0"
-                  size="sm"
-                >
-                  Execute
-                </Button>
-              </div>
-
-              <div className="space-y-2 pt-2">
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium">Token IDs</Label>
-                  <Button
-                    onClick={() => setBalanceTokens([...balanceTokens, ''])}
-                    variant="outline"
-                    size="sm"
-                    className="h-7 px-2"
-                  >
-                    <Plus className="h-3 w-3 mr-1" />
-                    Add Token
-                  </Button>
-                </div>
-                <div className="space-y-2">
-                  {balanceTokens.map((token, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <Input
-                        value={token}
-                        onChange={(e) => {
-                          const newTokens = [...balanceTokens];
-                          newTokens[index] = e.target.value;
-                          setBalanceTokens(newTokens);
-                        }}
-                        placeholder="Token ID (e.g., 00 for HTR)"
-                        className="bg-gray-900/50 border-gray-700 flex-1"
-                      />
-                      {balanceTokens.length > 1 && (
-                        <Button
-                          onClick={() => {
-                            const newTokens = balanceTokens.filter((_, i) => i !== index);
-                            setBalanceTokens(newTokens);
-                          }}
-                          variant="ghost"
-                          size="sm"
-                          className="h-9 w-9 p-0 text-gray-400 hover:text-red-400"
-                        >
-                          <Minus className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </Card>
+          <GetBalanceCard
+            onExecute={getSnapBalance}
+            onError={handleGlobalError}
+            disabled={isExecutingMethod}
+            balanceTokens={balanceTokens}
+            setBalanceTokens={setBalanceTokens}
+          />
           <SnapMethodCard
             title="Get Network"
             description="Get the currently connected network (does not require confirmation)"
