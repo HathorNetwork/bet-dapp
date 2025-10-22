@@ -784,7 +784,7 @@ export const SnapTester: React.FC = () => {
               {
                 name: 'addressIndex',
                 label: 'Address Index',
-                defaultValue: '0',
+                defaultValue: '1',
                 placeholder: 'Enter address index (e.g., 0, 1, 2...)'
               }
             ]}
