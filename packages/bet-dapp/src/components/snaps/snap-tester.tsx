@@ -439,6 +439,13 @@ export const SnapTester: React.FC = () => {
               }
             ]}
           />
+	        <SnapMethodCard
+		        title="Get Xpub"
+		        description="Retrieve the extended public key (xpub)"
+		        onExecute={getSnapXpub}
+		        onError={handleGlobalError}
+		        disabled={isExecutingMethod}
+	        />
           <GetBalanceCard
             onExecute={getSnapBalance}
             onError={handleGlobalError}
@@ -457,13 +464,6 @@ export const SnapTester: React.FC = () => {
             title="Get Wallet Information"
             description="Retrieve Network and Address 0 simultaneously (does not require confirmation)"
             onExecute={getSnapWalletInformation}
-            onError={handleGlobalError}
-            disabled={isExecutingMethod}
-          />
-          <SnapMethodCard
-            title="Get Xpub"
-            description="Retrieve the extended public key (xpub)"
-            onExecute={getSnapXpub}
             onError={handleGlobalError}
             disabled={isExecutingMethod}
           />
