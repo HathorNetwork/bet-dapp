@@ -3,6 +3,7 @@ import { useRequestSnap, useInvokeSnap, useMetaMaskContext } from 'snap-utils';
 import { SnapMethodCard } from './snap-method-card';
 import { GetBalanceCard } from './get-balance-card';
 import { SendTxCard, SendTxParams } from './send-tx-card';
+import { CreateTokenCard, CreateTokenParams } from './create-token-card';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AlertTriangle, X, Copy, ChevronDown, ChevronRight, ArrowUpRight, Loader2 } from 'lucide-react';
@@ -36,6 +37,21 @@ export const SnapTester: React.FC = () => {
     ],
     inputs: [],
     changeAddress: ''
+  });
+  const [createTokenParams, setCreateTokenParams] = useState<CreateTokenParams>({
+    name: 'Test Token',
+    symbol: 'TST',
+    amount: '100',
+    address: '',
+    change_address: '',
+    create_mint: true,
+    mint_authority_address: '',
+    allow_external_mint_authority_address: false,
+    create_melt: true,
+    melt_authority_address: '',
+    allow_external_melt_authority_address: false,
+    push_tx: false,
+    data: []
   });
   const [expandedTxs, setExpandedTxs] = useState<Set<string>>(new Set());
   const [loadingTokenUtxos, setLoadingTokenUtxos] = useState<Set<string>>(new Set());
@@ -473,22 +489,77 @@ export const SnapTester: React.FC = () => {
     return result;
   });
 
-  const getSnapCreateToken = wrapWithErrorHandler(async () => {
-    return await invokeSnap({
-      method: 'htr_createToken',
-      params: {
-        name: 'test token',
-        symbol: 'TST',
-        amount: '100',
-        address: 'WR5kCGJFvqaonCCTZDPDVMpu8fRnFXN51N',
-        change_address: 'WdcPHo2NwjSkGtcVUDbrE1SQrUzGdPgLvK',
-        create_mint: true,
-        mint_authority_address: 'WR5kCGJFvqaonCCTZDPDVMpu8fRnFXN51N',
-        allow_external_mint_authority_address: true,
-        create_melt: false,
-        data: ['ab', 'c']
+  const getSnapCreateToken = wrapWithErrorHandler(async (params: CreateTokenParams) => {
+    // Build the params object, including optional fields only if provided
+    const invokeParams: any = {
+      name: params.name,
+      symbol: params.symbol,
+      amount: params.amount,
+      create_mint: params.create_mint,
+      create_melt: params.create_melt,
+      push_tx: params.push_tx,
+      network: params.network,
+    };
+
+    // Add optional fields if provided
+    if (params.address && params.address.trim()) {
+      invokeParams.address = params.address;
+    }
+    if (params.change_address && params.change_address.trim()) {
+      invokeParams.change_address = params.change_address;
+    }
+    if (params.create_mint && params.mint_authority_address && params.mint_authority_address.trim()) {
+      invokeParams.mint_authority_address = params.mint_authority_address;
+    }
+    if (params.create_mint) {
+      invokeParams.allow_external_mint_authority_address = params.allow_external_mint_authority_address;
+    }
+    if (params.create_melt && params.melt_authority_address && params.melt_authority_address.trim()) {
+      invokeParams.melt_authority_address = params.melt_authority_address;
+    }
+    if (params.create_melt) {
+      invokeParams.allow_external_melt_authority_address = params.allow_external_melt_authority_address;
+    }
+    if (params.data && params.data.length > 0) {
+      // Filter out empty strings
+      const filteredData = params.data.filter(d => d.trim() !== '');
+      if (filteredData.length > 0) {
+        invokeParams.data = filteredData;
       }
+    }
+
+    const result = await invokeSnap({
+      method: 'htr_createToken',
+      params: invokeParams
     });
+
+    // Parse and store the transaction data (same as sendTx)
+    if (result) {
+      try {
+        const parsed = JSON.parse(result as string);
+        if (parsed.type === 8 && parsed.response) {
+          const txData = parsed.response;
+          updateTransaction({
+            hash: txData.hash,
+            inputs: txData.inputs || [],
+            outputs: txData.outputs || [],
+            signalBits: txData.signalBits,
+            version: txData.version,
+            weight: txData.weight,
+            nonce: txData.nonce,
+            timestamp: txData.timestamp,
+            parents: txData.parents || [],
+            tokens: txData.tokens || [],
+            headers: txData.headers || [],
+            _dataToSignCache: txData._dataToSignCache,
+          });
+        }
+      } catch (e) {
+        console.error('Failed to parse create token response:', e);
+      }
+    }
+
+    return result;
   });
 
   const getSnapSignWithAddress = wrapWithErrorHandler(async () => {
@@ -1390,12 +1461,12 @@ export const SnapTester: React.FC = () => {
               walletState={walletState}
             />
           </div>
-          <SnapMethodCard
-            title="Create Token"
-            description="Create a new custom token (TST)"
+          <CreateTokenCard
             onExecute={getSnapCreateToken}
             onError={handleGlobalError}
             disabled={isExecutingMethod}
+            createTokenParams={createTokenParams}
+            setCreateTokenParams={setCreateTokenParams}
           />
           <SnapMethodCard
             title="Sign with Address"
