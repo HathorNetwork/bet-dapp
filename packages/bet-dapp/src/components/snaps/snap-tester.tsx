@@ -498,7 +498,6 @@ export const SnapTester: React.FC = () => {
       create_mint: params.create_mint,
       create_melt: params.create_melt,
       push_tx: params.push_tx,
-      network: params.network,
     };
 
     // Add optional fields if provided
@@ -1467,6 +1466,7 @@ export const SnapTester: React.FC = () => {
             disabled={isExecutingMethod}
             createTokenParams={createTokenParams}
             setCreateTokenParams={setCreateTokenParams}
+            walletState={walletState}
           />
           <SnapMethodCard
             title="Sign with Address"

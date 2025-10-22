@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { WalletState } from '@/contexts/WalletStateContext';
 
 export interface CreateTokenParams {
   name: string;
@@ -34,6 +35,7 @@ export interface CreateTokenCardProps {
   disabled?: boolean;
   createTokenParams: CreateTokenParams;
   setCreateTokenParams: (params: CreateTokenParams) => void;
+  walletState: WalletState;
 }
 
 export const CreateTokenCard: React.FC<CreateTokenCardProps> = ({
@@ -42,8 +44,12 @@ export const CreateTokenCard: React.FC<CreateTokenCardProps> = ({
   disabled = false,
   createTokenParams,
   setCreateTokenParams,
+  walletState,
 }) => {
   const [loading, setLoading] = useState(false);
+
+  // Get address at index 0 if it exists
+  const address0 = walletState.addresses.get(0)?.address;
 
   // Handler for simple field changes
   const handleFieldChange = (field: keyof CreateTokenParams, value: string | boolean) => {
@@ -127,12 +133,25 @@ export const CreateTokenCard: React.FC<CreateTokenCardProps> = ({
             {/* Addresses */}
             <div className="space-y-2">
               <Label className="text-sm font-medium">Addresses (optional)</Label>
-              <Input
-                value={createTokenParams.address}
-                onChange={(e) => handleFieldChange('address', e.target.value)}
-                placeholder="Destination Address"
-                className="bg-gray-900/50 border-gray-700 text-sm"
-              />
+              <div className="relative">
+                <Input
+                  value={createTokenParams.address}
+                  onChange={(e) => handleFieldChange('address', e.target.value)}
+                  placeholder="Destination Address"
+                  className="bg-gray-900/50 border-gray-700 text-sm pr-16"
+                />
+                <Button
+                  type="button"
+                  onClick={() => address0 && handleFieldChange('address', address0)}
+                  disabled={!address0}
+                  size="sm"
+                  variant="ghost"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 h-7 px-2 text-xs text-hathor-yellow-400 hover:text-hathor-yellow-300 hover:bg-hathor-yellow-500/10 disabled:opacity-30 disabled:cursor-not-allowed"
+                  title={address0 ? `Use address 0: ${address0}` : 'Address 0 not available'}
+                >
+                  Addr0
+                </Button>
+              </div>
               <Input
                 value={createTokenParams.change_address}
                 onChange={(e) => handleFieldChange('change_address', e.target.value)}
