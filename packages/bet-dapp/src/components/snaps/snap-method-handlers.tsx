@@ -179,7 +179,7 @@ export const createSnapHandlers = (deps: SnapHandlerDependencies) => {
             }
 
             if (address0) {
-              updateAddress({ address: address0, index: 0 });
+              updateAddress({ address: address0, index: 0, addressPath: `m/44'/280'/0'/0/0` } );
             }
           }
         } catch (e) {
