@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
 import { SendNanoCreateTokenParams } from './snap-method-handlers';
+import { AddressSelector } from './address-selector';
+import { useWalletState } from '@/contexts/WalletStateContext';
 
 export interface SendNanoCreateTokenCardProps {
   onExecute: (params: SendNanoCreateTokenParams) => Promise<any>;
@@ -22,6 +24,7 @@ export const SendNanoCreateTokenCard: React.FC<SendNanoCreateTokenCardProps> = (
   setSendNanoCreateTokenParams,
 }) => {
   const [loading, setLoading] = useState(false);
+  const { walletState } = useWalletState();
 
   // Handlers for simple fields
   const handleFieldChange = (field: keyof SendNanoCreateTokenParams, value: any) => {
@@ -129,15 +132,14 @@ export const SendNanoCreateTokenCard: React.FC<SendNanoCreateTokenCardProps> = (
               />
             </div>
 
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Address</Label>
-              <Input
-                value={sendNanoCreateTokenParams.address}
-                onChange={(e) => handleFieldChange('address', e.target.value)}
-                placeholder="Wallet address"
-                className="bg-gray-900/50 border-gray-700 text-sm"
-              />
-            </div>
+            {/* Address selector: choose known address or enter custom */}
+            <AddressSelector
+              walletState={walletState}
+              value={sendNanoCreateTokenParams.address}
+              onChange={(addr) => handleFieldChange('address', addr)}
+              label="Address"
+              placeholder="Wallet address"
+            />
 
             {/* Complex fields as strings */}
             <div className="space-y-2">

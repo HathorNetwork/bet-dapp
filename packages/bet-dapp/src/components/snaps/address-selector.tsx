@@ -22,7 +22,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
   placeholder = 'Enter an address or select from known addresses',
   description,
 }) => {
-  const [mode, setMode] = React.useState<'known' | 'custom'>('custom');
+  const [mode, setMode] = React.useState<'known' | 'custom'>('known');
   const [selectedIndex, setSelectedIndex] = React.useState<string>('0');
 
   const knownAddresses = Array.from(walletState.addresses.values()).sort((a, b) => a.index - b.index);
