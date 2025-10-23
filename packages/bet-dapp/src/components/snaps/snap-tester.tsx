@@ -472,6 +472,27 @@ export const SnapTester: React.FC = () => {
         </div>
       </section>
 
+	    {/* Sginatures Section */}
+	    <section>
+		    <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Signatures</h2>
+		    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+			    <SignWithAddressCard
+				    onExecute={getSnapSignWithAddress}
+				    onError={handleGlobalError}
+				    disabled={isExecutingMethod}
+				    walletState={walletState}
+			    />
+			    <SignOracleDataCard
+				    onExecute={getSnapSignOracleData}
+				    onError={handleGlobalError}
+				    disabled={isExecutingMethod}
+				    walletState={walletState}
+			    />
+		    </div>
+	    </section>
+
+	    <hr className="border-t border-gray-700/50 my-4" />
+
 	    {/* UTXO Section */}
 	    <section>
 		    <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">UTXOs</h2>
@@ -563,12 +584,6 @@ export const SnapTester: React.FC = () => {
             setCreateTokenParams={setCreateTokenParams}
             walletState={walletState}
           />
-          <SignWithAddressCard
-            onExecute={getSnapSignWithAddress}
-            onError={handleGlobalError}
-            disabled={isExecutingMethod}
-            walletState={walletState}
-          />
         </div>
       </section>
 
@@ -589,12 +604,6 @@ export const SnapTester: React.FC = () => {
             onExecute={getSnapSendNanoCreateToken}
             onError={handleGlobalError}
             disabled={isExecutingMethod}
-          />
-          <SignOracleDataCard
-            onExecute={getSnapSignOracleData}
-            onError={handleGlobalError}
-            disabled={isExecutingMethod}
-            walletState={walletState}
           />
         </div>
       </section>
