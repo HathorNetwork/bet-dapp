@@ -481,6 +481,31 @@ export const createSnapHandlers = (deps: SnapHandlerDependencies) => {
         method: 'htr_createNanoContractCreateTokenTx',
         params: invokeParams
       });
+
+			/*
+			 * Sample parameters:
+			 * params: {
+          method: 'initialize',
+          createTokenOptions: {
+            contract_pays_token_deposit: false,
+            name: 'test token',
+            symbol: 'TST',
+            amount: '100',
+            address: 'WR5kCGJFvqaonCCTZDPDVMpu8fRnFXN51N',
+            change_address: 'WdcPHo2NwjSkGtcVUDbrE1SQrUzGdPgLvK',
+            create_mint: true,
+            mint_authority_address: 'WR5kCGJFvqaonCCTZDPDVMpu8fRnFXN51N',
+            allow_external_mint_authority_address: true,
+            create_melt: true,
+            data: ['ab', 'c']
+          },
+          data: {
+            'blueprint_id': '000001291ad6218140ef41eef71f3c2fbeb000f6ddd592bc42c6cde9fa07a964',
+            actions: [],
+            args: ['76a914a3d942f602ea11b74c3b58d15531a35a80cab00388ac', '00', 1759997478]
+          }
+        }
+			 */
     },
 
     getSnapSignOracleData: async (ncId: string, data: string, oracle: string) => {

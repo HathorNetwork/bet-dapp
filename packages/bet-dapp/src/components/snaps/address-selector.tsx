@@ -12,6 +12,7 @@ export interface AddressSelectorProps {
   label?: string;
   placeholder?: string;
   description?: string;
+  knownOnly?: boolean; // when true, force selection to known addresses only
 }
 
 export const AddressSelector: React.FC<AddressSelectorProps> = ({
@@ -21,12 +22,32 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
   label = 'Address',
   placeholder = 'Enter an address or select from known addresses',
   description,
+  knownOnly = false,
 }) => {
+  // If knownOnly is requested we always keep the component in 'known' mode
   const [mode, setMode] = React.useState<'known' | 'custom'>('known');
   const [selectedIndex, setSelectedIndex] = React.useState<string>('0');
 
   const knownAddresses = Array.from(walletState.addresses.values()).sort((a, b) => a.index - b.index);
   const hasKnownAddresses = knownAddresses.length > 0;
+
+  // Ensure selectedIndex is valid when known addresses change. If none set, pick first.
+  React.useEffect(() => {
+    if (hasKnownAddresses) {
+      const exists = knownAddresses.find(a => a.index === parseInt(selectedIndex, 10));
+      if (!exists) {
+        setSelectedIndex(String(knownAddresses[0].index));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasKnownAddresses]);
+
+  // If knownOnly prop is enabled, force mode to 'known' whenever it changes
+  React.useEffect(() => {
+    if (knownOnly) {
+      setMode('known');
+    }
+  }, [knownOnly]);
 
   // Update the value when switching modes or selecting from known addresses
   React.useEffect(() => {
@@ -43,27 +64,30 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
     <div className="space-y-2">
       <Label className="text-sm font-medium">{label}</Label>
 
-      <div className="flex gap-2">
-        <Button
-          type="button"
-          variant={mode === 'known' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setMode('known')}
-          disabled={!hasKnownAddresses}
-          className="flex-1"
-        >
-          Known Addresses
-        </Button>
-        <Button
-          type="button"
-          variant={mode === 'custom' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setMode('custom')}
-          className="flex-1"
-        >
-          Custom Address
-        </Button>
-      </div>
+      {/* Mode toggle is hidden when knownOnly is requested */}
+      {!knownOnly && (
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant={mode === 'known' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setMode('known')}
+            disabled={!hasKnownAddresses}
+            className="flex-1"
+          >
+            Known Addresses
+          </Button>
+          <Button
+            type="button"
+            variant={mode === 'custom' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setMode('custom')}
+            className="flex-1"
+          >
+            Custom Address
+          </Button>
+        </div>
+      )}
 
       {mode === 'known' ? (
         <div className="space-y-2">

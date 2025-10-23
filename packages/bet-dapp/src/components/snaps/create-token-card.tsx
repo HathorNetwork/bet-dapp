@@ -4,14 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, Plus, Minus } from 'lucide-react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { WalletState } from '@/contexts/WalletStateContext';
+import { AddressSelector } from './address-selector';
 
 export interface CreateTokenParams {
   name: string;
@@ -152,11 +146,13 @@ export const CreateTokenCard: React.FC<CreateTokenCardProps> = ({
                   Addr0
                 </Button>
               </div>
-              <Input
+              <AddressSelector
+                walletState={walletState}
                 value={createTokenParams.change_address}
-                onChange={(e) => handleFieldChange('change_address', e.target.value)}
-                placeholder="Change Address"
-                className="bg-gray-900/50 border-gray-700 text-sm"
+                onChange={(addr) => handleFieldChange('change_address', addr)}
+                label="Change Address"
+                placeholder="Select change address"
+                knownOnly={true}
               />
             </div>
 
