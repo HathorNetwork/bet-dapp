@@ -7,6 +7,7 @@
 
 import { NetworkData } from '@/contexts/WalletStateContext';
 import { saveKnownToken } from '@/lib/tokenStorage';
+import { getOracleBuffer } from '@/lib/utils';
 
 
 export interface SendTxParams {
@@ -70,6 +71,15 @@ export interface SendNanoCreateTokenParams {
   data?: unknown;
   createTokenOptions?: unknown;
   options?: unknown;
+  push_tx: boolean;
+}
+
+// Add params interface for Create Bet nano contract
+export interface CreateBetParams {
+  blueprintId: string;   // Blueprint ID for the bet nano contract
+  oracleAddress: string; // Oracle wallet address (will be converted to buffer in handler)
+  token: string;         // Token ID (e.g., '00' for HTR)
+  deadline: Date;        // Bet deadline as Date object (will be converted to unix timestamp)
   push_tx: boolean;
 }
 
@@ -506,6 +516,32 @@ export const createSnapHandlers = (deps: SnapHandlerDependencies) => {
           }
         }
 			 */
+    },
+
+    getSnapCreateBet: async (params: CreateBetParams) => {
+      // Convert oracle address to buffer hex string
+      const oracleBuffer = getOracleBuffer(params.oracleAddress);
+
+      // Convert Date to unix timestamp (seconds)
+      const timestamp = Math.floor(params.deadline.getTime() / 1000);
+
+      const invokeParams: any = {
+        method: 'initialize',
+        blueprint_id: params.blueprintId,
+        actions: [],
+        args: [
+          oracleBuffer,
+          params.token,
+          timestamp,
+        ],
+        push_tx: params.push_tx,
+        nc_id: null,
+      };
+
+      return await invokeSnap({
+        method: 'htr_sendNanoContractTx',
+        params: invokeParams
+      });
     },
 
     getSnapSignOracleData: async (ncId: string, data: string, oracle: string) => {

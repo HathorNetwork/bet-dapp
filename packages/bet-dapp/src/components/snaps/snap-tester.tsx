@@ -9,13 +9,16 @@ import { SignWithAddressCard } from './sign-with-address-card';
 import { SignOracleDataCard } from './sign-oracle-data-card';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { AlertTriangle, X } from 'lucide-react';
 import { useWalletState, UtxoData } from '@/contexts/WalletStateContext';
 import { createSnapHandlers } from './snap-method-handlers';
 import { StateVisualizer } from './state-visualizer';
 import { SendNanoCard } from './send-nano-card';
 import { SendNanoCreateTokenCard } from './send-nano-create-token-card';
-import type { SendNanoParams, SendNanoCreateTokenParams } from './snap-method-handlers';
+import { CreateBetCard } from './create-bet-card';
+import type { SendNanoParams, SendNanoCreateTokenParams, CreateBetParams } from './snap-method-handlers';
 
 interface SnapError {
   id: string;
@@ -35,7 +38,7 @@ export const SnapTester: React.FC = () => {
   const requestSnap = useRequestSnap();
   const invokeSnap = useInvokeSnap();
   const { installedSnap, setInstalledSnap, error: contextError, setError: setContextError } = useMetaMaskContext();
-  const { walletState, updateAddress, updateBalance, updateUtxos, updateNetwork, updateXpub, updateTransaction, clearUtxos, clearWalletState } = useWalletState();
+  const { walletState, updateAddress, updateBalance, updateUtxos, updateNetwork, updateXpub, updateBlueprint, updateTransaction, clearUtxos, clearWalletState } = useWalletState();
   const [globalErrors, setGlobalErrors] = useState<SnapError[]>([]);
   const [isExecutingMethod, setIsExecutingMethod] = useState<boolean>(false);
   const [balanceTokens, setBalanceTokens] = useState<string[]>(['00']);
@@ -81,6 +84,15 @@ export const SnapTester: React.FC = () => {
     data: '',
     createTokenOptions: '',
     options: '',
+    push_tx: false,
+  });
+
+  // New state for Create Bet params
+  const [createBetParams, setCreateBetParams] = useState<CreateBetParams>({
+    blueprintId: '0000015ec35e6fa7b333644281eaf42068edac9b4a87149bc837ec6b769c7e2c',
+    oracleAddress: '',
+    token: '00',
+    deadline: new Date(Date.now() + 3600 * 1000), // 1 hour from now
     push_tx: false,
   });
 
@@ -259,6 +271,7 @@ export const SnapTester: React.FC = () => {
   const getSnapSignWithAddress = wrapWithErrorHandler(snapHandlers.getSnapSignWithAddress);
   const getSnapSendNano = wrapWithErrorHandler(snapHandlers.getSnapSendNano);
   const getSnapSendNanoCreateToken = wrapWithErrorHandler(snapHandlers.getSnapSendNanoCreateToken);
+  const getSnapCreateBet = wrapWithErrorHandler(snapHandlers.getSnapCreateBet);
   const getSnapSignOracleData = wrapWithErrorHandler(snapHandlers.getSnapSignOracleData);
 	const getSnapChangeNetwork = wrapWithErrorHandler(snapHandlers.getSnapChangeNetwork);
 
@@ -601,6 +614,23 @@ export const SnapTester: React.FC = () => {
       {/* Nano Contracts Section */}
       <section>
         <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Nano Contracts</h2>
+
+        {/* Blueprint ID Configuration */}
+        <Card className="p-4 mb-4 bg-gray-900/30 border-gray-700">
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-hathor-yellow-500">Blueprint ID</Label>
+            <Input
+              value={walletState.blueprint?.blueprintId || ''}
+              onChange={(e) => updateBlueprint({ blueprintId: e.target.value })}
+              placeholder="Enter blueprint ID (e.g., 0000015ec35e6fa7b333644281eaf42068edac9b4a87149bc837ec6b769c7e2c)"
+              className="bg-gray-900/50 border-gray-700 text-sm font-mono"
+            />
+            <p className="text-xs text-gray-400">
+              This blueprint ID will be used across all nano contract operations below.
+            </p>
+          </div>
+        </Card>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <SendNanoCard
             onExecute={getSnapSendNano}
@@ -615,6 +645,13 @@ export const SnapTester: React.FC = () => {
             disabled={isExecutingMethod}
             sendNanoCreateTokenParams={sendNanoCreateTokenParams}
             setSendNanoCreateTokenParams={setSendNanoCreateTokenParams}
+          />
+          <CreateBetCard
+            onExecute={getSnapCreateBet}
+            onError={handleGlobalError}
+            disabled={isExecutingMethod}
+            createBetParams={createBetParams}
+            setCreateBetParams={setCreateBetParams}
           />
         </div>
       </section>

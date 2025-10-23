@@ -54,6 +54,11 @@ export interface XpubData {
   lastUpdated: number;
 }
 
+export interface BlueprintData {
+  blueprintId: string;
+  lastUpdated: number;
+}
+
 export interface TransactionData {
   hash: string;
   inputs: any[];
@@ -78,6 +83,7 @@ export interface WalletState {
   utxos: UtxoData[];
   network: NetworkData | null;
   xpub: XpubData | null;
+  blueprint: BlueprintData | null;
   transactions: Map<string, TransactionData>; // key: hash
 }
 
@@ -89,6 +95,7 @@ interface WalletStateContextType {
   updateUtxos: (utxos: Omit<UtxoData, 'lastUpdated'>[]) => void;
   updateNetwork: (networkData: Omit<NetworkData, 'lastUpdated'>) => void;
   updateXpub: (xpubData: Omit<XpubData, 'lastUpdated'>) => void;
+  updateBlueprint: (blueprintData: Omit<BlueprintData, 'lastUpdated'>) => void;
   updateTransaction: (transactionData: Omit<TransactionData, 'lastUpdated'>) => void;
   clearUtxos: () => void;
   clearWalletState: () => void;
@@ -104,6 +111,7 @@ const initialState: WalletState = {
   utxos: [],
   network: null,
   xpub: null,
+  blueprint: null,
   transactions: new Map(),
 };
 
@@ -186,6 +194,17 @@ export const WalletStateProvider: React.FC<{ children: ReactNode }> = ({ childre
     }));
   };
 
+  // Update blueprint
+  const updateBlueprint = (blueprintData: Omit<BlueprintData, 'lastUpdated'>) => {
+    setWalletState((prev) => ({
+      ...prev,
+      blueprint: {
+        ...blueprintData,
+        lastUpdated: Date.now(),
+      },
+    }));
+  };
+
   // Update transaction by hash
   const updateTransaction = (transactionData: Omit<TransactionData, 'lastUpdated'>) => {
     setWalletState((prev) => {
@@ -218,6 +237,7 @@ export const WalletStateProvider: React.FC<{ children: ReactNode }> = ({ childre
     updateUtxos,
     updateNetwork,
     updateXpub,
+    updateBlueprint,
     updateTransaction,
     clearUtxos,
     clearWalletState,
