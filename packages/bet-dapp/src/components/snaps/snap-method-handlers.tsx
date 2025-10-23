@@ -63,6 +63,16 @@ export interface SendNanoParams {
   push_tx: boolean;
 }
 
+// Add params interface for Create Nano + Token transactions
+export interface SendNanoCreateTokenParams {
+  method: string;
+  address: string;
+  data?: unknown;
+  createTokenOptions?: unknown;
+  options?: unknown;
+  push_tx: boolean;
+}
+
 export const createSnapHandlers = (deps: SnapHandlerDependencies) => {
   const {
     invokeSnap,
@@ -450,30 +460,26 @@ export const createSnapHandlers = (deps: SnapHandlerDependencies) => {
       });
     },
 
-    getSnapSendNanoCreateToken: async () => {
+    getSnapSendNanoCreateToken: async (params: SendNanoCreateTokenParams) => {
+      const invokeParams: any = {
+        method: params.method,
+        address: params.address,
+        push_tx: params.push_tx,
+      };
+
+      if (params.data) {
+        invokeParams.data = params.data;
+      }
+      if (params.createTokenOptions) {
+        invokeParams.createTokenOptions = params.createTokenOptions;
+      }
+      if (params.options) {
+        invokeParams.options = params.options;
+      }
+
       return await invokeSnap({
         method: 'htr_createNanoContractCreateTokenTx',
-        params: {
-          method: 'initialize',
-          createTokenOptions: {
-            contract_pays_token_deposit: false,
-            name: 'test token',
-            symbol: 'TST',
-            amount: '100',
-            address: 'WR5kCGJFvqaonCCTZDPDVMpu8fRnFXN51N',
-            change_address: 'WdcPHo2NwjSkGtcVUDbrE1SQrUzGdPgLvK',
-            create_mint: true,
-            mint_authority_address: 'WR5kCGJFvqaonCCTZDPDVMpu8fRnFXN51N',
-            allow_external_mint_authority_address: true,
-            create_melt: true,
-            data: ['ab', 'c']
-          },
-          data: {
-            'blueprint_id': '000001291ad6218140ef41eef71f3c2fbeb000f6ddd592bc42c6cde9fa07a964',
-            actions: [],
-            args: ['76a914a3d942f602ea11b74c3b58d15531a35a80cab00388ac', '00', 1759997478]
-          }
-        }
+        params: invokeParams
       });
     },
 

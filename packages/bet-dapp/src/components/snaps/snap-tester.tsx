@@ -14,7 +14,8 @@ import { useWalletState, UtxoData } from '@/contexts/WalletStateContext';
 import { createSnapHandlers } from './snap-method-handlers';
 import { StateVisualizer } from './state-visualizer';
 import { SendNanoCard } from './send-nano-card';
-import type { SendNanoParams } from './snap-method-handlers';
+import { SendNanoCreateTokenCard } from './send-nano-create-token-card';
+import type { SendNanoParams, SendNanoCreateTokenParams } from './snap-method-handlers';
 
 interface SnapError {
   id: string;
@@ -70,6 +71,16 @@ export const SnapTester: React.FC = () => {
     nc_id: '00000d69f91f375fb76095010963579018b4a9c68549dc7466b09cf97305b490',
     actions: [{ type: 'deposit', token: '00', amount: '1' }],
     args: ['WR5kCGJFvqaonCCTZDPDVMpu8fRnFXN51N', '1x0'],
+    push_tx: false,
+  });
+
+  // New state for Create Nano + Token params
+  const [sendNanoCreateTokenParams, setSendNanoCreateTokenParams] = useState<SendNanoCreateTokenParams>({
+    method: 'initialize',
+    address: '',
+    data: '',
+    createTokenOptions: '',
+    options: '',
     push_tx: false,
   });
 
@@ -598,12 +609,12 @@ export const SnapTester: React.FC = () => {
             sendNanoParams={sendNanoParams}
             setSendNanoParams={setSendNanoParams}
           />
-          <SnapMethodCard
-            title="Create Nano + Token"
-            description="Initialize nano contract with token creation"
+          <SendNanoCreateTokenCard
             onExecute={getSnapSendNanoCreateToken}
             onError={handleGlobalError}
             disabled={isExecutingMethod}
+            sendNanoCreateTokenParams={sendNanoCreateTokenParams}
+            setSendNanoCreateTokenParams={setSendNanoCreateTokenParams}
           />
         </div>
       </section>
