@@ -24,6 +24,7 @@ interface StateVisualizerProps {
   loadingTokenUtxos: Set<string>;
   isExecutingMethod: boolean;
   getSnapChangeNetwork: () => void;
+  getSnapAddress: (index: number) => void;
 }
 
 export const StateVisualizer: React.FC<StateVisualizerProps> = ({
@@ -32,13 +33,14 @@ export const StateVisualizer: React.FC<StateVisualizerProps> = ({
   clearUtxos,
   handleFetchUtxosForToken,
   handleUseUtxoAsInput,
-	handleGetXpub,
+  handleGetXpub,
   getTokenInfo,
   expandedTxs,
   toggleTxExpansion,
   loadingTokenUtxos,
   isExecutingMethod,
   getSnapChangeNetwork,
+  getSnapAddress,
 }) => {
   const hasWalletData =
     walletState.addresses.size > 0 ||
@@ -219,6 +221,21 @@ export const StateVisualizer: React.FC<StateVisualizerProps> = ({
                   </div>
                 </div>
               ))}
+              {/* CTA Card for requesting next address */}
+              <div className="bg-gray-900/50 border border-dashed border-hathor-yellow-500 rounded p-3 flex flex-col items-center justify-center">
+                <span className="text-sm text-gray-400 mb-2">Need another address?</span>
+                <Button
+                  variant="outline"
+                  className="text-hathor-yellow-500 border-hathor-yellow-500 hover:bg-hathor-yellow-500/10"
+                  onClick={() => {
+                    const indices = Array.from(walletState.addresses.values()).map(a => a.index);
+                    const nextIndex = indices.length > 0 ? Math.max(...indices) + 1 : 0;
+                    getSnapAddress(nextIndex);
+                  }}
+                >
+                  Request Next Address (Index {Array.from(walletState.addresses.values()).length > 0 ? Math.max(...Array.from(walletState.addresses.values()).map(a => a.index)) + 1 : 0})
+                </Button>
+              </div>
             </div>
           </Card>
         )}

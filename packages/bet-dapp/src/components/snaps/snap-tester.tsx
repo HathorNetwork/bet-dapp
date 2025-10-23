@@ -415,6 +415,7 @@ export const SnapTester: React.FC = () => {
 		    loadingTokenUtxos={loadingTokenUtxos}
 		    isExecutingMethod={isExecutingMethod}
 		    getSnapChangeNetwork={getSnapChangeNetwork}
+		    getSnapAddress={getSnapAddress}
 	    />
 
 
