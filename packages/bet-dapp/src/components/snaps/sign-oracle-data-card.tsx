@@ -162,6 +162,7 @@ export const SignOracleDataCard: React.FC<SignOracleDataCardProps> = ({
               label="Oracle Address"
               placeholder="Enter oracle address"
               description="Select the oracle address that will sign the data"
+              knownOnly={true}
             />
 
             {/* Display parsed result */}
