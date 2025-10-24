@@ -1,49 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { BaseSnapCard } from './base-snap-card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
-import { InitializeBetParams } from './snap-method-handlers';
+import { SetResultParams } from './snap-method-handlers';
 import { AddressSelector } from './address-selector';
-import { TokenSelector } from './token-selector';
-import { DateTimePicker } from '@/components/ui/datetime-picker';
 import { useWalletState } from '@/contexts/WalletStateContext';
 
-export interface CreateBetCardProps {
-  onExecute: (params: InitializeBetParams) => Promise<any>;
+export interface SetResultCardProps {
+  onExecute: (params: SetResultParams) => Promise<any>;
   onError?: (error: any) => void;
   disabled?: boolean;
-  createBetParams: InitializeBetParams;
-  setCreateBetParams: (params: InitializeBetParams) => void;
+  setResultParams: SetResultParams;
+  setSetResultParams: (params: SetResultParams) => void;
 }
 
-export const InitializeBetCard: React.FC<CreateBetCardProps> = ({
+export const SetBetResultCard: React.FC<SetResultCardProps> = ({
   onExecute,
   onError,
   disabled = false,
-  createBetParams,
-  setCreateBetParams,
+  setResultParams,
+  setSetResultParams,
 }) => {
   const [loading, setLoading] = useState(false);
   const { walletState } = useWalletState();
 
-  // Sync blueprintId from walletState
-  useEffect(() => {
-    if (walletState.blueprint?.blueprintId && walletState.blueprint.blueprintId !== createBetParams.blueprintId) {
-      setCreateBetParams({ ...createBetParams, blueprintId: walletState.blueprint.blueprintId });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletState.blueprint?.blueprintId]);
-
   // Handlers for simple fields
-  const handleFieldChange = (field: keyof InitializeBetParams, value: any) => {
-    setCreateBetParams({ ...createBetParams, [field]: value });
+  const handleFieldChange = (field: keyof SetResultParams, value: any) => {
+    setSetResultParams({ ...setResultParams, [field]: value });
   };
 
   return (
     <BaseSnapCard
-      title="Create Bet"
-      description="Initialize a new bet nano contract"
+      title="Set Result"
+      description="Set the result for a bet nano contract (oracle action)"
       onError={onError}
     >
       {(executeWrapper) => (
@@ -52,7 +43,7 @@ export const InitializeBetCard: React.FC<CreateBetCardProps> = ({
             onClick={async () => {
               setLoading(true);
               try {
-                await executeWrapper(() => onExecute(createBetParams));
+                await executeWrapper(() => onExecute(setResultParams));
               } finally {
                 setLoading(false);
               }
@@ -72,35 +63,42 @@ export const InitializeBetCard: React.FC<CreateBetCardProps> = ({
           </Button>
 
           <div className="space-y-4 pt-2">
+            {/* Nano Contract ID */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Bet Contract ID</Label>
+              <Input
+                value={setResultParams.ncId}
+                onChange={(e) => handleFieldChange('ncId', e.target.value)}
+                placeholder="Nano contract ID (e.g., 00000d69f91...)"
+                className="bg-gray-900/50 border-gray-700 text-sm"
+              />
+              <p className="text-xs text-gray-400">
+                The ID of the existing bet nano contract
+              </p>
+            </div>
+
             {/* Oracle Address */}
             <AddressSelector
               walletState={walletState}
-              value={createBetParams.oracleAddress}
-              onChange={(addr) => handleFieldChange('oracleAddress', addr)}
+              value={setResultParams.oracle}
+              onChange={(addr) => handleFieldChange('oracle', addr)}
               label="Oracle Address"
               placeholder="Select oracle address"
-              description="The oracle address that will set the bet result"
+              description="The oracle address that will sign and set the result"
               knownOnly={true}
             />
 
-            {/* Token */}
-            <TokenSelector
-              value={createBetParams.token}
-              onChange={(tokenId) => handleFieldChange('token', tokenId)}
-              label="Token"
-              placeholder="Select token"
-              description="Token used for placing bets"
-            />
-
-            {/* Bet Deadline */}
+            {/* Result */}
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Bet Deadline</Label>
-              <DateTimePicker
-                value={createBetParams.deadline}
-                onChange={(date) => handleFieldChange('deadline', date)}
+              <Label className="text-sm font-medium">Result</Label>
+              <Input
+                value={setResultParams.result}
+                onChange={(e) => handleFieldChange('result', e.target.value)}
+                placeholder="E.g., Yes, No, 1x0, 2x0"
+                className="bg-gray-900/50 border-gray-700 text-sm"
               />
               <p className="text-xs text-gray-400">
-                Last time users can place a bet. Default: 1 hour from now.
+                The result to set for the bet
               </p>
             </div>
 
@@ -110,7 +108,7 @@ export const InitializeBetCard: React.FC<CreateBetCardProps> = ({
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
-                  checked={createBetParams.push_tx}
+                  checked={setResultParams.push_tx}
                   onChange={(e) => handleFieldChange('push_tx', e.target.checked)}
                   className="h-4 w-4"
                 />

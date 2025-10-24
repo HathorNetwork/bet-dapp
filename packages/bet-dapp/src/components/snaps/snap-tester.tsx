@@ -19,7 +19,9 @@ import { SendNanoCard } from './send-nano-card';
 import { SendNanoCreateTokenCard } from './send-nano-create-token-card';
 import { InitializeBetCard } from './initialize-bet-card';
 import { BetCard } from './bet-card';
-import type { SendNanoParams, SendNanoCreateTokenParams, CreateBetParams, BetParams } from './snap-method-handlers';
+import { SetBetResultCard } from './set-bet-result-card';
+import type { SendNanoParams, SendNanoCreateTokenParams, InitializeBetParams, BetParams, SetResultParams } from './snap-method-handlers';
+import { TESTNET_INDIA_BET_BLUEPRINT_ID } from '@/components/snaps/constants'
 
 interface SnapError {
   id: string;
@@ -89,8 +91,8 @@ export const SnapTester: React.FC = () => {
   });
 
   // New state for Create Bet params
-  const [createBetParams, setCreateBetParams] = useState<CreateBetParams>({
-    blueprintId: '0000015ec35e6fa7b333644281eaf42068edac9b4a87149bc837ec6b769c7e2c',
+  const [initializeBetParams, setInitializeBetParams] = useState<InitializeBetParams>({
+    blueprintId: TESTNET_INDIA_BET_BLUEPRINT_ID,
     oracleAddress: '',
     token: '00',
     deadline: new Date(Date.now() + 3600 * 1000), // 1 hour from now
@@ -99,11 +101,19 @@ export const SnapTester: React.FC = () => {
 
   // New state for Bet params
   const [betParams, setBetParams] = useState<BetParams>({
-    ncId: '00000d69f91f375fb76095010963579018b4a9c68549dc7466b09cf97305b490',
+    ncId: '',
     betChoice: '1x0',
     amount: 1,
     address: '',
     token: '00',
+    push_tx: false,
+  });
+
+  // New state for Set Result params
+  const [setBetResultParams, setSetBetResultParams] = useState<SetResultParams>({
+    ncId: '',
+    oracle: '',
+    result: '1x0',
     push_tx: false,
   });
 
@@ -284,6 +294,7 @@ export const SnapTester: React.FC = () => {
   const getSnapSendNanoCreateToken = wrapWithErrorHandler(snapHandlers.getSnapSendNanoCreateToken);
   const getSnapCreateBet = wrapWithErrorHandler(snapHandlers.getSnapCreateBet);
   const getSnapBet = wrapWithErrorHandler(snapHandlers.getSnapBet);
+  const getSnapSetResult = wrapWithErrorHandler(snapHandlers.getSnapSetResult);
   const getSnapSignOracleData = wrapWithErrorHandler(snapHandlers.getSnapSignOracleData);
 	const getSnapChangeNetwork = wrapWithErrorHandler(snapHandlers.getSnapChangeNetwork);
 
@@ -508,7 +519,7 @@ export const SnapTester: React.FC = () => {
         </div>
       </section>
 
-	    {/* Sginatures Section */}
+	    {/* Signatures Section */}
 	    <section>
 		    <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Signatures</h2>
 		    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -648,8 +659,8 @@ export const SnapTester: React.FC = () => {
             onExecute={getSnapCreateBet}
             onError={handleGlobalError}
             disabled={isExecutingMethod}
-            createBetParams={createBetParams}
-            setCreateBetParams={setCreateBetParams}
+            createBetParams={initializeBetParams}
+            setCreateBetParams={setInitializeBetParams}
           />
           <BetCard
             onExecute={getSnapBet}
@@ -657,6 +668,13 @@ export const SnapTester: React.FC = () => {
             disabled={isExecutingMethod}
             betParams={betParams}
             setBetParams={setBetParams}
+          />
+          <SetBetResultCard
+            onExecute={getSnapSetResult}
+            onError={handleGlobalError}
+            disabled={isExecutingMethod}
+            setResultParams={setBetResultParams}
+            setSetResultParams={setSetBetResultParams}
           />
         </div>
       </section>

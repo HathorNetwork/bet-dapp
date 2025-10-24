@@ -75,7 +75,7 @@ export interface SendNanoCreateTokenParams {
 }
 
 // Add params interface for Create Bet nano contract
-export interface CreateBetParams {
+export interface InitializeBetParams {
   blueprintId: string;   // Blueprint ID for the bet nano contract
   oracleAddress: string; // Oracle wallet address (will be converted to buffer in handler)
   token: string;         // Token ID (e.g., '00' for HTR)
@@ -90,6 +90,14 @@ export interface BetParams {
   amount: number;        // Amount to bet (will be multiplied by 100 for transaction)
   address: string;       // User's wallet address
   token: string;         // Token ID (e.g., '00' for HTR)
+  push_tx: boolean;
+}
+
+// Add params interface for setting the result of a bet contract (oracle action)
+export interface SetResultParams {
+  ncId: string;          // Nano contract ID of the existing bet
+  oracle: string;        // Oracle address that will sign the result
+  result: string;        // The result to set (e.g., 'Yes', 'No', '1x0', '2x0')
   push_tx: boolean;
 }
 
@@ -584,7 +592,7 @@ export const createSnapHandlers = (deps: SnapHandlerDependencies) => {
 			 */
     },
 
-    getSnapCreateBet: async (params: CreateBetParams) => {
+    getSnapCreateBet: async (params: InitializeBetParams) => {
       // Convert oracle address to buffer hex string
       const oracleBuffer = getOracleBuffer(params.oracleAddress);
 
@@ -684,6 +692,74 @@ export const createSnapHandlers = (deps: SnapHandlerDependencies) => {
           }
         } catch (e) {
           console.error('Failed to parse bet transaction response:', e);
+        }
+      }
+
+      return result;
+    },
+
+    getSnapSetResult: async (params: SetResultParams) => {
+      // First, sign the oracle data
+      const signResult = await invokeSnap({
+        method: 'htr_signOracleData',
+        params: {
+          nc_id: params.ncId,
+          data: params.result,
+          oracle: params.oracle
+        }
+      });
+
+      // Parse the signed data from the response
+      let signedData: string;
+      try {
+        const parsed = JSON.parse(signResult as string);
+        if (parsed.response && parsed.response.signedData) {
+          signedData = parsed.response.signedData;
+        } else {
+          throw new Error('Failed to extract signed data from oracle signature response');
+        }
+      } catch (e) {
+        console.error('Failed to parse sign oracle data response:', e);
+        throw e;
+      }
+
+      // Now send the set_result transaction with the signed data
+      const invokeParams: any = {
+        method: 'set_result',
+        nc_id: params.ncId,
+        actions: [],
+        args: [signedData],
+        push_tx: params.push_tx,
+      };
+
+      const result = await invokeSnap({
+        method: 'htr_sendNanoContractTx',
+        params: invokeParams
+      });
+
+      // Parse and update wallet state with transaction data
+      if (result) {
+        try {
+          const parsed = JSON.parse(result as string);
+          if (parsed.type === 0 && parsed.response) {
+            const txData = parsed.response;
+            updateTransaction({
+              hash: txData.hash,
+              inputs: txData.inputs || [],
+              outputs: txData.outputs || [],
+              signalBits: txData.signalBits,
+              version: txData.version,
+              weight: txData.weight,
+              nonce: txData.nonce,
+              timestamp: txData.timestamp,
+              parents: txData.parents || [],
+              tokens: txData.tokens || [],
+              headers: txData.headers || [],
+              _dataToSignCache: txData._dataToSignCache,
+            });
+          }
+        } catch (e) {
+          console.error('Failed to parse set result transaction response:', e);
         }
       }
 
