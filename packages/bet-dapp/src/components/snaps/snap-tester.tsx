@@ -625,7 +625,7 @@ export const SnapTester: React.FC = () => {
 
       {/* Nano Contracts Section */}
       <section>
-        <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Nano Contracts</h2>
+        <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Test Bet Blueprint</h2>
 
         {/* Blueprint ID Configuration */}
         <Card className="p-4 mb-4 bg-gray-900/30 border-gray-700">
@@ -644,20 +644,6 @@ export const SnapTester: React.FC = () => {
         </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <SendNanoCard
-            onExecute={getSnapSendNano}
-            onError={handleGlobalError}
-            disabled={isExecutingMethod}
-            sendNanoParams={sendNanoParams}
-            setSendNanoParams={setSendNanoParams}
-          />
-          <SendNanoCreateTokenCard
-            onExecute={getSnapSendNanoCreateToken}
-            onError={handleGlobalError}
-            disabled={isExecutingMethod}
-            sendNanoCreateTokenParams={sendNanoCreateTokenParams}
-            setSendNanoCreateTokenParams={setSendNanoCreateTokenParams}
-          />
           <CreateBetCard
             onExecute={getSnapCreateBet}
             onError={handleGlobalError}
@@ -671,6 +657,27 @@ export const SnapTester: React.FC = () => {
             disabled={isExecutingMethod}
             betParams={betParams}
             setBetParams={setBetParams}
+          />
+        </div>
+      </section>
+
+      {/* Test Bet Blueprint Section */}
+      <section>
+        <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Nano Contracts (Generic)</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <SendNanoCard
+            onExecute={getSnapSendNano}
+            onError={handleGlobalError}
+            disabled={isExecutingMethod}
+            sendNanoParams={sendNanoParams}
+            setSendNanoParams={setSendNanoParams}
+          />
+          <SendNanoCreateTokenCard
+            onExecute={getSnapSendNanoCreateToken}
+            onError={handleGlobalError}
+            disabled={isExecutingMethod}
+            sendNanoCreateTokenParams={sendNanoCreateTokenParams}
+            setSendNanoCreateTokenParams={setSendNanoCreateTokenParams}
           />
         </div>
       </section>
