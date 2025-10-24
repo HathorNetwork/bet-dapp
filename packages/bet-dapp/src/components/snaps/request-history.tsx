@@ -24,12 +24,11 @@ export const RequestHistory: React.FC = () => {
   }, [entries]);
 
   const filteredEntries = useMemo(() => {
-    return entries.filter(e => {
-      if (filterType === 'errors' && !e.error) return false;
-      if (filterType === 'success' && e.error) return false;
-      if (selectedMethod !== 'all' && e.method !== selectedMethod) return false;
-      return true;
-    });
+    return entries.filter(e => !(
+      (filterType === 'errors' && !e.error) ||
+      (filterType === 'success' && e.error) ||
+      (selectedMethod !== 'all' && e.method !== selectedMethod)
+    ));
   }, [entries, filterType, selectedMethod]);
 
   const toggle = (id: string) => {
@@ -50,6 +49,46 @@ export const RequestHistory: React.FC = () => {
     }, space);
   };
 
+  // Create a short snippet for results to show in collapsed item view
+  const getResultSnippet = (res: any): string => {
+    try {
+      if (res === undefined) return 'No result';
+      if (res === null) return 'null';
+      if (typeof res === 'string' || typeof res === 'number' || typeof res === 'boolean') {
+        const s = String(res);
+        return s.length > 80 ? `${s.slice(0, 80)}…` : s;
+      }
+      if (Array.isArray(res)) {
+        if (res.length === 0) return '[]';
+        const first = res[0];
+        const firstSnippet = getResultSnippet(first);
+        return `[Array(${res.length})] ${firstSnippet}`;
+      }
+      if (typeof res === 'object') {
+        const keys = Object.keys(res);
+        if (keys.length === 0) return '{}';
+        const parts = keys.slice(0, 3).map((k) => {
+          const v = (res as any)[k];
+          let vs: string;
+          if (v === null) vs = 'null';
+          else if (v === undefined) vs = 'undefined';
+          else if (typeof v === 'object') {
+            if (Array.isArray(v)) vs = `[${v.length} items]`;
+            else vs = '{...}';
+          } else {
+            vs = String(v);
+            if (vs.length > 30) vs = `${vs.slice(0, 30)}…`;
+          }
+          return `${k}: ${vs}`;
+        });
+        return `{ ${parts.join(', ')} }`;
+      }
+      return String(res).slice(0, 80);
+    } catch (err) {
+      return '[unavailable]';
+    }
+  };
+
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -60,8 +99,7 @@ export const RequestHistory: React.FC = () => {
 
   const exportToJson = () => {
     try {
-      const payload = filteredEntries;
-      const json = safeStringify(payload, 2);
+      const json = safeStringify(filteredEntries, 2);
       const blob = new Blob([json], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -158,13 +196,16 @@ export const RequestHistory: React.FC = () => {
               {filteredEntries.map((e) => (
                 <div key={e.id} className="border border-gray-700 rounded p-3 bg-gray-900/20">
                   <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
+                    <div className="min-w-0" onClick={() => toggle(e.id)}>
                       <div className="flex items-center gap-2">
                         <div className="font-mono text-sm text-gray-200 truncate">{e.method}</div>
                         <div className="text-xs text-gray-400 font-mono">{new Date(e.timestamp).toLocaleString()}</div>
                         {e.error && <div className="ml-2 text-red-400 text-xs">Error</div>}
                       </div>
                       <div className="text-xs text-gray-400 mt-2 break-words">Args: <span className="font-mono text-xs text-gray-300">{safeStringify(e.args)}</span></div>
+                      {!expanded[e.id] && (
+                        <div className={`${e.error ? 'text-red-300' : 'text-gray-300'} text-xs mt-1 break-words`}>Result: <span className="font-mono text-xs">{getResultSnippet(e.result)}</span></div>
+                      )}
                     </div>
                     <div className="flex items-center gap-2">
                       <button
@@ -185,7 +226,7 @@ export const RequestHistory: React.FC = () => {
                   </div>
 
                   {expanded[e.id] && (
-                    <div className="mt-3 text-sm text-gray-300 font-mono whitespace-pre-wrap">
+                    <div className="mt-3 text-sm text-gray-300 font-mono whitespace-pre-wrap" onClick={() => toggle(e.id)}>
                       <div className="mb-2"><strong>Result / Error:</strong></div>
                       <pre className="text-xs p-2 bg-gray-900/40 rounded overflow-auto">{typeof e.result === 'string' ? e.result : safeStringify(e.result, 2)}</pre>
                     </div>
