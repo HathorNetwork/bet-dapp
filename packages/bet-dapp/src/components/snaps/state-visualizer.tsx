@@ -15,16 +15,16 @@ interface StateVisualizerProps {
   walletState: WalletState;
   clearWalletState: () => void;
   clearUtxos: () => void;
-  handleFetchUtxosForToken: (tokenId: string) => void;
-  handleUseUtxoAsInput: (utxo: UtxoData) => void;
-  handleGetXpub: () => void;
+  handleFetchUtxosForToken: (tokenId: string) => Promise<void>;
+  handleUseUtxoAsInput: (utxo: UtxoData) => Promise<void>;
+  handleGetXpub: () => Promise<void>;
   getTokenInfo: (tokenId: string) => { name: string; symbol: string } | null;
   expandedTxs: Set<string>;
   toggleTxExpansion: (hash: string) => void;
   loadingTokenUtxos: Set<string>;
   isExecutingMethod: boolean;
-  getSnapChangeNetwork: () => void;
-  getSnapAddress: (index: number) => void;
+  getSnapChangeNetwork: () => Promise<void>;
+  getSnapAddress: (index: number) => Promise<void>;
 }
 
 export const StateVisualizer: React.FC<StateVisualizerProps> = ({
@@ -50,9 +50,31 @@ export const StateVisualizer: React.FC<StateVisualizerProps> = ({
     walletState.xpub !== null ||
     walletState.transactions.size > 0;
 
+	const [isXpubLoading, setIsXpubLoading] = React.useState(false);
+
+	// Loading state for requesting the next address
+	const [isAddressLoading, setIsAddressLoading] = React.useState(false);
+
   if (!hasWalletData) {
     return null;
   }
+
+	const handleGetXpubClick = async () => {
+		setIsXpubLoading(true);
+		await handleGetXpub()
+		setIsXpubLoading(false);
+	}
+
+	const handleRequestNextAddressClick = async () => {
+		setIsAddressLoading(true);
+		try {
+			const indices = Array.from(walletState.addresses.values()).map(a => a.index);
+			const nextIndex = indices.length > 0 ? Math.max(...indices) + 1 : 0;
+			await getSnapAddress(nextIndex);
+		} finally {
+			setIsAddressLoading(false);
+		}
+	}
 
   return (
     <section>
@@ -148,13 +170,13 @@ export const StateVisualizer: React.FC<StateVisualizerProps> = ({
 					      <div className="text-sm text-gray-500">No extended public key stored.</div>
 					      <div className="pt-2 border-t border-gray-700/50">
 						      <Button
-							      onClick={() => handleGetXpub()}
+							      onClick={handleGetXpubClick}
 							      disabled={isExecutingMethod}
 							      size="sm"
 							      variant="outline"
 							      className="w-full border-hathor-yellow-500/50 text-hathor-yellow-400 hover:bg-hathor-yellow-500/10 hover:text-hathor-yellow-300 disabled:opacity-50 disabled:cursor-not-allowed"
 						      >
-							      {isExecutingMethod ? (
+							      {isXpubLoading ? (
 								      <>
 									      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
 									      Fetching...
@@ -226,14 +248,18 @@ export const StateVisualizer: React.FC<StateVisualizerProps> = ({
                 <span className="text-sm text-gray-400 mb-2">Need another address?</span>
                 <Button
                   variant="outline"
-                  className="text-hathor-yellow-500 border-hathor-yellow-500 hover:bg-hathor-yellow-500/10"
-                  onClick={() => {
-                    const indices = Array.from(walletState.addresses.values()).map(a => a.index);
-                    const nextIndex = indices.length > 0 ? Math.max(...indices) + 1 : 0;
-                    getSnapAddress(nextIndex);
-                  }}
+                  className="text-hathor-yellow-500 border-hathor-yellow-500 hover:bg-hathor-yellow-500/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isExecutingMethod}
+                  onClick={handleRequestNextAddressClick}
                 >
-                  Request Next Address (Index {Array.from(walletState.addresses.values()).length > 0 ? Math.max(...Array.from(walletState.addresses.values()).map(a => a.index)) + 1 : 0})
+                  {isAddressLoading ? (
+                    <>
+                      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                      Requesting address {walletState.addresses.size}...
+                    </>
+                  ) : (
+                    `Request Next Address (Index ${walletState.addresses.size})`
+                  )}
                 </Button>
               </div>
             </div>
