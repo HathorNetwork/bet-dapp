@@ -44,7 +44,8 @@ export const WithdrawBetPrizeCard: React.FC<WithdrawBetPrizeCardProps> = ({
             onClick={async () => {
               setLoading(true);
               try {
-                await executeWrapper(() => onExecute(withdrawBetPrizeParams));
+                const ncId = walletState.betNanoContract?.ncId || '';
+                await executeWrapper(() => onExecute({ ...withdrawBetPrizeParams, ncId }));
               } finally {
                 setLoading(false);
               }
@@ -64,20 +65,6 @@ export const WithdrawBetPrizeCard: React.FC<WithdrawBetPrizeCardProps> = ({
           </Button>
 
           <div className="space-y-4 pt-2">
-            {/* Nano Contract ID */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Bet Contract ID</Label>
-              <Input
-                value={withdrawBetPrizeParams.ncId}
-                onChange={(e) => handleFieldChange('ncId', e.target.value)}
-                placeholder="Nano contract ID (e.g., 00000d69f91...)"
-                className="bg-gray-900/50 border-gray-700 text-sm"
-              />
-              <p className="text-xs text-gray-400">
-                The ID of the existing bet nano contract
-              </p>
-            </div>
-
             {/* Address */}
             <AddressSelector
               walletState={walletState}

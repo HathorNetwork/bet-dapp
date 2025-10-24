@@ -60,6 +60,12 @@ export interface BlueprintData {
   lastUpdated: number;
 }
 
+export interface BetNanoContractData {
+  ncId: string;
+  hash: string;
+  lastUpdated: number;
+}
+
 export interface TransactionData {
   hash: string;
   inputs: any[];
@@ -85,6 +91,7 @@ export interface WalletState {
   network: NetworkData | null;
   xpub: XpubData | null;
   blueprint: BlueprintData | null;
+  betNanoContract: BetNanoContractData | null;
   transactions: Map<string, TransactionData>; // key: hash
 }
 
@@ -97,6 +104,7 @@ interface WalletStateContextType {
   updateNetwork: (networkData: Omit<NetworkData, 'lastUpdated'>) => void;
   updateXpub: (xpubData: Omit<XpubData, 'lastUpdated'>) => void;
   updateBlueprint: (blueprintData: Omit<BlueprintData, 'lastUpdated'>) => void;
+  updateBetNanoContract: (betNanoContractData: Omit<BetNanoContractData, 'lastUpdated'>) => void;
   updateTransaction: (transactionData: Omit<TransactionData, 'lastUpdated'>) => void;
   clearUtxos: () => void;
   clearWalletState: () => void;
@@ -113,6 +121,7 @@ const initialState: WalletState = {
   network: null,
   xpub: null,
   blueprint: { blueprintId: TESTNET_INDIA_BET_BLUEPRINT_ID, lastUpdated: Date.now() },
+  betNanoContract: null,
   transactions: new Map(),
 };
 
@@ -206,6 +215,17 @@ export const WalletStateProvider: React.FC<{ children: ReactNode }> = ({ childre
     }));
   };
 
+  // Update bet nano contract
+  const updateBetNanoContract = (betNanoContractData: Omit<BetNanoContractData, 'lastUpdated'>) => {
+    setWalletState((prev) => ({
+      ...prev,
+      betNanoContract: {
+        ...betNanoContractData,
+        lastUpdated: Date.now(),
+      },
+    }));
+  };
+
   // Update transaction by hash
   const updateTransaction = (transactionData: Omit<TransactionData, 'lastUpdated'>) => {
     setWalletState((prev) => {
@@ -239,6 +259,7 @@ export const WalletStateProvider: React.FC<{ children: ReactNode }> = ({ childre
     updateNetwork,
     updateXpub,
     updateBlueprint,
+    updateBetNanoContract,
     updateTransaction,
     clearUtxos,
     clearWalletState,

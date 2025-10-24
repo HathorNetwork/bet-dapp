@@ -49,6 +49,7 @@ export interface SnapHandlerDependencies {
   updateUtxos: (data: any) => void;
   updateNetwork: (data: any) => void;
   updateXpub: (data: any) => void;
+  updateBetNanoContract: (data: any) => void;
   updateTransaction: (data: any) => void;
   clearWalletState: () => void;
   balanceTokens?: string[];
@@ -118,6 +119,7 @@ export const createSnapHandlers = (deps: SnapHandlerDependencies) => {
     updateUtxos,
     updateNetwork,
     updateXpub,
+    updateBetNanoContract,
     updateTransaction,
     clearWalletState,
     balanceTokens = ['00'],
@@ -645,6 +647,12 @@ export const createSnapHandlers = (deps: SnapHandlerDependencies) => {
               tokens: txData.tokens || [],
               headers: txData.headers || [],
               _dataToSignCache: txData._dataToSignCache,
+            });
+
+            // Store the bet nano contract ID (the hash is the ncId for initialize transactions)
+            updateBetNanoContract({
+              ncId: txData.hash,
+              hash: txData.hash,
             });
           }
         } catch (e) {
