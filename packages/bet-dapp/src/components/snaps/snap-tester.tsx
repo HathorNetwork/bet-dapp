@@ -45,7 +45,7 @@ export const SnapTester: React.FC = () => {
   const requestSnap = useRequestSnap();
   const invokeSnap = useInvokeSnap();
   const { installedSnap, setInstalledSnap, error: contextError, setError: setContextError } = useMetaMaskContext();
-  const { walletState, updateAddress, updateBalance, updateUtxos, updateNetwork, updateXpub, updateBlueprint, updateBetNanoContract, updateTransaction, clearUtxos, clearWalletState, addRequestHistory, clearRequestHistory } = useWalletState();
+  const { walletState, updateAddress, updateBalance, updateUtxos, updateNetwork, updateXpub, updateBlueprint, updateBetNanoContract, updateTransaction, clearUtxos, clearWalletState, addRequestHistory, addErrorObjectToLastRequest } = useWalletState();
   const [globalErrors, setGlobalErrors] = useState<SnapError[]>([]);
   const [isExecutingMethod, setIsExecutingMethod] = useState<boolean>(false);
   const [balanceTokens, setBalanceTokens] = useState<string[]>(['00']);
@@ -181,13 +181,14 @@ export const SnapTester: React.FC = () => {
 
   // Watch for errors from MetaMask context (from useRequest hook)
   useEffect(() => {
-    if (contextError) {
-      console.warn('Context error detected:', contextError);
-      handleGlobalError(contextError);
-      // Clear the context error after handling it
-      setContextError(null);
-    }
-  }, [contextError, setContextError]);
+     if (contextError) {
+       console.warn('Context error detected:', contextError);
+       handleGlobalError(contextError);
+       // Clear the context error after handling it
+       setContextError(null);
+     }
+	 // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [contextError, setContextError]);
 
   // Lazy-load Wallet Information data on component mount if not already loaded
   useEffect(() => {
@@ -267,14 +268,22 @@ export const SnapTester: React.FC = () => {
     }
 
     const snapError: SnapError = {
-      id: errorId,
       code,
       message,
       details,
       timestamp: Date.now(),
+	    id: errorId,
     };
 
     setGlobalErrors((prev) => [...prev, snapError]);
+    try {
+      // Attach error details to the last request in history for better debugging context
+      // addErrorObjectToLastRequest is safe to call even if there is no history
+      // we call it in a try/catch to avoid interfering with error handling flow
+      addErrorObjectToLastRequest?.(snapError as any);
+    } catch (err) {
+      console.warn('Failed to attach error object to last request:', err);
+    }
   };
 
   // Wrap snap methods with global error handler and request history logger

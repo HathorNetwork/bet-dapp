@@ -91,6 +91,7 @@ export interface RequestHistoryEntry {
   args: any;
   result?: any;
   error?: boolean;
+	errorObject?: any;
   timestamp: number;
 }
 
@@ -122,6 +123,7 @@ interface WalletStateContextType {
   // New methods for request history
   addRequestHistory: (entry: Omit<RequestHistoryEntry, 'id' | 'timestamp'>) => void;
   clearRequestHistory: () => void;
+  addErrorObjectToLastRequest: (errorObject: any) => void;
 }
 
 // Create Context
@@ -270,18 +272,35 @@ export const WalletStateProvider: React.FC<{ children: ReactNode }> = ({ childre
   const addRequestHistory = (entry: Omit<RequestHistoryEntry, 'id' | 'timestamp'>) => {
     setWalletState((prev) => {
       const newEntry: RequestHistoryEntry = {
-				id: `${prev.requestHistory.length}`,
-	      timestamp: Date.now(),
-	      error: entry.error,
+        id: `${prev.requestHistory.length}`,
+        timestamp: Date.now(),
+        error: entry.error,
         method: entry.method,
         args: entry.args,
         result: entry.result,
       };
-	    console.log(`Executed Snap call: `, newEntry);
+      console.log(`Executed Snap call: `, newEntry);
       return {
         ...prev,
         requestHistory: [...prev.requestHistory, newEntry],
       };
+    });
+  };
+
+  // Attach an error object to the most recent request in history (useful when detailed error is parsed later)
+  const addErrorObjectToLastRequest = (errorObject: any) => {
+    setWalletState((prev) => {
+      const history = prev.requestHistory.slice();
+      if (history.length === 0) return prev;
+      const lastIndex = history.length - 1;
+      const last = history[lastIndex];
+      // Update the last entry with the errorObject; keep other fields intact
+      history[lastIndex] = {
+        ...last,
+	      error: true,
+        errorObject,
+      };
+      return { ...prev, requestHistory: history };
     });
   };
 
@@ -307,6 +326,7 @@ export const WalletStateProvider: React.FC<{ children: ReactNode }> = ({ childre
     clearWalletState,
     addRequestHistory,
     clearRequestHistory,
+    addErrorObjectToLastRequest,
   };
 
   return (

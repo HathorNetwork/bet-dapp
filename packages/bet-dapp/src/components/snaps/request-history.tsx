@@ -200,16 +200,20 @@ export const RequestHistory: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <div className="font-mono text-sm text-gray-200 truncate">{e.method}</div>
                         <div className="text-xs text-gray-400 font-mono">{new Date(e.timestamp).toLocaleString()}</div>
-                        {e.error && <div className="ml-2 text-red-400 text-xs">Error</div>}
+                        {(e.error) && <div className="ml-2 text-red-400 text-xs">Error</div>}
                       </div>
                       <div className="text-xs text-gray-400 mt-2 break-words">Args: <span className="font-mono text-xs text-gray-300">{safeStringify(e.args)}</span></div>
-                      {!expanded[e.id] && (
-                        <div className={`${e.error ? 'text-red-300' : 'text-gray-300'} text-xs mt-1 break-words`}>Result: <span className="font-mono text-xs">{getResultSnippet(e.result)}</span></div>
-                      )}
+                      {!expanded[e.id] && (() => {
+                        // Prefer showing errorObject when available for errored requests with null/undefined result
+                        const displaySource = (!e.result && e.errorObject) ? e.errorObject : e.result;
+                        return (
+                          <div className={`${e.error ? 'text-red-300' : 'text-gray-300'} text-xs mt-1 break-words`}>{e.error? 'Error' : 'Result'}: <span className="font-mono text-xs">{getResultSnippet(displaySource)}</span></div>
+                        );
+                      })()}
                     </div>
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => handleCopy(safeStringify({ method: e.method, args: e.args, result: e.result }))}
+                        onClick={() => handleCopy(safeStringify({ method: e.method, args: e.args, result: e.result, errorObject: e.errorObject }))}
                         className="text-gray-400 hover:text-hathor-yellow-400"
                         title="Copy JSON"
                       >
@@ -228,6 +232,11 @@ export const RequestHistory: React.FC = () => {
                   {expanded[e.id] && (
                     <div className="mt-3 text-sm text-gray-300 font-mono whitespace-pre-wrap" onClick={() => toggle(e.id)}>
                       <div className="mb-2"><strong>Result / Error:</strong></div>
+                      {/* Prefer showing detailed errorObject when available */}
+                      {e.errorObject && (
+                        <pre className="text-xs p-2 bg-gray-900/40 rounded overflow-auto">{safeStringify(e.errorObject, 2)}</pre>
+                      )}
+	                    <div className="mb-2"><strong>Result:</strong></div>
                       <pre className="text-xs p-2 bg-gray-900/40 rounded overflow-auto">{typeof e.result === 'string' ? e.result : safeStringify(e.result, 2)}</pre>
                     </div>
                   )}
