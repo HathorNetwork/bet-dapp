@@ -86,7 +86,7 @@ export interface TransactionData {
 
 // Request history entry for recording session requests
 export interface RequestHistoryEntry {
-  id: number;
+  id: string;
 	method: string;
   args: any;
   result?: any;
@@ -270,7 +270,7 @@ export const WalletStateProvider: React.FC<{ children: ReactNode }> = ({ childre
   const addRequestHistory = (entry: Omit<RequestHistoryEntry, 'id' | 'timestamp'>) => {
     setWalletState((prev) => {
       const newEntry: RequestHistoryEntry = {
-				id: prev.requestHistory.length,
+				id: `${prev.requestHistory.length}`,
 	      timestamp: Date.now(),
 	      error: entry.error,
         method: entry.method,
