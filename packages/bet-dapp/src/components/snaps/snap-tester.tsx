@@ -17,7 +17,7 @@ import { createSnapHandlers } from './snap-method-handlers';
 import { StateVisualizer } from './state-visualizer';
 import { SendNanoCard } from './send-nano-card';
 import { SendNanoCreateTokenCard } from './send-nano-create-token-card';
-import { CreateBetCard } from './create-bet-card';
+import { InitializeBetCard } from './initialize-bet-card';
 import { BetCard } from './bet-card';
 import type { SendNanoParams, SendNanoCreateTokenParams, CreateBetParams, BetParams } from './snap-method-handlers';
 
@@ -644,7 +644,7 @@ export const SnapTester: React.FC = () => {
         </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <CreateBetCard
+          <InitializeBetCard
             onExecute={getSnapCreateBet}
             onError={handleGlobalError}
             disabled={isExecutingMethod}

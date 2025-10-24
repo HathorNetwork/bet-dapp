@@ -17,7 +17,7 @@ export interface CreateBetCardProps {
   setCreateBetParams: (params: CreateBetParams) => void;
 }
 
-export const CreateBetCard: React.FC<CreateBetCardProps> = ({
+export const InitializeBetCard: React.FC<CreateBetCardProps> = ({
   onExecute,
   onError,
   disabled = false,

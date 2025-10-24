@@ -16,7 +16,7 @@ interface StateVisualizerProps {
   clearWalletState: () => void;
   clearUtxos: () => void;
   handleFetchUtxosForToken: (tokenId: string) => Promise<void>;
-  handleUseUtxoAsInput: (utxo: UtxoData) => Promise<void>;
+  handleUseUtxoAsInput: (utxo: UtxoData) => void;
   handleGetXpub: () => Promise<void>;
   getTokenInfo: (tokenId: string) => { name: string; symbol: string } | null;
   expandedTxs: Set<string>;
