@@ -84,6 +84,16 @@ export interface TransactionData {
   lastUpdated: number;
 }
 
+// Request history entry for recording session requests
+export interface RequestHistoryEntry {
+  id: number;
+	method: string;
+  args: any;
+  result?: any;
+  error?: boolean;
+  timestamp: number;
+}
+
 export interface WalletState {
   addresses: Map<number, AddressData>; // key: index
   balances: Map<string, BalanceData>; // key: token
@@ -93,6 +103,7 @@ export interface WalletState {
   blueprint: BlueprintData | null;
   betNanoContract: BetNanoContractData | null;
   transactions: Map<string, TransactionData>; // key: hash
+  requestHistory: RequestHistoryEntry[]; // history of session requests
 }
 
 // Context Type
@@ -108,6 +119,9 @@ interface WalletStateContextType {
   updateTransaction: (transactionData: Omit<TransactionData, 'lastUpdated'>) => void;
   clearUtxos: () => void;
   clearWalletState: () => void;
+  // New methods for request history
+  addRequestHistory: (entry: Omit<RequestHistoryEntry, 'id' | 'timestamp'>) => void;
+  clearRequestHistory: () => void;
 }
 
 // Create Context
@@ -123,6 +137,7 @@ const initialState: WalletState = {
   blueprint: { blueprintId: TESTNET_INDIA_BET_BLUEPRINT_ID, lastUpdated: Date.now() },
   betNanoContract: null,
   transactions: new Map(),
+  requestHistory: [],
 };
 
 // Provider Component
@@ -251,6 +266,33 @@ export const WalletStateProvider: React.FC<{ children: ReactNode }> = ({ childre
     setWalletState(initialState);
   };
 
+  // Add a request to the session history
+  const addRequestHistory = (entry: Omit<RequestHistoryEntry, 'id' | 'timestamp'>) => {
+    setWalletState((prev) => {
+      const newEntry: RequestHistoryEntry = {
+				id: prev.requestHistory.length,
+	      timestamp: Date.now(),
+	      error: entry.error,
+        method: entry.method,
+        args: entry.args,
+        result: entry.result,
+      };
+	    console.log(`Executed Snap call: `, newEntry);
+      return {
+        ...prev,
+        requestHistory: [...prev.requestHistory, newEntry],
+      };
+    });
+  };
+
+  // Clear the request history
+  const clearRequestHistory = () => {
+    setWalletState((prev) => ({
+      ...prev,
+      requestHistory: [],
+    }));
+  };
+
   const value: WalletStateContextType = {
     walletState,
     updateAddress,
@@ -263,6 +305,8 @@ export const WalletStateProvider: React.FC<{ children: ReactNode }> = ({ childre
     updateTransaction,
     clearUtxos,
     clearWalletState,
+    addRequestHistory,
+    clearRequestHistory,
   };
 
   return (

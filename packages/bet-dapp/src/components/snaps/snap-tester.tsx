@@ -25,6 +25,7 @@ import { SetBetResultCard } from './set-bet-result-card';
 import { WithdrawBetPrizeCard } from './withdraw-bet-prize-card';
 import type { SendNanoParams, SendNanoCreateTokenParams, InitializeBetParams, BetParams, SetResultParams, WithdrawBetPrizeParams } from './snap-method-handlers';
 import { TESTNET_INDIA_BET_BLUEPRINT_ID } from '@/components/snaps/constants'
+import { RequestHistory } from './request-history'
 
 interface SnapError {
   id: string;
@@ -44,7 +45,7 @@ export const SnapTester: React.FC = () => {
   const requestSnap = useRequestSnap();
   const invokeSnap = useInvokeSnap();
   const { installedSnap, setInstalledSnap, error: contextError, setError: setContextError } = useMetaMaskContext();
-  const { walletState, updateAddress, updateBalance, updateUtxos, updateNetwork, updateXpub, updateBlueprint, updateBetNanoContract, updateTransaction, clearUtxos, clearWalletState } = useWalletState();
+  const { walletState, updateAddress, updateBalance, updateUtxos, updateNetwork, updateXpub, updateBlueprint, updateBetNanoContract, updateTransaction, clearUtxos, clearWalletState, addRequestHistory, clearRequestHistory } = useWalletState();
   const [globalErrors, setGlobalErrors] = useState<SnapError[]>([]);
   const [isExecutingMethod, setIsExecutingMethod] = useState<boolean>(false);
   const [balanceTokens, setBalanceTokens] = useState<string[]>(['00']);
@@ -276,17 +277,27 @@ export const SnapTester: React.FC = () => {
     setGlobalErrors((prev) => [...prev, snapError]);
   };
 
-  // Wrap snap methods with global error handler
+  // Wrap snap methods with global error handler and request history logger
   const wrapWithErrorHandler = <T extends any[], R>(fn: (...args: T) => Promise<R>) => {
     return async (...args: T): Promise<R> => {
       setIsExecutingMethod(true);
-	    const wrapperName = fn?.name || 'anonymous'
-	    try {
+      const wrapperName = fn?.name || 'anonymous'
+      try {
         const wrappedResult = await fn(...args);
-	      console.log(`Result from wrapped function: `, { wrapperName, args, result: wrappedResult });
-				return wrappedResult;
+        // Record successful request in wallet request history
+        try {
+          addRequestHistory({ method: wrapperName, args, result: wrappedResult, error: false });
+        } catch (err) {
+          console.error('Failed to add request history (success):', {err, wrapperName});
+        }
+        return wrappedResult;
       } catch (error) {
-        console.error(`Error caught in wrapper function: `, { wrapperName, args, error });
+        // Record failed request in wallet request history
+        try {
+          addRequestHistory({ method: wrapperName, args, result: error, error: true });
+        } catch (err) {
+          console.error('Failed to add request history (error):', {err, wrapperName});
+        }
         handleGlobalError(error);
         throw error;
       } finally {
@@ -825,6 +836,9 @@ export const SnapTester: React.FC = () => {
           </Card>
          </div>
        </section>
+
+       {/* Request History Section (separate component at the end of the page) */}
+      <RequestHistory />
     </div>
   );
 };
