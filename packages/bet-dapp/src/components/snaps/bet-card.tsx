@@ -103,7 +103,7 @@ export const BetCard: React.FC<BetCardProps> = ({
                 className="bg-gray-900/50 border-gray-700 text-sm"
               />
               <p className="text-xs text-gray-400">
-                Amount to bet (will be multiplied by 100 for the transaction)
+                Amount to bet
               </p>
             </div>
 

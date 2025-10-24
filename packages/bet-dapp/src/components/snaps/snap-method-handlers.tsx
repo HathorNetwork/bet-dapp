@@ -640,15 +640,13 @@ export const createSnapHandlers = (deps: SnapHandlerDependencies) => {
 
     getSnapBet: async (params: BetParams) => {
       // Convert amount to the correct format (multiply by 100 and round)
-      const amountInCents = Math.round(params.amount * 100);
-
-      const invokeParams: any = {
+	    const invokeParams: any = {
         method: 'bet',
         nc_id: params.ncId,
         actions: [{
           type: 'deposit',
           token: params.token,
-          amount: amountInCents.toString(),
+          amount: params.amount.toString(),
           changeAddress: params.address,
         }],
         args: [
