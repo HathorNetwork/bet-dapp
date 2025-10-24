@@ -20,7 +20,8 @@ import { SendNanoCreateTokenCard } from './send-nano-create-token-card';
 import { InitializeBetCard } from './initialize-bet-card';
 import { BetCard } from './bet-card';
 import { SetBetResultCard } from './set-bet-result-card';
-import type { SendNanoParams, SendNanoCreateTokenParams, InitializeBetParams, BetParams, SetResultParams } from './snap-method-handlers';
+import { WithdrawBetPrizeCard } from './withdraw-bet-prize-card';
+import type { SendNanoParams, SendNanoCreateTokenParams, InitializeBetParams, BetParams, SetResultParams, WithdrawBetPrizeParams } from './snap-method-handlers';
 import { TESTNET_INDIA_BET_BLUEPRINT_ID } from '@/components/snaps/constants'
 
 interface SnapError {
@@ -114,6 +115,15 @@ export const SnapTester: React.FC = () => {
     ncId: '',
     oracle: '',
     result: '1x0',
+    push_tx: false,
+  });
+
+  // New state for Withdraw Bet Prize params
+  const [withdrawBetPrizeParams, setWithdrawBetPrizeParams] = useState<WithdrawBetPrizeParams>({
+    ncId: '',
+    address: '',
+    amount: 100,
+    token: '00',
     push_tx: false,
   });
 
@@ -295,6 +305,7 @@ export const SnapTester: React.FC = () => {
   const getSnapCreateBet = wrapWithErrorHandler(snapHandlers.getSnapCreateBet);
   const getSnapBet = wrapWithErrorHandler(snapHandlers.getSnapBet);
   const getSnapSetResult = wrapWithErrorHandler(snapHandlers.getSnapSetResult);
+  const getSnapWithdrawBetPrize = wrapWithErrorHandler(snapHandlers.getSnapWithdrawBetPrize);
   const getSnapSignOracleData = wrapWithErrorHandler(snapHandlers.getSnapSignOracleData);
 	const getSnapChangeNetwork = wrapWithErrorHandler(snapHandlers.getSnapChangeNetwork);
 
@@ -675,6 +686,13 @@ export const SnapTester: React.FC = () => {
             disabled={isExecutingMethod}
             setResultParams={setBetResultParams}
             setSetResultParams={setSetBetResultParams}
+          />
+          <WithdrawBetPrizeCard
+            onExecute={getSnapWithdrawBetPrize}
+            onError={handleGlobalError}
+            disabled={isExecutingMethod}
+            withdrawBetPrizeParams={withdrawBetPrizeParams}
+            setWithdrawBetPrizeParams={setWithdrawBetPrizeParams}
           />
         </div>
       </section>

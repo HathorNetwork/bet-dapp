@@ -101,6 +101,15 @@ export interface SetResultParams {
   push_tx: boolean;
 }
 
+// Add params interface for withdrawing prize from a bet contract
+export interface WithdrawBetPrizeParams {
+  ncId: string;          // Nano contract ID of the existing bet
+  address: string;       // User's wallet address to receive the prize
+  amount: number;        // Amount to withdraw
+  token: string;         // Token ID (e.g., '00' for HTR)
+  push_tx: boolean;
+}
+
 export const createSnapHandlers = (deps: SnapHandlerDependencies) => {
   const {
     invokeSnap,
@@ -760,6 +769,55 @@ export const createSnapHandlers = (deps: SnapHandlerDependencies) => {
           }
         } catch (e) {
           console.error('Failed to parse set result transaction response:', e);
+        }
+      }
+
+      return result;
+    },
+
+    getSnapWithdrawBetPrize: async (params: WithdrawBetPrizeParams) => {
+      const invokeParams: any = {
+        method: 'withdraw',
+        nc_id: params.ncId,
+        actions: [{
+          type: 'withdrawal',
+          address: params.address,
+          amount: params.amount.toString(),
+          token: params.token,
+          changeAddress: params.address,
+        }],
+        args: [],
+        push_tx: params.push_tx,
+      };
+
+      const result = await invokeSnap({
+        method: 'htr_sendNanoContractTx',
+        params: invokeParams
+      });
+
+      // Parse and update wallet state with transaction data
+      if (result) {
+        try {
+          const parsed = JSON.parse(result as string);
+          if (parsed.type === 0 && parsed.response) {
+            const txData = parsed.response;
+            updateTransaction({
+              hash: txData.hash,
+              inputs: txData.inputs || [],
+              outputs: txData.outputs || [],
+              signalBits: txData.signalBits,
+              version: txData.version,
+              weight: txData.weight,
+              nonce: txData.nonce,
+              timestamp: txData.timestamp,
+              parents: txData.parents || [],
+              tokens: txData.tokens || [],
+              headers: txData.headers || [],
+              _dataToSignCache: txData._dataToSignCache,
+            });
+          }
+        } catch (e) {
+          console.error('Failed to parse withdraw bet prize transaction response:', e);
         }
       }
 
