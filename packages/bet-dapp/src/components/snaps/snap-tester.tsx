@@ -622,7 +622,7 @@ export const SnapTester: React.FC = () => {
             <Input
               value={walletState.blueprint?.blueprintId || ''}
               onChange={(e) => updateBlueprint({ blueprintId: e.target.value })}
-              placeholder="Enter blueprint ID (e.g., 0000015ec35e6fa7b333644281eaf42068edac9b4a87149bc837ec6b769c7e2c)"
+              placeholder="Enter blueprint ID (e.g., 0000019865eda743812c566ce6ad3ac49c5f90796b73aa2792a09b7655ac5a5e)"
               className="bg-gray-900/50 border-gray-700 text-sm font-mono"
             />
             <p className="text-xs text-gray-400">

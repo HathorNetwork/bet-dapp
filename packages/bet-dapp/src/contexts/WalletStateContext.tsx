@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { TESTNET_INDIA_BET_BLUEPRINT_ID } from '@/components/snaps/constants'
 
 // Type Definitions
 export interface AddressData {
@@ -111,7 +112,7 @@ const initialState: WalletState = {
   utxos: [],
   network: null,
   xpub: null,
-  blueprint: null,
+  blueprint: { blueprintId: TESTNET_INDIA_BET_BLUEPRINT_ID, lastUpdated: Date.now() },
   transactions: new Map(),
 };
 
