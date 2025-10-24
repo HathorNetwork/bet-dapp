@@ -83,6 +83,16 @@ export interface CreateBetParams {
   push_tx: boolean;
 }
 
+// Add params interface for placing a bet on an existing bet contract
+export interface BetParams {
+  ncId: string;          // Nano contract ID of the existing bet
+  betChoice: string;     // The bet option/choice (e.g., 'Yes', 'No', '1x0', '2x0')
+  amount: number;        // Amount to bet (will be multiplied by 100 for transaction)
+  address: string;       // User's wallet address
+  token: string;         // Token ID (e.g., '00' for HTR)
+  push_tx: boolean;
+}
+
 export const createSnapHandlers = (deps: SnapHandlerDependencies) => {
   const {
     invokeSnap,
@@ -464,10 +474,38 @@ export const createSnapHandlers = (deps: SnapHandlerDependencies) => {
         invokeParams.actions = params.actions;
       }
 
-      return await invokeSnap({
+      const result = await invokeSnap({
         method: 'htr_sendNanoContractTx',
         params: invokeParams,
       });
+
+      // Parse and update wallet state with transaction data
+      if (result) {
+        try {
+          const parsed = JSON.parse(result as string);
+          if (parsed.type === 0 && parsed.response) {
+            const txData = parsed.response;
+            updateTransaction({
+              hash: txData.hash,
+              inputs: txData.inputs || [],
+              outputs: txData.outputs || [],
+              signalBits: txData.signalBits,
+              version: txData.version,
+              weight: txData.weight,
+              nonce: txData.nonce,
+              timestamp: txData.timestamp,
+              parents: txData.parents || [],
+              tokens: txData.tokens || [],
+              headers: txData.headers || [],
+              _dataToSignCache: txData._dataToSignCache,
+            });
+          }
+        } catch (e) {
+          console.error('Failed to parse nano contract transaction response:', e);
+        }
+      }
+
+      return result;
     },
 
     getSnapSendNanoCreateToken: async (params: SendNanoCreateTokenParams) => {
@@ -487,10 +525,38 @@ export const createSnapHandlers = (deps: SnapHandlerDependencies) => {
         invokeParams.options = params.options;
       }
 
-      return await invokeSnap({
+      const result = await invokeSnap({
         method: 'htr_createNanoContractCreateTokenTx',
         params: invokeParams
       });
+
+      // Parse and update wallet state with transaction data
+      if (result) {
+        try {
+          const parsed = JSON.parse(result as string);
+          if (parsed.type === 0 && parsed.response) {
+            const txData = parsed.response;
+            updateTransaction({
+              hash: txData.hash,
+              inputs: txData.inputs || [],
+              outputs: txData.outputs || [],
+              signalBits: txData.signalBits,
+              version: txData.version,
+              weight: txData.weight,
+              nonce: txData.nonce,
+              timestamp: txData.timestamp,
+              parents: txData.parents || [],
+              tokens: txData.tokens || [],
+              headers: txData.headers || [],
+              _dataToSignCache: txData._dataToSignCache,
+            });
+          }
+        } catch (e) {
+          console.error('Failed to parse nano contract create token transaction response:', e);
+        }
+      }
+
+      return result;
 
 			/*
 			 * Sample parameters:
@@ -538,10 +604,92 @@ export const createSnapHandlers = (deps: SnapHandlerDependencies) => {
         nc_id: null,
       };
 
-      return await invokeSnap({
+      const result = await invokeSnap({
         method: 'htr_sendNanoContractTx',
         params: invokeParams
       });
+
+      // Parse and update wallet state with transaction data
+      if (result) {
+        try {
+          const parsed = JSON.parse(result as string);
+          if (parsed.type === 0 && parsed.response) {
+            const txData = parsed.response;
+            updateTransaction({
+              hash: txData.hash,
+              inputs: txData.inputs || [],
+              outputs: txData.outputs || [],
+              signalBits: txData.signalBits,
+              version: txData.version,
+              weight: txData.weight,
+              nonce: txData.nonce,
+              timestamp: txData.timestamp,
+              parents: txData.parents || [],
+              tokens: txData.tokens || [],
+              headers: txData.headers || [],
+              _dataToSignCache: txData._dataToSignCache,
+            });
+          }
+        } catch (e) {
+          console.error('Failed to parse create bet transaction response:', e);
+        }
+      }
+
+      return result;
+    },
+
+    getSnapBet: async (params: BetParams) => {
+      // Convert amount to the correct format (multiply by 100 and round)
+      const amountInCents = Math.round(params.amount * 100);
+
+      const invokeParams: any = {
+        method: 'bet',
+        nc_id: params.ncId,
+        actions: [{
+          type: 'deposit',
+          token: params.token,
+          amount: amountInCents.toString(),
+          changeAddress: params.address,
+        }],
+        args: [
+          params.address,
+          params.betChoice,
+        ],
+        push_tx: params.push_tx,
+      };
+
+      const result = await invokeSnap({
+        method: 'htr_sendNanoContractTx',
+        params: invokeParams
+      });
+
+      // Parse and update wallet state with transaction data
+      if (result) {
+        try {
+          const parsed = JSON.parse(result as string);
+          if (parsed.type === 0 && parsed.response) {
+            const txData = parsed.response;
+            updateTransaction({
+              hash: txData.hash,
+              inputs: txData.inputs || [],
+              outputs: txData.outputs || [],
+              signalBits: txData.signalBits,
+              version: txData.version,
+              weight: txData.weight,
+              nonce: txData.nonce,
+              timestamp: txData.timestamp,
+              parents: txData.parents || [],
+              tokens: txData.tokens || [],
+              headers: txData.headers || [],
+              _dataToSignCache: txData._dataToSignCache,
+            });
+          }
+        } catch (e) {
+          console.error('Failed to parse bet transaction response:', e);
+        }
+      }
+
+      return result;
     },
 
     getSnapSignOracleData: async (ncId: string, data: string, oracle: string) => {

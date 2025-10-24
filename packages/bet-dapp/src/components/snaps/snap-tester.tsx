@@ -18,7 +18,8 @@ import { StateVisualizer } from './state-visualizer';
 import { SendNanoCard } from './send-nano-card';
 import { SendNanoCreateTokenCard } from './send-nano-create-token-card';
 import { CreateBetCard } from './create-bet-card';
-import type { SendNanoParams, SendNanoCreateTokenParams, CreateBetParams } from './snap-method-handlers';
+import { BetCard } from './bet-card';
+import type { SendNanoParams, SendNanoCreateTokenParams, CreateBetParams, BetParams } from './snap-method-handlers';
 
 interface SnapError {
   id: string;
@@ -93,6 +94,16 @@ export const SnapTester: React.FC = () => {
     oracleAddress: '',
     token: '00',
     deadline: new Date(Date.now() + 3600 * 1000), // 1 hour from now
+    push_tx: false,
+  });
+
+  // New state for Bet params
+  const [betParams, setBetParams] = useState<BetParams>({
+    ncId: '00000d69f91f375fb76095010963579018b4a9c68549dc7466b09cf97305b490',
+    betChoice: '1x0',
+    amount: 1,
+    address: '',
+    token: '00',
     push_tx: false,
   });
 
@@ -272,6 +283,7 @@ export const SnapTester: React.FC = () => {
   const getSnapSendNano = wrapWithErrorHandler(snapHandlers.getSnapSendNano);
   const getSnapSendNanoCreateToken = wrapWithErrorHandler(snapHandlers.getSnapSendNanoCreateToken);
   const getSnapCreateBet = wrapWithErrorHandler(snapHandlers.getSnapCreateBet);
+  const getSnapBet = wrapWithErrorHandler(snapHandlers.getSnapBet);
   const getSnapSignOracleData = wrapWithErrorHandler(snapHandlers.getSnapSignOracleData);
 	const getSnapChangeNetwork = wrapWithErrorHandler(snapHandlers.getSnapChangeNetwork);
 
@@ -652,6 +664,13 @@ export const SnapTester: React.FC = () => {
             disabled={isExecutingMethod}
             createBetParams={createBetParams}
             setCreateBetParams={setCreateBetParams}
+          />
+          <BetCard
+            onExecute={getSnapBet}
+            onError={handleGlobalError}
+            disabled={isExecutingMethod}
+            betParams={betParams}
+            setBetParams={setBetParams}
           />
         </div>
       </section>
