@@ -26,6 +26,9 @@ import { WithdrawBetPrizeCard } from './withdraw-bet-prize-card';
 import type { SendNanoParams, SendNanoCreateTokenParams, InitializeBetParams, BetParams, SetResultParams, WithdrawBetPrizeParams } from './snap-method-handlers';
 import { TESTNET_INDIA_BET_BLUEPRINT_ID } from '@/components/snaps/constants'
 import { RequestHistory } from './request-history'
+import { CompactStateBar } from './compact-state-bar'
+import { SidebarNavigation } from './sidebar-navigation'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 interface SnapError {
   id: string;
@@ -73,6 +76,14 @@ export const SnapTester: React.FC = () => {
   const [expandedTxs, setExpandedTxs] = useState<Set<string>>(new Set());
   const [loadingTokenUtxos, setLoadingTokenUtxos] = useState<Set<string>>(new Set());
   const sendTxCardRef = useRef<HTMLDivElement>(null);
+
+  // New state for sidebar navigation
+  const [activeSection, setActiveSection] = useState<string>('wallet-info');
+  const [showFullState, setShowFullState] = useState<boolean>(false);
+  const [showHistory, setShowHistory] = useState<boolean>(false);
+
+  // Refs for sections
+  const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
 
   // New state for Send Nano TX params
   const [sendNanoParams, setSendNanoParams] = useState<SendNanoParams>({
@@ -439,89 +450,137 @@ export const SnapTester: React.FC = () => {
     }
   };
 
+  /**
+   * Handle navigation to a section
+   */
+  const handleNavigateToSection = (sectionId: string) => {
+    const element = sectionRefs.current[sectionId];
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  /**
+   * Intersection observer to track active section
+   */
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: '-100px 0px -60% 0px',
+      threshold: 0,
+    };
+
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const sectionId = entry.target.getAttribute('data-section-id');
+          if (sectionId) {
+            setActiveSection(sectionId);
+          }
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    // Observe all sections
+    Object.values(sectionRefs.current).forEach((ref) => {
+      if (ref) {
+        observer.observe(ref);
+      }
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
   return (
-    <div className="space-y-6">
-      {/* Global Error Display */}
-      {globalErrors.length > 0 && (
-        <div className="space-y-3">
-          {globalErrors.map((error) => (
-            <div
-              key={error.id}
-              className="bg-red-900/20 border border-red-500/50 rounded-lg p-4 flex items-start gap-3"
-            >
-              <AlertTriangle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2 mb-2">
+    <>
+      {/* Compact State Bar - Sticky at top */}
+      <CompactStateBar
+        walletState={walletState}
+        onExpandState={() => setShowFullState(true)}
+      />
+
+      {/* Main Layout: Sidebar + Content */}
+      <div className="flex">
+        {/* Sidebar Navigation */}
+        <SidebarNavigation
+          activeSection={activeSection}
+          onNavigate={handleNavigateToSection}
+          onViewFullState={() => setShowFullState(true)}
+          onViewHistory={() => setShowHistory(true)}
+        />
+
+        {/* Main Content Area */}
+        <div className="flex-1 p-6 space-y-6">
+          {/* Global Error Display */}
+          {globalErrors.length > 0 && (
+            <div className="space-y-3">
+              {globalErrors.map((error) => (
+                <div
+                  key={error.id}
+                  className="bg-red-900/20 border border-red-500/50 rounded-lg p-4 flex items-start gap-3"
+                >
+                  <AlertTriangle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-red-400 font-semibold text-sm break-words">
-                      {error.message}
-                      {error.code !== undefined && (
-                        <span className="ml-2 text-red-500/70 font-mono">
-                          (Code: {error.code})
-                        </span>
-                      )}
-                    </h3>
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-red-400 font-semibold text-sm break-words">
+                          {error.message}
+                          {error.code !== undefined && (
+                            <span className="ml-2 text-red-500/70 font-mono">
+                              (Code: {error.code})
+                            </span>
+                          )}
+                        </h3>
+                      </div>
+                      <button
+                        onClick={() => dismissError(error.id)}
+                        className="text-red-400 hover:text-red-300 transition-colors flex-shrink-0"
+                        aria-label="Dismiss error"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                    {error.details && (
+                      <p className="text-sm text-red-300/80 whitespace-pre-wrap break-words">
+                        {error.details}
+                      </p>
+                    )}
                   </div>
-                  <button
-                    onClick={() => dismissError(error.id)}
-                    className="text-red-400 hover:text-red-300 transition-colors flex-shrink-0"
-                    aria-label="Dismiss error"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
                 </div>
-                {error.details && (
-                  <p className="text-sm text-red-300/80 whitespace-pre-wrap break-words">
-                    {error.details}
+              ))}
+            </div>
+          )}
+
+          {/* Connect Snap Section */}
+          {!isConnected && (
+            <Card className="p-6 bg-hathor-yellow-500/10 border-hathor-yellow-500/30">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold mb-2">Connect to Hathor Snap</h2>
+                  <p className="text-gray-400">
+                    First, connect to the Hathor MetaMask Snap to enable testing
                   </p>
-                )}
+                </div>
+                <Button
+                  onClick={requestSnap}
+                  size="lg"
+                  className="bg-hathor-yellow-500 hover:bg-hathor-yellow-600 text-black font-semibold"
+                >
+                  Connect Snap
+                </Button>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            </Card>
+          )}
 
-      {/* Connect Snap Section */}
-      {!isConnected && (
-        <Card className="p-6 bg-hathor-yellow-500/10 border-hathor-yellow-500/30">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold mb-2">Connect to Hathor Snap</h2>
-              <p className="text-gray-400">
-                First, connect to the Hathor MetaMask Snap to enable testing
-              </p>
-            </div>
-            <Button
-              onClick={requestSnap}
-              size="lg"
-              className="bg-hathor-yellow-500 hover:bg-hathor-yellow-600 text-black font-semibold"
-            >
-              Connect Snap
-            </Button>
-          </div>
-        </Card>
-      )}
-
-      {/* Wallet Context Data Display */}
-	    <StateVisualizer
-		    walletState={walletState}
-		    clearWalletState={clearWalletState}
-		    clearUtxos={clearUtxos}
-		    handleFetchUtxosForToken={handleFetchUtxosForToken}
-		    handleUseUtxoAsInput={handleUseUtxoAsInput}
-		    handleGetXpub={getSnapXpub}
-		    getTokenInfo={getTokenInfo}
-		    expandedTxs={expandedTxs}
-		    toggleTxExpansion={toggleTxExpansion}
-		    loadingTokenUtxos={loadingTokenUtxos}
-		    isExecutingMethod={isExecutingMethod}
-		    getSnapChangeNetwork={getSnapChangeNetwork}
-		    getSnapAddress={getSnapAddress}
-	    />
-
-
-	    {/* Wallet Info Section */}
-      <section>
+          {/* Wallet Info Section */}
+          <section
+            ref={(el) => { sectionRefs.current['wallet-info'] = el; }}
+            data-section-id="wallet-info"
+          >
         <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Wallet Information</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <SnapMethodCard
@@ -573,9 +632,12 @@ export const SnapTester: React.FC = () => {
         </div>
       </section>
 
-	    {/* Signatures Section */}
-	    <section>
-		    <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Signatures</h2>
+          {/* Signatures Section */}
+          <section
+            ref={(el) => { sectionRefs.current['signatures'] = el; }}
+            data-section-id="signatures"
+          >
+            <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Signatures</h2>
 		    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 			    <SignWithAddressCard
 				    onExecute={getSnapSignWithAddress}
@@ -592,11 +654,14 @@ export const SnapTester: React.FC = () => {
 		    </div>
 	    </section>
 
-	    <hr className="border-t border-gray-700/50 my-4" />
+          <hr className="border-t border-gray-700/50 my-4" />
 
-	    {/* UTXO Section */}
-	    <section>
-		    <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">UTXOs</h2>
+          {/* UTXO Section */}
+          <section
+            ref={(el) => { sectionRefs.current['utxos'] = el; }}
+            data-section-id="utxos"
+          >
+            <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">UTXOs</h2>
 		    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 			    <GetUtxosCard
 				    onExecute={getSnapUtxosSimple}
@@ -663,9 +728,12 @@ export const SnapTester: React.FC = () => {
 		    </div>
 	    </section>
 
-      {/* Transaction Section */}
-      <section>
-	      <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Transactions</h2>
+          {/* Transaction Section */}
+          <section
+            ref={(el) => { sectionRefs.current['transactions'] = el; }}
+            data-section-id="transactions"
+          >
+            <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Transactions</h2>
 	      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div ref={sendTxCardRef}>
             <SendTxCard
@@ -688,9 +756,12 @@ export const SnapTester: React.FC = () => {
         </div>
       </section>
 
-      {/* Nano Contracts Section */}
-      <section>
-        <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Test Bet Blueprint</h2>
+          {/* Nano Contracts Section */}
+          <section
+            ref={(el) => { sectionRefs.current['bet-blueprint'] = el; }}
+            data-section-id="bet-blueprint"
+          >
+            <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Test Bet Blueprint</h2>
         <Card className="p-4 mb-4 bg-red-900/10 border border-red-500/30">
           <div className="flex items-start gap-3">
             <AlertTriangle className="h-5 w-5 text-yellow-500 flex-shrink-0 mt-0.5" />
@@ -764,9 +835,12 @@ export const SnapTester: React.FC = () => {
         </div>
       </section>
 
-      {/* Test Bet Blueprint Section */}
-      <section>
-        <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Nano Contracts (Generic)</h2>
+          {/* Test Bet Blueprint Section */}
+          <section
+            ref={(el) => { sectionRefs.current['nano-generic'] = el; }}
+            data-section-id="nano-generic"
+          >
+            <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Nano Contracts (Generic)</h2>
 	      <Card className="p-4 mb-4 bg-red-900/10 border border-red-500/30">
 		      <div className="flex items-start gap-3">
 			      <AlertTriangle className="h-5 w-5 text-yellow-500 flex-shrink-0 mt-0.5" />
@@ -795,9 +869,12 @@ export const SnapTester: React.FC = () => {
         </div>
       </section>
 
-      {/* Settings Section */}
-      <section>
-        <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Settings</h2>
+          {/* Settings Section */}
+          <section
+            ref={(el) => { sectionRefs.current['settings'] = el; }}
+            data-section-id="settings"
+          >
+            <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Settings</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <SnapMethodCard
             title="Change Network"
@@ -861,11 +938,48 @@ export const SnapTester: React.FC = () => {
               )}
             </div>
           </Card>
-         </div>
-       </section>
+          </div>
+        </section>
+        </div>
+      </div>
 
-       {/* Request History Section (separate component at the end of the page) */}
-      <RequestHistory />
-    </div>
+      {/* Full State Modal */}
+      <Dialog open={showFullState} onOpenChange={setShowFullState}>
+        <DialogContent onClose={() => setShowFullState(false)}>
+          <DialogHeader>
+            <DialogTitle>Full Wallet State</DialogTitle>
+          </DialogHeader>
+          <div className="p-6 max-h-[70vh] overflow-y-auto">
+            <StateVisualizer
+              walletState={walletState}
+              clearWalletState={clearWalletState}
+              clearUtxos={clearUtxos}
+              handleFetchUtxosForToken={handleFetchUtxosForToken}
+              handleUseUtxoAsInput={handleUseUtxoAsInput}
+              handleGetXpub={getSnapXpub}
+              getTokenInfo={getTokenInfo}
+              expandedTxs={expandedTxs}
+              toggleTxExpansion={toggleTxExpansion}
+              loadingTokenUtxos={loadingTokenUtxos}
+              isExecutingMethod={isExecutingMethod}
+              getSnapChangeNetwork={getSnapChangeNetwork}
+              getSnapAddress={getSnapAddress}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Request History Modal */}
+      <Dialog open={showHistory} onOpenChange={setShowHistory}>
+        <DialogContent onClose={() => setShowHistory(false)}>
+          <DialogHeader>
+            <DialogTitle>Request History</DialogTitle>
+          </DialogHeader>
+          <div className="p-6 max-h-[70vh] overflow-y-auto">
+            <RequestHistory />
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
