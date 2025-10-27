@@ -60,7 +60,6 @@ export const SnapTester: React.FC = () => {
     name: 'Test Token',
     symbol: 'TST',
     amount: '100',
-    address: '',
     change_address: '',
     create_mint: true,
     mint_authority_address: '',

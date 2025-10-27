@@ -407,9 +407,6 @@ export const createSnapHandlers = (deps: SnapHandlerDependencies) => {
         push_tx: params.push_tx,
       };
 
-      if (params.address && params.address.trim()) {
-        invokeParams.address = params.address;
-      }
       if (params.change_address && params.change_address.trim()) {
         invokeParams.change_address = params.change_address;
       }
