@@ -1,16 +1,20 @@
 import React from 'react';
 import { WalletState } from '@/contexts/WalletStateContext';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, Network, Wallet, Coins, Database } from 'lucide-react';
+import { ChevronDown, Network, Wallet, Coins, Database, Copy, RefreshCw } from 'lucide-react';
 
 interface CompactStateBarProps {
   walletState: WalletState;
   onExpandState: () => void;
+  onRefreshBalance: () => void;
+  onViewUtxos: () => void;
 }
 
 export const CompactStateBar: React.FC<CompactStateBarProps> = ({
   walletState,
   onExpandState,
+  onRefreshBalance,
+  onViewUtxos,
 }) => {
   // Get primary address (index 0 or first available)
   const primaryAddress = walletState.addresses.get(0)?.address ||
@@ -24,7 +28,7 @@ export const CompactStateBar: React.FC<CompactStateBarProps> = ({
     : '0.00 HTR';
 
   // Count total UTXOs
-  const utxoCount = walletState.utxos.size;
+  const utxoCount = walletState.utxos.length;
 
   // Get network
   const network = walletState.network?.network || 'unknown';
@@ -34,6 +38,13 @@ export const CompactStateBar: React.FC<CompactStateBarProps> = ({
   const truncateAddress = (addr: string) => {
     if (addr === 'Not loaded' || addr.length < 20) return addr;
     return `${addr.slice(0, 8)}...${addr.slice(-6)}`;
+  };
+
+  // Copy address to clipboard
+  const handleCopyAddress = () => {
+    if (primaryAddress !== 'Not loaded') {
+      navigator.clipboard.writeText(primaryAddress);
+    }
   };
 
   return (
@@ -61,6 +72,15 @@ export const CompactStateBar: React.FC<CompactStateBarProps> = ({
             <span className="font-mono text-gray-300">
               {truncateAddress(primaryAddress)}
             </span>
+            {primaryAddress !== 'Not loaded' && (
+              <button
+                onClick={handleCopyAddress}
+                className="text-gray-400 hover:text-hathor-yellow-400 transition-colors"
+                title="Copy address to clipboard"
+              >
+                <Copy className="h-3 w-3" />
+              </button>
+            )}
           </div>
 
           {/* Balance */}
@@ -70,15 +90,26 @@ export const CompactStateBar: React.FC<CompactStateBarProps> = ({
             <span className="font-semibold text-green-400">
               {htrBalanceDisplay}
             </span>
+            <button
+              onClick={onRefreshBalance}
+              className="text-gray-400 hover:text-hathor-yellow-400 transition-colors"
+              title="Refresh balance for all known tokens"
+            >
+              <RefreshCw className="h-3 w-3" />
+            </button>
           </div>
 
           {/* UTXOs */}
           <div className="flex items-center gap-2">
             <Database className="h-4 w-4 text-hathor-yellow-500" />
             <span className="text-gray-400">UTXOs:</span>
-            <span className="font-semibold text-gray-300">
+            <button
+              onClick={onViewUtxos}
+              className="font-semibold text-gray-300 hover:text-hathor-yellow-400 transition-colors cursor-pointer"
+              title="View UTXOs in state visualizer"
+            >
               {utxoCount}
-            </span>
+            </button>
           </div>
         </div>
 

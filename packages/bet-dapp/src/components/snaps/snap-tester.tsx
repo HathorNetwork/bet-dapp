@@ -501,6 +501,8 @@ export const SnapTester: React.FC = () => {
       <CompactStateBar
         walletState={walletState}
         onExpandState={() => setShowFullState(true)}
+        onRefreshBalance={getSnapBalance}
+        onViewUtxos={() => setShowFullState(true)}
       />
 
       {/* Main Layout: Sidebar + Content */}
