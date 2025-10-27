@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Copy, CheckCircle2, XCircle } from 'lucide-react';
+import { Copy, CheckCircle2, XCircle, ExternalLink } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useMetaMaskContext } from 'snap-utils';
+import { TESTNET_INDIA_EXPLORER_BASE_URL } from './constants';
 
 export interface BaseSnapCardProps {
   title: string;
@@ -95,6 +96,27 @@ export const BaseSnapCard: React.FC<BaseSnapCardProps> = ({
   };
 
   const hasResult = result !== null || error !== null;
+
+  // Extract transaction hash from result for explorer link
+  const getTransactionHash = (): string | null => {
+    if (!result) return null;
+    try {
+      const parsedResult = JSON.parse(result);
+      // Check for hash in response object (from snap responses)
+      if (parsedResult?.response?.hash) {
+        return parsedResult.response.hash;
+      }
+      // Also check top-level hash
+      if (parsedResult?.hash) {
+        return parsedResult.hash;
+      }
+    } catch (e) {
+      // Ignore parse errors
+    }
+    return null;
+  };
+
+  const txHash = getTransactionHash();
 
   // Render prettified result with each top-level property in its own section
   const renderResult = () => {
@@ -237,14 +259,27 @@ export const BaseSnapCard: React.FC<BaseSnapCardProps> = ({
               >
                 {expanded ? '▼' : '▶'} {error ? 'Error Details' : 'Result'}
               </button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleCopy}
-                className="h-8 w-8 p-0"
-              >
-                <Copy className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-1">
+                {txHash && (
+                  <a
+                    href={`${TESTNET_INDIA_EXPLORER_BASE_URL}/transaction/${txHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Open in Explorer"
+                    className="h-8 w-8 p-0 flex items-center justify-center hover:bg-gray-800 rounded transition-colors"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5 text-gray-400 hover:text-hathor-yellow-400" />
+                  </a>
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCopy}
+                  className="h-8 w-8 p-0"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
 
             {expanded && (
