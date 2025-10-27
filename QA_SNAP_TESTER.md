@@ -259,3 +259,31 @@ The signature above was not used anywhere, just calculated. Now we use the same 
 - [ ] No unexpected errors or crashes
 - [ ] All results are properly formatted and readable
 - [ ] MetaMask approval dialogs appear as expected
+
+# Intermediate Tests
+After the Smoke Tests are completed, consider running more in-depth tests covering parameter validations.
+
+## UTXOs Filtering (Advanced)
+- [ ] Test Get UTXOs with different token IDs ( use the one just created above )
+- Send a transaction using one of the Custom Token UTXOs and generating two outputs: 45, 40. Select a change address.
+- Validate that a change of 15 tokens was generated on the correct address.
+- [ ] Fetch UTXOs for the custom token and validate filtering by:
+  - Address ( select the change one, should return only 15 ) 
+  - Minimum value (e.g., min 15 should return only 45 and 40
+  - Maximum value (e.g., max 40 should return only 15)
+  - Limit (e.g., limit 2 should return only two UTXOs)
+  - Total Max Amount 55 (should return only 45 and 10)
+  - Authorities `1` should return the Mint authority
+  - Authorities `2` should return the Melt authority
+  - Any mix of the above parameters
+
+## Create Token with external addresses
+- Try to create a token using an address that is not from the snap wallet ( e.g.: Your other address that sent `0.10` HTR to this one )
+- Do not check the "Allow External * Authority" box and validate that an error is shown indicating the address is not from the wallet.
+- Disable Mint authority, set Melt authority to your other wallet address, and check "Allow External Melt Authority".
+- Set amount to 100 and validate that the token is created successfully.
+- Send the created tokens to the other wallet and confirm you can melt them back to `0.01` HTR.
+
+## Balance with custom tokens
+- Put the IDs of all created tokens (including the custom one from above) in the Get Balance card.
+- Validate that the balances are shown correctly for each token, even the one with 0.00 tokens.
