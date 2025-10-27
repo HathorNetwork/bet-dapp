@@ -9,7 +9,7 @@ export default function SnapsTestPage() {
   const isConnected = installedSnap !== null;
 
   return (
-    <div className="container mx-auto p-4 max-w-7xl">
+    <div className="container mx-auto p-4 max-w-[1500px]">
       <div className="mb-8">
         <div className="flex items-start justify-between gap-4 mb-2">
           <h1 className="text-4xl font-bold font-kuenstler">Snap Testing Interface</h1>
