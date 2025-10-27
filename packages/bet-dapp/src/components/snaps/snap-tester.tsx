@@ -68,7 +68,7 @@ export const SnapTester: React.FC = () => {
     create_melt: true,
     melt_authority_address: '',
     allow_external_melt_authority_address: false,
-    push_tx: false,
+    push_tx: true,
     data: []
   });
   const [expandedTxs, setExpandedTxs] = useState<Set<string>>(new Set());

@@ -235,6 +235,7 @@ export const CreateTokenCard: React.FC<CreateTokenCardProps> = ({
                   checked={createTokenParams.push_tx}
                   onChange={(e) => handleFieldChange('push_tx', e.target.checked)}
                   className="h-4 w-4"
+                  disabled={true /* Hard coded to true for now */}
                 />
                 <span className="text-sm text-gray-300">Push Transaction</span>
               </div>
