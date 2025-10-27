@@ -692,6 +692,15 @@ export const SnapTester: React.FC = () => {
       {/* Nano Contracts Section */}
       <section>
         <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Test Bet Blueprint</h2>
+        <Card className="p-4 mb-4 bg-red-900/10 border border-red-500/30">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-yellow-200">
+              <span className="font-semibold">Warning:</span>{' '}
+              Only the address at index 0 will be used to sign ANY Nano Contract transaction when using Snaps.
+            </div>
+          </div>
+        </Card>
 
         {/* Blueprint ID Configuration */}
         <Card className="p-4 mb-4 bg-gray-900/30 border-gray-700">
@@ -759,6 +768,16 @@ export const SnapTester: React.FC = () => {
       {/* Test Bet Blueprint Section */}
       <section>
         <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Nano Contracts (Generic)</h2>
+	      <Card className="p-4 mb-4 bg-red-900/10 border border-red-500/30">
+		      <div className="flex items-start gap-3">
+			      <AlertTriangle className="h-5 w-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+			      <div className="text-sm text-yellow-200">
+				      <span className="font-semibold">Warning:</span>{' '}
+				      Only the address at index 0 will be used to sign ANY Nano Contract transaction when using Snaps.
+			      </div>
+		      </div>
+	      </Card>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <SendNanoCard
             onExecute={getSnapSendNano}
