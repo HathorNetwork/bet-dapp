@@ -457,6 +457,13 @@ export const createSnapHandlers = (deps: SnapHandlerDependencies) => {
               name: txData.name,
               symbol: txData.symbol,
             });
+
+            // Save the newly created token metadata to localStorage
+            saveKnownToken({
+              id: txData.hash,
+              name: txData.name,
+              symbol: txData.symbol,
+            });
           }
         } catch (e) {
           console.error('Failed to parse create token response:', e);
