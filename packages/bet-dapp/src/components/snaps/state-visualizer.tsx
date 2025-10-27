@@ -25,6 +25,7 @@ interface StateVisualizerProps {
   isExecutingMethod: boolean;
   getSnapChangeNetwork: () => Promise<void>;
   getSnapAddress: (index: number) => Promise<void>;
+  scrollToSection?: 'utxos' | 'balances' | 'addresses' | 'transactions' | null;
 }
 
 export const StateVisualizer: React.FC<StateVisualizerProps> = ({
@@ -41,6 +42,7 @@ export const StateVisualizer: React.FC<StateVisualizerProps> = ({
   isExecutingMethod,
   getSnapChangeNetwork,
   getSnapAddress,
+  scrollToSection,
 }) => {
   const hasWalletData =
     walletState.addresses.size > 0 ||
@@ -54,6 +56,31 @@ export const StateVisualizer: React.FC<StateVisualizerProps> = ({
 
 	// Loading state for requesting the next address
 	const [isAddressLoading, setIsAddressLoading] = React.useState(false);
+
+	// Refs for scrollable sections
+	const utxosRef = React.useRef<HTMLDivElement>(null);
+	const balancesRef = React.useRef<HTMLDivElement>(null);
+	const addressesRef = React.useRef<HTMLDivElement>(null);
+	const transactionsRef = React.useRef<HTMLDivElement>(null);
+
+	// Scroll to section when specified
+	React.useEffect(() => {
+		if (scrollToSection) {
+			const refMap = {
+				utxos: utxosRef,
+				balances: balancesRef,
+				addresses: addressesRef,
+				transactions: transactionsRef,
+			};
+			const targetRef = refMap[scrollToSection];
+			if (targetRef?.current) {
+				// Small delay to ensure modal is fully rendered
+				setTimeout(() => {
+					targetRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+				}, 100);
+			}
+		}
+	}, [scrollToSection]);
 
   if (!hasWalletData) {
     return null;
@@ -355,7 +382,7 @@ export const StateVisualizer: React.FC<StateVisualizerProps> = ({
 
         {/* UTXOs */}
         {walletState.utxos.length > 0 && (
-          <Card className="p-4 lg:col-span-2">
+          <Card ref={utxosRef} className="p-4 lg:col-span-2">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-semibold text-hathor-yellow-500">
                 UTXOs ({walletState.utxos.length})

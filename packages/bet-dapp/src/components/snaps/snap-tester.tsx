@@ -81,6 +81,7 @@ export const SnapTester: React.FC = () => {
   const [activeSection, setActiveSection] = useState<string>('wallet-info');
   const [showFullState, setShowFullState] = useState<boolean>(false);
   const [showHistory, setShowHistory] = useState<boolean>(false);
+  const [stateScrollTarget, setStateScrollTarget] = useState<'utxos' | 'balances' | 'addresses' | 'transactions' | null>(null);
 
   // Refs for sections
   const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
@@ -500,9 +501,15 @@ export const SnapTester: React.FC = () => {
       {/* Compact State Bar - Sticky at top */}
       <CompactStateBar
         walletState={walletState}
-        onExpandState={() => setShowFullState(true)}
+        onExpandState={() => {
+          setStateScrollTarget(null);
+          setShowFullState(true);
+        }}
         onRefreshBalance={getSnapBalance}
-        onViewUtxos={() => setShowFullState(true)}
+        onViewUtxos={() => {
+          setStateScrollTarget('utxos');
+          setShowFullState(true);
+        }}
       />
 
       {/* Main Layout: Sidebar + Content */}
@@ -511,7 +518,10 @@ export const SnapTester: React.FC = () => {
         <SidebarNavigation
           activeSection={activeSection}
           onNavigate={handleNavigateToSection}
-          onViewFullState={() => setShowFullState(true)}
+          onViewFullState={() => {
+            setStateScrollTarget(null);
+            setShowFullState(true);
+          }}
           onViewHistory={() => setShowHistory(true)}
         />
 
@@ -946,8 +956,17 @@ export const SnapTester: React.FC = () => {
       </div>
 
       {/* Full State Modal */}
-      <Dialog open={showFullState} onOpenChange={setShowFullState}>
-        <DialogContent onClose={() => setShowFullState(false)}>
+      <Dialog open={showFullState} onOpenChange={(open) => {
+        setShowFullState(open);
+        if (!open) {
+          // Reset scroll target when modal closes
+          setStateScrollTarget(null);
+        }
+      }}>
+        <DialogContent onClose={() => {
+          setShowFullState(false);
+          setStateScrollTarget(null);
+        }}>
           <DialogHeader>
             <DialogTitle>Full Wallet State</DialogTitle>
           </DialogHeader>
@@ -966,6 +985,7 @@ export const SnapTester: React.FC = () => {
               isExecutingMethod={isExecutingMethod}
               getSnapChangeNetwork={getSnapChangeNetwork}
               getSnapAddress={getSnapAddress}
+              scrollToSection={stateScrollTarget}
             />
           </div>
         </DialogContent>
