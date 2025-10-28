@@ -271,14 +271,6 @@ export const SendTxCard: React.FC<SendTxCardProps> = ({
                     ) : (
                       <>
                         <Input
-                          value={output.dataType || ''}
-                          onChange={(e) =>
-                            handleOutputChange(index, 'dataType', e.target.value)
-                          }
-                          placeholder="Type (optional)"
-                          className="bg-gray-900/50 border-gray-700 text-sm"
-                        />
-                        <Input
                           value={output.data || ''}
                           onChange={(e) =>
                             handleOutputChange(index, 'data', e.target.value)
