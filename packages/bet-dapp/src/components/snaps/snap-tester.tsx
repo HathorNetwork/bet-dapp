@@ -3,6 +3,7 @@ import { useRequestSnap, useInvokeSnap, useMetaMaskContext } from 'snap-utils';
 import { SnapMethodCard } from './snap-method-card';
 import { GetBalanceCard } from './get-balance-card';
 import { GetUtxosCard } from './get-utxos-card';
+import { GetUtxosAdvancedCard } from './get-utxos-advanced-card';
 import { SendTxCard, SendTxParams } from './send-tx-card';
 import { CreateTokenCard, CreateTokenParams } from './create-token-card';
 import { SignWithAddressCard } from './sign-with-address-card';
@@ -680,62 +681,11 @@ export const SnapTester: React.FC = () => {
 				    onError={handleGlobalError}
 				    disabled={isExecutingMethod}
 			    />
-			    <SnapMethodCard
-				    title="Get UTXOs (Advanced)"
-				    description="Retrieve UTXOs with advanced filtering options"
+			    <GetUtxosAdvancedCard
 				    onExecute={getSnapUtxosAdvanced}
 				    onError={handleGlobalError}
 				    disabled={isExecutingMethod}
-				    inputs={[
-					    {
-						    name: 'maxUtxos',
-						    label: 'Max UTXOs',
-						    defaultValue: '',
-						    placeholder: 'Maximum number of UTXOs to return'
-					    },
-					    {
-						    name: 'token',
-						    label: 'Token ID',
-						    defaultValue: '',
-						    placeholder: 'Filter by token (e.g., 00 for HTR)'
-					    },
-					    {
-						    name: 'filterAddress',
-						    label: 'Address',
-						    defaultValue: '',
-						    placeholder: 'Filter by specific address'
-					    },
-					    {
-						    name: 'authorities',
-						    label: 'Authorities',
-						    defaultValue: '',
-						    placeholder: 'Filter by authority mask (number)'
-					    },
-					    {
-						    name: 'amountSmallerThan',
-						    label: 'Amount <',
-						    defaultValue: '',
-						    placeholder: 'Maximum amount per UTXO'
-					    },
-					    {
-						    name: 'amountBiggerThan',
-						    label: 'Amount >',
-						    defaultValue: '',
-						    placeholder: 'Minimum amount per UTXO'
-					    },
-					    {
-						    name: 'maximumAmount',
-						    label: 'Total Max Amount',
-						    defaultValue: '',
-						    placeholder: 'Maximum total amount'
-					    },
-					    {
-						    name: 'onlyAvailableUtxos',
-						    label: 'Available Only',
-						    defaultValue: '',
-						    placeholder: 'true or false'
-					    }
-				    ]}
+				    walletState={walletState}
 			    />
 		    </div>
 	    </section>
