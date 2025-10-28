@@ -60,6 +60,7 @@ export const GetUtxosCard: React.FC<GetUtxosCardProps> = ({
               label="Token ID"
               placeholder="Enter token ID or select from known tokens"
               description="Token to filter UTXOs by"
+              knownOnly={true}
             />
           </div>
         </>

@@ -11,6 +11,7 @@ export interface TokenSelectorProps {
   label?: string;
   placeholder?: string;
   description?: string;
+  knownOnly?: boolean; // when true, force selection to known tokens only
 }
 
 function getTruncatedTokenId(tokenId: string): string {
@@ -24,6 +25,7 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
   label = 'Token',
   placeholder = 'Enter a token ID or select from known tokens',
   description,
+  knownOnly = false,
 }) => {
   const [mode, setMode] = useState<'known' | 'custom'>('known');
   const [selectedTokenId, setSelectedTokenId] = useState<string>('00');
@@ -52,31 +54,41 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
     }
   }, [value, mode, hasKnownTokens, knownTokens]);
 
+  // If knownOnly prop is enabled, force mode to 'known' whenever it changes
+  useEffect(() => {
+    if (knownOnly) {
+      setMode('known');
+    }
+  }, [knownOnly]);
+
   return (
     <div className="space-y-2">
       <Label className="text-sm font-medium">{label}</Label>
 
-      <div className="flex gap-2">
-        <Button
-          type="button"
-          variant={mode === 'known' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setMode('known')}
-          disabled={!hasKnownTokens}
-          className="flex-1"
-        >
-          Known Tokens
-        </Button>
-        <Button
-          type="button"
-          variant={mode === 'custom' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setMode('custom')}
-          className="flex-1"
-        >
-          Custom Token
-        </Button>
-      </div>
+      {/* Mode toggle is hidden when knownOnly is requested */}
+      {!knownOnly && (
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant={mode === 'known' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setMode('known')}
+            disabled={!hasKnownTokens}
+            className="flex-1"
+          >
+            Known Tokens
+          </Button>
+          <Button
+            type="button"
+            variant={mode === 'custom' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setMode('custom')}
+            className="flex-1"
+          >
+            Custom Token
+          </Button>
+        </div>
+      )}
 
       {mode === 'known' ? (
         <div className="space-y-2">

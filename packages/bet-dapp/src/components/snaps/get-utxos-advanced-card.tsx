@@ -95,8 +95,9 @@ export const GetUtxosAdvancedCard: React.FC<GetUtxosAdvancedCardProps> = ({
               value={tokenId}
               onChange={setTokenId}
               label="Token ID"
-              placeholder="Enter token ID or select from known tokens"
+              placeholder="Select from known tokens"
               description="Filter by token (e.g., 00 for HTR)"
+              knownOnly={true}
             />
 
             {/* Address Selector */}
