@@ -62,7 +62,7 @@ Run these tests first with a fresh wallet that has no balance.
 ### 1.5 Get Balance (Empty)
 1. Default token ID should be `00` (HTR)
 2. Click action button
-- ✅ Balance shows `0` or empty for HTR token
+- ✅ Balance shows `0` for HTR token or empty
 - ✅ No errors shown
 
 ---
@@ -281,9 +281,17 @@ After the Smoke Tests are completed, consider running more in-depth tests coveri
 - Try to create a token using an address that is not from the snap wallet ( e.g.: Your other address that sent `0.10` HTR to this one )
 - Do not check the "Allow External * Authority" box and validate that an error is shown indicating the address is not from the wallet.
 - Disable Mint authority, set Melt authority to your other wallet address, and check "Allow External Melt Authority".
+- Add an Output data with the value `External Data String`
 - Set amount to 100 and validate that the token is created successfully.
 - Send the created tokens to the other wallet and confirm you can melt them back to `0.01` HTR.
 
 ## Balance with custom tokens
 - Put the IDs of all created tokens (including the custom one from above) in the Get Balance card.
 - Validate that the balances are shown correctly for each token, even the one with 0.00 tokens.
+
+## Send Transaction with custom tokens and data
+- Create a transaction sending:
+  - The recently created token with external melt authority
+  - One data output with the string `Test Data Output`
+- Validate the inputs and outputs are correctly shown on MetaMask pop-up
+- Check the Explorer to confirm the transaction details are correct.
