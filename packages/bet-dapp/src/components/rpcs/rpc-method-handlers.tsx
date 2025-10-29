@@ -1,0 +1,75 @@
+/**
+ * RPC Method Handlers
+ *
+ * This file contains all the RPC method handlers that interact with wallets via WalletConnect.
+ * These handlers are responsible for making RPC requests through WalletConnect client.
+ */
+
+import { HATHOR_TESTNET_CHAIN } from '@/constants';
+
+export interface RpcHandlerDependencies {
+  client: any;
+  session: any;
+  updateAddress?: (data: any) => void;
+  updateNetwork?: (data: any) => void;
+}
+
+// Custom JSON serializer that handles BigInt
+const jsonStringify = (obj: any) => {
+  return JSON.stringify(obj, (key, value) =>
+    typeof value === 'bigint' ? value.toString() : value,
+    2
+  );
+};
+
+export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
+  const { client, session, updateAddress, updateNetwork } = deps;
+
+  return {
+    /**
+     * Get Wallet Information
+     * Retrieves both network and address 0 in a single call (no confirmation required)
+     */
+    getRpcWalletInformation: async () => {
+      if (!session || !client) {
+        throw new Error('WalletConnect session not available');
+      }
+
+      // Make the RPC request
+      const response = await client.request({
+        topic: session.topic,
+        chainId: HATHOR_TESTNET_CHAIN,
+        request: {
+          method: 'htr_getWalletInformation',
+          params: []
+        }
+      });
+
+      // Update context if handlers are provided
+      if (response && updateNetwork && updateAddress) {
+        try {
+          // The response structure should match the snap response
+          if (response.network) {
+            updateNetwork({
+              network: response.network,
+              genesisHash: ''
+            });
+          }
+
+          if (response.address0) {
+            updateAddress({
+              address: response.address0,
+              index: 0,
+              addressPath: `m/44'/280'/0'/0/0`
+            });
+          }
+        } catch (e) {
+          console.error('Failed to update context with wallet information:', e);
+        }
+      }
+
+      // Return stringified result to match snap format
+      return jsonStringify(response);
+    },
+  };
+};
