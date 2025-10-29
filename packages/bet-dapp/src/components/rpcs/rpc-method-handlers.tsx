@@ -8,6 +8,7 @@
 import { HATHOR_TESTNET_CHAIN } from '@/constants';
 import { saveKnownToken } from '@/lib/tokenStorage';
 import { convertBigIntToString } from '@/lib/jsonUtils';
+import { SendTxParams } from './rpc-send-tx-card';
 
 export interface RpcHandlerDependencies {
   client: any;
@@ -182,6 +183,71 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
           data,
           oracle
         }
+      };
+
+      // Make the RPC request
+      const response = await client.request({
+        topic: session.topic,
+        chainId: HATHOR_TESTNET_CHAIN,
+        request: requestParams
+      });
+
+      // Return both request and response (with BigInt converted to string)
+      return {
+        request: requestParams,
+        response: convertBigIntToString(response)
+      };
+    },
+
+    /**
+     * Send Transaction
+     * Sends a transaction with custom outputs and inputs
+     */
+    getRpcSendTransaction: async (params: SendTxParams) => {
+      if (!session || !client) {
+        throw new Error('WalletConnect session not available');
+      }
+
+      const outputs = params.outputs.map(output => {
+        if (output.type === 'address') {
+          const addressOutput: any = {
+            address: output.address,
+            value: output.value
+          };
+          if (output.token && output.token.trim()) {
+            addressOutput.token = output.token;
+          }
+          return addressOutput;
+        } else {
+          const dataOutput: any = {
+            data: output.data
+          };
+          if (output.dataType && output.dataType.trim()) {
+            dataOutput.type = output.dataType;
+          }
+          return dataOutput;
+        }
+      });
+
+      const invokeParams: any = {
+        network: DEFAULT_NETWORK,
+        outputs
+      };
+
+      if (params.inputs && params.inputs.length > 0) {
+        invokeParams.inputs = params.inputs.map(input => ({
+          txId: input.txId,
+          index: parseInt(input.index, 10)
+        }));
+      }
+
+      if (params.changeAddress && params.changeAddress.trim()) {
+        invokeParams.changeAddress = params.changeAddress;
+      }
+
+      const requestParams = {
+        method: 'htr_sendTransaction',
+        params: invokeParams
       };
 
       // Make the RPC request

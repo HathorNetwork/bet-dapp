@@ -4,6 +4,7 @@ import { RpcMethodCard } from './rpc-method-card';
 import { RpcGetBalanceCard } from './rpc-get-balance-card';
 import { RpcSignWithAddressCard } from './rpc-sign-with-address-card';
 import { RpcSignOracleDataCard } from './rpc-sign-oracle-data-card';
+import { RpcSendTxCard, SendTxParams } from './rpc-send-tx-card';
 import { RpcWalletConnect } from './rpc-walletconnect';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,11 @@ export const RpcTester: React.FC = () => {
   const { toast } = useToast();
   const [isExecutingMethod, setIsExecutingMethod] = useState<boolean>(false);
   const [balanceTokens, setBalanceTokens] = useState<string[]>(['00']);
+  const [sendTxParams, setSendTxParams] = useState<SendTxParams>({
+    outputs: [{ type: 'address', address: '', value: '', token: '' }],
+    inputs: [],
+    changeAddress: '',
+  });
 
   const isConnected = !!session;
 
@@ -99,6 +105,7 @@ export const RpcTester: React.FC = () => {
   const getRpcBalance = wrapWithErrorHandler(rpcHandlers.getRpcBalance);
   const getRpcSignWithAddress = wrapWithErrorHandler(rpcHandlers.getRpcSignWithAddress);
   const getRpcSignOracleData = wrapWithErrorHandler(rpcHandlers.getRpcSignOracleData);
+  const getRpcSendTransaction = wrapWithErrorHandler(rpcHandlers.getRpcSendTransaction);
 
   const handleCopyAddress = () => {
     if (sessionInfo.address) {
@@ -209,6 +216,20 @@ export const RpcTester: React.FC = () => {
             <RpcSignOracleDataCard
               onExecute={getRpcSignOracleData}
               disabled={isExecutingMethod || !isConnected}
+              walletState={walletState}
+            />
+          </div>
+        </section>
+
+        {/* Transactions Section */}
+        <section>
+          <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Transactions</h2>
+          <div className="grid grid-cols-1 gap-4">
+            <RpcSendTxCard
+              onExecute={getRpcSendTransaction}
+              disabled={isExecutingMethod || !isConnected}
+              sendTxParams={sendTxParams}
+              setSendTxParams={setSendTxParams}
               walletState={walletState}
             />
           </div>
