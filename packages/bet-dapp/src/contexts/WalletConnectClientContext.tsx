@@ -153,7 +153,8 @@ export function WalletConnectClientContextProvider({
               'htr_createToken',
               // 'htr_getConnectedNetwork',
               // 'htr_sendTransaction',
-              'htr_signOracleData'
+              'htr_signOracleData',
+              'htr_getWalletInformation'
             ],
             chains: ['hathor:testnet'],
             events: [],

@@ -80,6 +80,8 @@ export const RpcTester: React.FC = () => {
               description="Retrieve Network and Address 0 simultaneously (does not require confirmation)"
               onExecute={getRpcWalletInformation}
               disabled={isExecutingMethod || !isConnected}
+              method="htr_getWalletInformation"
+              params={[]}
             />
           </div>
         </section>

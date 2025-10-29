@@ -20,6 +20,8 @@ export interface RpcMethodCardProps {
   buttonLabel?: string;
   inputs?: RpcMethodInput[];
   disabled?: boolean;
+  method?: string; // RPC method name for display
+  params?: any; // RPC params for display
 }
 
 export const RpcMethodCard: React.FC<RpcMethodCardProps> = ({
@@ -29,11 +31,15 @@ export const RpcMethodCard: React.FC<RpcMethodCardProps> = ({
   buttonLabel = 'Execute',
   inputs = [],
   disabled = false,
+  method,
+  params,
 }) => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [requestInfo, setRequestInfo] = useState<{ method: string; params: any } | null>(null);
   const [expanded, setExpanded] = useState(false);
+  const [requestExpanded, setRequestExpanded] = useState(false);
   const { toast } = useToast();
 
   // Initialize input values with default values
@@ -59,10 +65,24 @@ export const RpcMethodCard: React.FC<RpcMethodCardProps> = ({
     setError(null);
     setResult(null);
 
+    // Capture request info for display
+    const reqInfo = {
+      method: method || 'Unknown Method',
+      params: params || inputValues,
+    };
+    setRequestInfo(reqInfo);
+    setRequestExpanded(true);
+
+    // Log request to console
+    console.log(`[RPC Request] ${title}`, reqInfo);
+
     try {
       const data = await onExecute(inputValues);
       setResult(data);
       setExpanded(true);
+
+      // Log success to console
+      console.log(`[RPC Success] ${title}`, data);
 
       toast({
         title: 'Success',
@@ -72,6 +92,13 @@ export const RpcMethodCard: React.FC<RpcMethodCardProps> = ({
       const errorMessage = err.message || 'An error occurred';
       setError(errorMessage);
       setExpanded(true);
+
+      // Log full error to console for debugging
+      console.error(`[RPC Error] ${title}`, {
+        message: errorMessage,
+        error: err,
+        request: reqInfo,
+      });
 
       toast({
         title: 'Error',
@@ -213,6 +240,59 @@ export const RpcMethodCard: React.FC<RpcMethodCardProps> = ({
               buttonLabel
             )}
           </Button>
+        )}
+
+        {/* Request Info Section - Blue */}
+        {requestInfo && (
+          <div className="mt-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => setRequestExpanded(!requestExpanded)}
+                className="text-sm font-medium text-blue-400 hover:text-blue-300 flex items-center"
+              >
+                {requestExpanded ? '▼' : '▶'} Request
+              </button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  navigator.clipboard.writeText(JSON.stringify(requestInfo, null, 2));
+                  toast({
+                    title: 'Copied',
+                    description: 'Request copied to clipboard',
+                  });
+                }}
+                className="h-8 w-8 p-0"
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {requestExpanded && (
+              <div className="bg-blue-900/20 border border-blue-500/50 rounded p-3">
+                <div className="space-y-2">
+                  <div className="bg-blue-950/30 border border-blue-500/30 rounded overflow-hidden">
+                    <div className="bg-blue-900/30 px-3 py-2 border-b border-blue-500/30">
+                      <span className="text-sm font-semibold text-blue-400">method</span>
+                    </div>
+                    <div className="px-3 py-2">
+                      <span className="text-sm font-mono text-blue-300">{requestInfo.method}</span>
+                    </div>
+                  </div>
+                  <div className="bg-blue-950/30 border border-blue-500/30 rounded overflow-hidden">
+                    <div className="bg-blue-900/30 px-3 py-2 border-b border-blue-500/30">
+                      <span className="text-sm font-semibold text-blue-400">params</span>
+                    </div>
+                    <div className="px-3 py-2 max-h-64 overflow-y-auto">
+                      <pre className="text-sm font-mono text-blue-300">
+                        {JSON.stringify(requestInfo.params, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         )}
 
         {hasResult && (
