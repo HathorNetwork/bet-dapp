@@ -107,40 +107,156 @@ export const RpcGetBalanceCard: React.FC<RpcGetBalanceCardProps> = ({
 
   const hasResult = result !== null || error !== null;
 
-  // Render result
+  // Render result with proper nested object handling
   const renderResult = () => {
     if (!result) return null;
 
     try {
       const parsedResult = typeof result === 'string' ? JSON.parse(result) : result;
 
-      if (Array.isArray(parsedResult)) {
+      // Handle primitive values
+      if (typeof parsedResult !== 'object' || parsedResult === null) {
         return (
-          <div className="bg-gray-900/50 border border-gray-700 p-3 rounded overflow-auto max-h-64">
-            <pre className="text-sm font-mono">
-              {JSON.stringify(parsedResult, null, 2)}
-            </pre>
+          <div className="bg-gray-900/50 border border-gray-700 p-3 rounded">
+            <div className="text-sm font-mono text-hathor-yellow-400">
+              {String(parsedResult)}
+            </div>
           </div>
         );
       }
 
+      // Handle arrays
+      if (Array.isArray(parsedResult)) {
+        if (parsedResult.length === 0) {
+          return (
+            <div className="bg-gray-900/50 border border-gray-700 p-3 rounded">
+              <div className="text-sm text-gray-400 italic">Empty array</div>
+            </div>
+          );
+        }
+
+        return (
+          <div className="space-y-3">
+            {parsedResult.map((item, idx) => (
+              <div key={idx} className="bg-gray-900/50 border border-gray-700 rounded overflow-hidden">
+                <div className="bg-gray-800/50 px-3 py-2 border-b border-gray-700">
+                  <span className="text-sm font-semibold text-hathor-yellow-500">
+                    [{idx}]
+                  </span>
+                </div>
+                <div className="max-h-64 overflow-y-auto">
+                  {typeof item === 'object' && item !== null ? (
+                    <div className="divide-y divide-gray-700/50">
+                      {Object.entries(item).map(([propKey, propValue]) => (
+                        <div key={propKey} className="px-3 py-2 flex items-start gap-3">
+                          <span className="text-gray-400 text-sm font-medium flex-shrink-0 min-w-[120px]">
+                            {propKey}:
+                          </span>
+                          <span className="text-sm font-mono text-gray-300 break-all flex-1 overflow-x-auto">
+                            {typeof propValue === 'object'
+                              ? JSON.stringify(propValue, null, 2)
+                              : String(propValue)
+                            }
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="px-3 py-2 text-sm font-mono text-gray-300">
+                      {String(item)}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      }
+
+      // Handle objects - display each top-level property in its own section
       const entries = Object.entries(parsedResult);
+
+      if (entries.length === 0) {
+        return (
+          <div className="bg-gray-900/50 border border-gray-700 p-3 rounded">
+            <div className="text-sm text-gray-400 italic">Empty object</div>
+          </div>
+        );
+      }
+
       return (
         <div className="space-y-3">
-          {entries.map(([key, value]) => (
-            <div key={key} className="bg-gray-900/50 border border-gray-700 rounded overflow-hidden">
-              <div className="bg-gray-800/50 px-3 py-2 border-b border-gray-700">
-                <span className="text-sm font-semibold text-hathor-yellow-500 break-all">
-                  {key}
-                </span>
+          {entries.map(([key, value]) => {
+            // Render value with proper handling
+            const renderValue = () => {
+              // Primitive values
+              if (typeof value !== 'object' || value === null) {
+                return (
+                  <div className="px-3 py-2 text-sm font-mono text-gray-300 break-all">
+                    {String(value)}
+                  </div>
+                );
+              }
+
+              // Arrays
+              if (Array.isArray(value)) {
+                if (value.length === 0) {
+                  return <div className="px-3 py-2 text-sm text-gray-400 italic">Empty array</div>;
+                }
+
+                return (
+                  <div className="divide-y divide-gray-700/50">
+                    {value.map((item, idx) => (
+                      <div key={idx} className="px-3 py-2 flex items-start gap-3">
+                        <span className="text-gray-500 text-sm flex-shrink-0">[{idx}]</span>
+                        <span className="text-sm font-mono text-gray-300 break-all flex-1 overflow-x-auto">
+                          {typeof item === 'object' ? JSON.stringify(item, null, 2) : String(item)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                );
+              }
+
+              // Objects - show each property on its own line
+              const valueEntries = Object.entries(value);
+
+              if (valueEntries.length === 0) {
+                return <div className="px-3 py-2 text-sm text-gray-400 italic">Empty object</div>;
+              }
+
+              return (
+                <div className="divide-y divide-gray-700/50">
+                  {valueEntries.map(([propKey, propValue]) => (
+                    <div key={propKey} className="px-3 py-2 flex items-start gap-3">
+                      <span className="text-gray-400 text-sm font-medium flex-shrink-0 min-w-[120px]">
+                        {propKey}:
+                      </span>
+                      <span className="text-sm font-mono text-gray-300 break-all flex-1 overflow-x-auto">
+                        {typeof propValue === 'object'
+                          ? JSON.stringify(propValue, null, 2)
+                          : String(propValue)
+                        }
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              );
+            };
+
+            return (
+              <div key={key} className="bg-gray-900/50 border border-gray-700 rounded overflow-hidden">
+                <div className="bg-gray-800/50 px-3 py-2 border-b border-gray-700">
+                  <span className="text-sm font-semibold text-hathor-yellow-500 break-all">
+                    {key}
+                  </span>
+                </div>
+                <div className="max-h-64 overflow-y-auto">
+                  {renderValue()}
+                </div>
               </div>
-              <div className="max-h-64 overflow-y-auto px-3 py-2">
-                <span className="text-sm font-mono text-gray-300 break-all">
-                  {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}
-                </span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       );
     } catch (e) {

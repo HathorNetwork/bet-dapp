@@ -6,6 +6,8 @@
  */
 
 import { HATHOR_TESTNET_CHAIN } from '@/constants';
+import { saveKnownToken } from '@/lib/tokenStorage';
+import { convertBigIntToString } from '@/lib/jsonUtils';
 
 export interface RpcHandlerDependencies {
   client: any;
@@ -67,10 +69,10 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
         }
       }
 
-      // Return both request and response
+      // Return both request and response (with BigInt converted to string)
       return {
         request: requestParams,
-        response: response
+        response: convertBigIntToString(response)
       };
     },
 
@@ -112,22 +114,22 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
               lockExpires: balanceItem.lockExpires,
             });
 
-            // TODO: Save token metadata to localStorage if needed
-            // saveKnownToken({
-            //   id: balanceItem.token.id,
-            //   name: balanceItem.token.name,
-            //   symbol: balanceItem.token.symbol,
-            // });
+            // Save token metadata to localStorage
+            saveKnownToken({
+              id: balanceItem.token.id,
+              name: balanceItem.token.name,
+              symbol: balanceItem.token.symbol,
+            });
           });
         } catch (e) {
           console.error('Failed to update context with balance data:', e);
         }
       }
 
-      // Return both request and response
+      // Return both request and response (with BigInt converted to string)
       return {
         request: requestParams,
-        response: response
+        response: convertBigIntToString(response)
       };
     },
 
@@ -156,10 +158,10 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
         request: requestParams
       });
 
-      // Return both request and response
+      // Return both request and response (with BigInt converted to string)
       return {
         request: requestParams,
-        response: response
+        response: convertBigIntToString(response)
       };
     },
   };

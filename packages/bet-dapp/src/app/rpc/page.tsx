@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { HATHOR_TESTNET_CHAIN } from '@/constants';
+import { jsonStringify } from '@/lib/jsonUtils';
 
 const DEFAULT_REQUEST = {
   method: "htr_sendTransaction",
@@ -19,14 +20,6 @@ const DEFAULT_REQUEST = {
     inputs: [],
     change_address: "WewDeXWyvHP79xWtqmYdaS1Y4m4Y5the2N"
   }]
-};
-
-// Custom JSON serializer that handles BigInt
-const jsonStringify = (obj: any) => {
-  return JSON.stringify(obj, (key, value) =>
-    typeof value === 'bigint' ? value.toString() : value,
-    2
-  );
 };
 
 export default function RpcPage() {
@@ -115,7 +108,7 @@ export default function RpcPage() {
           <div className="mt-4">
             <h2 className="text-lg font-semibold mb-2">Response:</h2>
             <pre className="bg-white border border-gray-300 p-4 rounded overflow-auto font-mono text-black">
-              {jsonStringify(result)}
+              {jsonStringify(result, true)}
             </pre>
           </div>
         )}
