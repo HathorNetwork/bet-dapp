@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useWalletConnectClient } from '@/contexts/WalletConnectClientContext';
 import { RpcMethodCard } from './rpc-method-card';
 import { RpcGetBalanceCard } from './rpc-get-balance-card';
+import { RpcSignWithAddressCard } from './rpc-sign-with-address-card';
 import { RpcWalletConnect } from './rpc-walletconnect';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { createRpcHandlers } from './rpc-method-handlers';
 import { useWalletState } from '@/contexts/WalletStateContext';
-import { AlertTriangle } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
+import { AlertTriangle, Copy, Wallet } from 'lucide-react';
+import { get } from 'lodash';
 
 /**
  * RPC Tester component - A polished interface for testing RPC calls through WalletConnect
@@ -14,11 +18,27 @@ import { AlertTriangle } from 'lucide-react';
  */
 export const RpcTester: React.FC = () => {
   const { client, session } = useWalletConnectClient();
-  const { updateAddress, updateNetwork, updateBalance } = useWalletState();
+  const { walletState, updateAddress, updateNetwork, updateBalance } = useWalletState();
+  const { toast } = useToast();
   const [isExecutingMethod, setIsExecutingMethod] = useState<boolean>(false);
   const [balanceTokens, setBalanceTokens] = useState<string[]>(['00']);
 
   const isConnected = !!session;
+
+  // Extract network and address from session
+  const sessionInfo = useMemo(() => {
+    if (!session) {
+      return { network: null, address: null };
+    }
+
+    const accountString = get(session, 'namespaces.hathor.accounts[0]', '::');
+    const [_, network, address] = accountString.split(':');
+
+    return {
+      network: network || null,
+      address: address || null,
+    };
+  }, [session]);
 
   // Create RPC handlers
   const rpcHandlers = createRpcHandlers({
@@ -48,6 +68,17 @@ export const RpcTester: React.FC = () => {
 
   const getRpcWalletInformation = wrapWithErrorHandler(rpcHandlers.getRpcWalletInformation);
   const getRpcBalance = wrapWithErrorHandler(rpcHandlers.getRpcBalance);
+  const getRpcSignWithAddress = wrapWithErrorHandler(rpcHandlers.getRpcSignWithAddress);
+
+  const handleCopyAddress = () => {
+    if (sessionInfo.address) {
+      navigator.clipboard.writeText(sessionInfo.address);
+      toast({
+        title: 'Copied',
+        description: 'Address copied to clipboard',
+      });
+    }
+  };
 
   return (
     <>
@@ -62,6 +93,45 @@ export const RpcTester: React.FC = () => {
           </div>
           <RpcWalletConnect />
         </div>
+
+        {/* Wallet Information Visualization */}
+        {isConnected && sessionInfo.address && (
+          <Card className="p-4 bg-blue-900/10 border-blue-500/30">
+            <div className="flex items-start gap-3">
+              <Wallet className="h-5 w-5 text-blue-400 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-semibold text-blue-400 mb-3">Wallet Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {/* Network */}
+                  <div className="bg-gray-900/50 border border-gray-700 rounded p-3">
+                    <div className="text-xs text-gray-400 mb-1">Network</div>
+                    <div className="font-mono text-sm text-gray-200">
+                      {sessionInfo.network || 'Unknown'}
+                    </div>
+                  </div>
+                  {/* Address 0 */}
+                  <div className="bg-gray-900/50 border border-gray-700 rounded p-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="text-xs text-gray-400">Address 0</div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleCopyAddress}
+                        className="h-6 w-6 p-0 hover:bg-gray-800"
+                        title="Copy address"
+                      >
+                        <Copy className="h-3 w-3 text-gray-400 hover:text-blue-400" />
+                      </Button>
+                    </div>
+                    <div className="font-mono text-xs text-gray-200 break-all">
+                      {sessionInfo.address}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* Warning if not connected */}
         {!isConnected && (
@@ -93,6 +163,18 @@ export const RpcTester: React.FC = () => {
               disabled={isExecutingMethod || !isConnected}
               balanceTokens={balanceTokens}
               setBalanceTokens={setBalanceTokens}
+            />
+          </div>
+        </section>
+
+        {/* Signatures Section */}
+        <section>
+          <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Signatures</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <RpcSignWithAddressCard
+              onExecute={getRpcSignWithAddress}
+              disabled={isExecutingMethod || !isConnected}
+              walletState={walletState}
             />
           </div>
         </section>

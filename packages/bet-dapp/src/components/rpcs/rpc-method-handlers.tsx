@@ -128,5 +128,32 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
       // Return stringified result to match snap format
       return jsonStringify(response);
     },
+
+    /**
+     * Sign with Address
+     * Signs a message using a specific address
+     */
+    getRpcSignWithAddress: async (message: string = 'test', addressIndex: number = 0) => {
+      if (!session || !client) {
+        throw new Error('WalletConnect session not available');
+      }
+
+      // Make the RPC request
+      const response = await client.request({
+        topic: session.topic,
+        chainId: HATHOR_TESTNET_CHAIN,
+        request: {
+          method: 'htr_signWithAddress',
+          params: {
+            network: DEFAULT_NETWORK,
+            message,
+            addressIndex
+          }
+        }
+      });
+
+      // Return stringified result to match snap format
+      return jsonStringify(response);
+    },
   };
 };
