@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/select';
 import { WalletState } from '@/contexts/WalletStateContext';
 import { useToast } from '@/components/ui/use-toast';
+import { AddressSelector } from './address-selector';
 
 export interface Output {
   type: 'address' | 'data';
@@ -306,13 +307,13 @@ export const RpcSendTxCard: React.FC<RpcSendTxCardProps> = ({
 
                   {output.type === 'address' ? (
                     <>
-                      <Input
+                      <AddressSelector
+                        walletState={walletState}
                         value={output.address || ''}
-                        onChange={(e) =>
-                          handleOutputChange(index, 'address', e.target.value)
-                        }
-                        placeholder="Address (e.g., WafpWYepbV13FVM9Qp9brmBTXgjrn3dnfx)"
-                        className="bg-gray-900/50 border-gray-700 text-sm"
+                        onChange={(address) => handleOutputChange(index, 'address', address)}
+                        label="Recipient Address"
+                        placeholder="Enter address (e.g., WafpWYepbV13FVM9Qp9brmBTXgjrn3dnfx)"
+                        description="Select from known addresses or enter a custom address"
                       />
                       <Input
                         value={output.value || ''}
@@ -398,12 +399,14 @@ export const RpcSendTxCard: React.FC<RpcSendTxCardProps> = ({
 
           {/* Change Address Section */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Change Address (optional)</Label>
-            <Input
+            <AddressSelector
+              walletState={walletState}
               value={sendTxParams.changeAddress}
-              onChange={(e) => handleChangeAddressChange(e.target.value)}
-              placeholder="Change address"
-              className="bg-gray-900/50 border-gray-700 text-sm"
+              onChange={handleChangeAddressChange}
+              label="Change Address (optional)"
+              placeholder="Enter change address"
+              description="Address to receive the change from this transaction"
+              clearButton={true}
             />
           </div>
         </div>
