@@ -1,11 +1,11 @@
 import { notFound } from 'next/navigation';
-import SnapsTestClient from './page.client';
+import RpcTestClient from './page.client';
 
-export default function SnapsTestPage() {
+export default function RpcTestPage() {
   // Check if TEST_ENV environment variable is set to "true"
   if (process.env.TEST_ENV !== 'true') {
     notFound();
   }
 
-  return <SnapsTestClient />;
+  return <RpcTestClient />;
 }

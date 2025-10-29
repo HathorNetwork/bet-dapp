@@ -16,8 +16,8 @@ The application uses Docker for local DynamoDB:
 - DynamoDB data is persisted in `./dynamodb_data/`
 
 ### Environment Variables
-- `SNAP_TEST=true` - Enable access to the `/snaps-test` page for testing Hathor Snap methods during development
-  - This page is restricted and will return 404 if the environment variable is not set to "true"
+- `TEST_ENV=true` - Enable access to the `/snaps-test` and `/rpc-test` pages for testing during development
+  - These pages are restricted and will return 404 if the environment variable is not set to "true"
   - See `.env.example` for configuration template
 
 ## Architecture Overview
@@ -49,7 +49,8 @@ This is a Next.js 14 betting dApp that integrates with the Hathor blockchain thr
 - `/set_result/[id]` - Oracle interface for setting results
 - `/results/[id]` - View results and withdraw winnings
 - `/all_bets` - View all betting contracts
-- `/snaps-test` - Snap testing interface (requires `SNAP_TEST=true` environment variable)
+- `/snaps-test` - Snap testing interface (requires `TEST_ENV=true` environment variable)
+- `/rpc-test` - RPC testing interface (requires `TEST_ENV=true` environment variable)
 
 ### Context Providers
 - `WalletConnectClientContext` - Manages wallet connections and sessions
