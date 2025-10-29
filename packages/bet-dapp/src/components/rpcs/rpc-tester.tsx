@@ -33,7 +33,7 @@ export const RpcTester: React.FC = () => {
   const [isExecutingMethod, setIsExecutingMethod] = useState<boolean>(false);
   const [balanceTokens, setBalanceTokens] = useState<string[]>(['00']);
   const [sendTxParams, setSendTxParams] = useState<SendTxParams>({
-    outputs: [{ type: 'address', address: '', value: '', token: '' }],
+    outputs: [{ type: 'address', address: '', value: '1', token: '' }],
     inputs: [],
     changeAddress: '',
   });
