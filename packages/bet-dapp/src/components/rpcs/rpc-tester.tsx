@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useWalletConnectClient } from '@/contexts/WalletConnectClientContext';
 import { RpcMethodCard } from './rpc-method-card';
+import { RpcGetBalanceCard } from './rpc-get-balance-card';
 import { RpcWalletConnect } from './rpc-walletconnect';
 import { Card } from '@/components/ui/card';
 import { createRpcHandlers } from './rpc-method-handlers';
@@ -13,8 +14,9 @@ import { AlertTriangle } from 'lucide-react';
  */
 export const RpcTester: React.FC = () => {
   const { client, session } = useWalletConnectClient();
-  const { updateAddress, updateNetwork } = useWalletState();
+  const { updateAddress, updateNetwork, updateBalance } = useWalletState();
   const [isExecutingMethod, setIsExecutingMethod] = useState<boolean>(false);
+  const [balanceTokens, setBalanceTokens] = useState<string[]>(['00']);
 
   const isConnected = !!session;
 
@@ -24,6 +26,8 @@ export const RpcTester: React.FC = () => {
     session,
     updateAddress,
     updateNetwork,
+    updateBalance,
+    balanceTokens,
   });
 
   // Wrap RPC methods with error handler
@@ -43,6 +47,7 @@ export const RpcTester: React.FC = () => {
   };
 
   const getRpcWalletInformation = wrapWithErrorHandler(rpcHandlers.getRpcWalletInformation);
+  const getRpcBalance = wrapWithErrorHandler(rpcHandlers.getRpcBalance);
 
   return (
     <>
@@ -77,11 +82,17 @@ export const RpcTester: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <RpcMethodCard
               title="Get Wallet Information"
-              description="Retrieve Network and Address 0 simultaneously (does not require confirmation)"
+              description="[❌ Disabled for RPCs] Retrieve Network and Address 0 simultaneously (does not require confirmation)"
               onExecute={getRpcWalletInformation}
-              disabled={isExecutingMethod || !isConnected}
+              disabled={true || isExecutingMethod || !isConnected}
               method="htr_getWalletInformation"
               params={[]}
+            />
+            <RpcGetBalanceCard
+              onExecute={getRpcBalance}
+              disabled={isExecutingMethod || !isConnected}
+              balanceTokens={balanceTokens}
+              setBalanceTokens={setBalanceTokens}
             />
           </div>
         </section>
