@@ -9,6 +9,7 @@ import { HATHOR_TESTNET_CHAIN } from '@/constants';
 import { saveKnownToken } from '@/lib/tokenStorage';
 import { convertBigIntToString } from '@/lib/jsonUtils';
 import { SendTxParams } from './rpc-send-tx-card';
+import { CreateTokenParams } from './rpc-create-token-card';
 
 export interface RpcHandlerDependencies {
   client: any;
@@ -275,6 +276,72 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
 
       const requestParams = {
         method: 'htr_sendTransaction',
+        params: invokeParams
+      };
+
+      try {
+        // Make the RPC request
+        const response = await client.request({
+          topic: session.topic,
+          chainId: HATHOR_TESTNET_CHAIN,
+          request: requestParams
+        });
+
+        // Return both request and response (with BigInt converted to string)
+        return {
+          request: requestParams,
+          response: convertBigIntToString(response)
+        };
+      } catch (error) {
+        // Attach request params to the error so the UI can display them
+        const errorWithRequest = error as any;
+        errorWithRequest.requestParams = requestParams;
+        throw errorWithRequest;
+      }
+    },
+
+    /**
+     * Create Token
+     * Creates a new custom token with optional mint/melt authorities
+     */
+    getRpcCreateToken: async (params: CreateTokenParams) => {
+      if (!session || !client) {
+        throw new Error('WalletConnect session not available');
+      }
+
+      const invokeParams: any = {
+        network: DEFAULT_NETWORK,
+        name: params.name,
+        symbol: params.symbol,
+        amount: params.amount,
+        create_mint: params.create_mint,
+        create_melt: params.create_melt,
+      };
+
+      if (params.change_address && params.change_address.trim()) {
+        invokeParams.change_address = params.change_address;
+      }
+      if (params.create_mint && params.mint_authority_address && params.mint_authority_address.trim()) {
+        invokeParams.mint_authority_address = params.mint_authority_address;
+      }
+      if (params.create_mint) {
+        invokeParams.allow_external_mint_authority_address = params.allow_external_mint_authority_address;
+      }
+      if (params.create_melt && params.melt_authority_address && params.melt_authority_address.trim()) {
+        invokeParams.melt_authority_address = params.melt_authority_address;
+      }
+      if (params.create_melt) {
+        invokeParams.allow_external_melt_authority_address = params.allow_external_melt_authority_address;
+      }
+      if (params.data && params.data.length > 0) {
+        const filteredData = params.data.filter(d => d.trim() !== '');
+        if (filteredData.length > 0) {
+          invokeParams.data = filteredData;
+        }
+      }
+
+      const requestParams = {
+        method: 'htr_createToken',
         params: invokeParams
       };
 

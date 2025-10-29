@@ -5,6 +5,7 @@ import { RpcGetBalanceCard } from './rpc-get-balance-card';
 import { RpcSignWithAddressCard } from './rpc-sign-with-address-card';
 import { RpcSignOracleDataCard } from './rpc-sign-oracle-data-card';
 import { RpcSendTxCard, SendTxParams } from './rpc-send-tx-card';
+import { RpcCreateTokenCard, CreateTokenParams } from './rpc-create-token-card';
 import { RpcWalletConnect } from './rpc-walletconnect';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,6 +29,19 @@ export const RpcTester: React.FC = () => {
     outputs: [{ type: 'address', address: '', value: '', token: '' }],
     inputs: [],
     changeAddress: '',
+  });
+  const [createTokenParams, setCreateTokenParams] = useState<CreateTokenParams>({
+    name: 'Test Token',
+    symbol: 'TST',
+    amount: '100',
+    change_address: '',
+    create_mint: true,
+    mint_authority_address: '',
+    allow_external_mint_authority_address: false,
+    create_melt: true,
+    melt_authority_address: '',
+    allow_external_melt_authority_address: false,
+    data: []
   });
 
   const isConnected = !!session;
@@ -106,6 +120,7 @@ export const RpcTester: React.FC = () => {
   const getRpcSignWithAddress = wrapWithErrorHandler(rpcHandlers.getRpcSignWithAddress);
   const getRpcSignOracleData = wrapWithErrorHandler(rpcHandlers.getRpcSignOracleData);
   const getRpcSendTransaction = wrapWithErrorHandler(rpcHandlers.getRpcSendTransaction);
+  const getRpcCreateToken = wrapWithErrorHandler(rpcHandlers.getRpcCreateToken);
 
   const handleCopyAddress = () => {
     if (sessionInfo.address) {
@@ -224,12 +239,19 @@ export const RpcTester: React.FC = () => {
         {/* Transactions Section */}
         <section>
           <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Transactions</h2>
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <RpcSendTxCard
               onExecute={getRpcSendTransaction}
               disabled={isExecutingMethod || !isConnected}
               sendTxParams={sendTxParams}
               setSendTxParams={setSendTxParams}
+              walletState={walletState}
+            />
+            <RpcCreateTokenCard
+              onExecute={getRpcCreateToken}
+              disabled={isExecutingMethod || !isConnected}
+              createTokenParams={createTokenParams}
+              setCreateTokenParams={setCreateTokenParams}
               walletState={walletState}
             />
           </div>
