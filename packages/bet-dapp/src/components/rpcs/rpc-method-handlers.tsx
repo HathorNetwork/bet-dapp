@@ -507,8 +507,8 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
         });
 
         // Parse the signed data from the response
-        if (signResponse && signResponse.signedData) {
-          signedData = signResponse.signedData;
+        if (signResponse?.response?.signedData) {
+          signedData = signResponse.response.signedData;
         } else {
           throw new Error('Failed to extract signed data from oracle signature response');
         }

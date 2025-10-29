@@ -221,7 +221,7 @@ export const RpcSetBetResultCard: React.FC<RpcSetBetResultCardProps> = ({
                   <Label className="text-xs text-gray-400">Transaction Hash</Label>
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText(result.hash);
+                      navigator.clipboard.writeText(result.response.hash);
                       toast({ title: 'Copied', description: 'Transaction hash copied to clipboard' });
                     }}
                     className="text-gray-500 hover:text-hathor-yellow-400 transition-colors"
@@ -231,7 +231,7 @@ export const RpcSetBetResultCard: React.FC<RpcSetBetResultCardProps> = ({
                   </button>
                 </div>
                 <div className="mt-1 p-2 bg-gray-900/50 rounded border border-gray-700 font-mono text-xs text-gray-200 break-all">
-                  {result.hash}
+                  {result.response.hash}
                 </div>
               </div>
             </div>
@@ -304,7 +304,7 @@ export const RpcSetBetResultCard: React.FC<RpcSetBetResultCardProps> = ({
               <div className="flex items-center gap-1">
                 {result?.response?.hash && (
                   <a
-                    href={`${TESTNET_INDIA_EXPLORER_BASE_URL}/transaction/${result.hash}`}
+                    href={`${TESTNET_INDIA_EXPLORER_BASE_URL}/transaction/${result.response.hash}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     title="Open in Explorer"

@@ -461,7 +461,7 @@ export const RpcSendTxCard: React.FC<RpcSendTxCardProps> = ({
                   <Label className="text-xs text-gray-400">Transaction Hash</Label>
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText(result.hash);
+                      navigator.clipboard.writeText(result.response?.hash);
                       toast({ title: 'Copied', description: 'Transaction hash copied to clipboard' });
                     }}
                     className="text-gray-500 hover:text-hathor-yellow-400 transition-colors"
@@ -471,7 +471,7 @@ export const RpcSendTxCard: React.FC<RpcSendTxCardProps> = ({
                   </button>
                 </div>
                 <div className="mt-1 p-2 bg-gray-900/50 rounded border border-gray-700 font-mono text-xs text-gray-200 break-all">
-                  {result.hash}
+                  {result.response?.hash}
                 </div>
               </div>
             </div>
