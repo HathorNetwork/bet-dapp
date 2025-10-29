@@ -60,27 +60,20 @@ export const RpcGetBalanceCard: React.FC<RpcGetBalanceCardProps> = ({
     setLoading(true);
     setError(null);
     setResult(null);
-
-    const filteredTokens = balanceTokens.filter(token => token.trim() !== '');
-
-    // Capture request info for display
-    const reqInfo = {
-      method: 'htr_getBalance',
-      params: { tokens: filteredTokens },
-    };
-    setRequestInfo(reqInfo);
-    setRequestExpanded(true);
-
-    // Log request to console
-    console.log(`[RPC Request] Get Balance`, reqInfo);
+    setRequestInfo(null);
 
     try {
-      const data = await onExecute();
-      setResult(data);
+      const { request, response } = await onExecute();
+
+      // Store request and response separately
+      setRequestInfo(request);
+      setResult(response);
+      setRequestExpanded(true);
       setExpanded(true);
 
-      // Log success to console
-      console.log(`[RPC Success] Get Balance`, data);
+      // Log to console
+      console.log(`[RPC Request] Get Balance`, request);
+      console.log(`[RPC Success] Get Balance`, response);
 
       toast({
         title: 'Success',
@@ -95,7 +88,6 @@ export const RpcGetBalanceCard: React.FC<RpcGetBalanceCardProps> = ({
       console.error(`[RPC Error] Get Balance`, {
         message: errorMessage,
         error: err,
-        request: reqInfo,
       });
 
       toast({

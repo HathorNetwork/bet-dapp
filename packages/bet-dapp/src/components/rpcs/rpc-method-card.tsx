@@ -64,25 +64,20 @@ export const RpcMethodCard: React.FC<RpcMethodCardProps> = ({
     setLoading(true);
     setError(null);
     setResult(null);
-
-    // Capture request info for display
-    const reqInfo = {
-      method: method || 'Unknown Method',
-      params: params || inputValues,
-    };
-    setRequestInfo(reqInfo);
-    setRequestExpanded(true);
-
-    // Log request to console
-    console.log(`[RPC Request] ${title}`, reqInfo);
+    setRequestInfo(null);
 
     try {
-      const data = await onExecute(inputValues);
-      setResult(data);
+      const { request, response } = await onExecute(inputValues);
+
+      // Store request and response separately
+      setRequestInfo(request);
+      setResult(response);
+      setRequestExpanded(true);
       setExpanded(true);
 
-      // Log success to console
-      console.log(`[RPC Success] ${title}`, data);
+      // Log to console
+      console.log(`[RPC Request] ${title}`, request);
+      console.log(`[RPC Success] ${title}`, response);
 
       toast({
         title: 'Success',
@@ -97,7 +92,6 @@ export const RpcMethodCard: React.FC<RpcMethodCardProps> = ({
       console.error(`[RPC Error] ${title}`, {
         message: errorMessage,
         error: err,
-        request: reqInfo,
       });
 
       toast({

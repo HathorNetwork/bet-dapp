@@ -18,14 +18,6 @@ export interface RpcHandlerDependencies {
 
 const DEFAULT_NETWORK = 'testnet';
 
-// Custom JSON serializer that handles BigInt
-const jsonStringify = (obj: any) => {
-  return JSON.stringify(obj, (key, value) =>
-    typeof value === 'bigint' ? value.toString() : value,
-    2
-  );
-};
-
 export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
   const { client, session, updateAddress, updateNetwork, updateBalance, balanceTokens = ['00'] } = deps;
 
@@ -39,15 +31,17 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
         throw new Error('WalletConnect session not available');
       }
 
+      const requestParams = {
+        method: 'htr_getWalletInformation',
+        network: DEFAULT_NETWORK,
+        params: []
+      };
+
       // Make the RPC request
       const response = await client.request({
         topic: session.topic,
         chainId: HATHOR_TESTNET_CHAIN,
-        request: {
-          method: 'htr_getWalletInformation',
-	        networ: DEFAULT_NETWORK,
-          params: []
-        }
+        request: requestParams
       });
 
       // Update context if handlers are provided
@@ -73,8 +67,11 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
         }
       }
 
-      // Return stringified result to match snap format
-      return jsonStringify(response);
+      // Return both request and response
+      return {
+        request: requestParams,
+        response: response
+      };
     },
 
     /**
@@ -88,17 +85,19 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
 
       const filteredTokens = balanceTokens.filter(token => token.trim() !== '');
 
+      const requestParams = {
+        method: 'htr_getBalance',
+        params: {
+          network: DEFAULT_NETWORK,
+          tokens: filteredTokens
+        }
+      };
+
       // Make the RPC request
       const response = await client.request({
         topic: session.topic,
         chainId: HATHOR_TESTNET_CHAIN,
-        request: {
-          method: 'htr_getBalance',
-          params: {
-						network: DEFAULT_NETWORK,
-            tokens: filteredTokens
-          }
-        }
+        request: requestParams
       });
 
       // Update context if handlers are provided
@@ -125,8 +124,11 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
         }
       }
 
-      // Return stringified result to match snap format
-      return jsonStringify(response);
+      // Return both request and response
+      return {
+        request: requestParams,
+        response: response
+      };
     },
 
     /**
@@ -138,22 +140,27 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
         throw new Error('WalletConnect session not available');
       }
 
+      const requestParams = {
+        method: 'htr_signWithAddress',
+        params: {
+          network: DEFAULT_NETWORK,
+          message,
+          addressIndex
+        }
+      };
+
       // Make the RPC request
       const response = await client.request({
         topic: session.topic,
         chainId: HATHOR_TESTNET_CHAIN,
-        request: {
-          method: 'htr_signWithAddress',
-          params: {
-            network: DEFAULT_NETWORK,
-            message,
-            addressIndex
-          }
-        }
+        request: requestParams
       });
 
-      // Return stringified result to match snap format
-      return jsonStringify(response);
+      // Return both request and response
+      return {
+        request: requestParams,
+        response: response
+      };
     },
   };
 };

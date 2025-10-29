@@ -76,27 +76,21 @@ export const RpcSignWithAddressCard: React.FC<RpcSignWithAddressCardProps> = ({
     setError(null);
     setResult(null);
     setParsedResult(null);
-
-    // Capture request info for display
-    const reqInfo = {
-      method: 'htr_signWithAddress',
-      params: { message, addressIndex },
-    };
-    setRequestInfo(reqInfo);
-    setRequestExpanded(true);
-
-    // Log request to console
-    console.log(`[RPC Request] Sign with Address`, reqInfo);
+    setRequestInfo(null);
 
     try {
-      const data = await onExecute(message, addressIndex);
-      setResult(data);
+      const { request, response } = await onExecute(message, addressIndex);
+
+      // Store request and response separately
+      setRequestInfo(request);
+      setResult(response);
+      setRequestExpanded(true);
       setExpanded(true);
 
       // Parse the result for formatted display
-      if (data) {
+      if (response) {
         try {
-          const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+          const parsed = typeof response === 'string' ? JSON.parse(response) : response;
           // Check if it has the expected structure
           if (parsed.message && parsed.signature && parsed.address) {
             setParsedResult(parsed);
@@ -106,8 +100,9 @@ export const RpcSignWithAddressCard: React.FC<RpcSignWithAddressCardProps> = ({
         }
       }
 
-      // Log success to console
-      console.log(`[RPC Success] Sign with Address`, data);
+      // Log to console
+      console.log(`[RPC Request] Sign with Address`, request);
+      console.log(`[RPC Success] Sign with Address`, response);
 
       toast({
         title: 'Success',
@@ -122,7 +117,6 @@ export const RpcSignWithAddressCard: React.FC<RpcSignWithAddressCardProps> = ({
       console.error(`[RPC Error] Sign with Address`, {
         message: errorMessage,
         error: err,
-        request: reqInfo,
       });
 
       toast({
@@ -184,7 +178,7 @@ export const RpcSignWithAddressCard: React.FC<RpcSignWithAddressCardProps> = ({
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <h3 className="text-lg font-semibold mb-1">Sign with Address</h3>
-            <p className="text-sm text-gray-400">[📱 Mobile Wallet Only] Sign a message using a specific address</p>
+            <p className="text-sm text-gray-400">Sign a message using a specific address</p>
           </div>
         </div>
 
