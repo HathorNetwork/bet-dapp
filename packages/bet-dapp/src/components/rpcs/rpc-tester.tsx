@@ -6,14 +6,21 @@ import { RpcSignWithAddressCard } from './rpc-sign-with-address-card';
 import { RpcSignOracleDataCard } from './rpc-sign-oracle-data-card';
 import { RpcSendTxCard, SendTxParams } from './rpc-send-tx-card';
 import { RpcCreateTokenCard, CreateTokenParams } from './rpc-create-token-card';
+import { RpcInitializeBetCard, InitializeBetParams } from './rpc-initialize-bet-card';
+import { RpcBetCard, BetParams } from './rpc-bet-card';
+import { RpcSetBetResultCard, SetResultParams } from './rpc-set-bet-result-card';
+import { RpcWithdrawBetPrizeCard, WithdrawBetPrizeParams } from './rpc-withdraw-bet-prize-card';
 import { RpcWalletConnect } from './rpc-walletconnect';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { createRpcHandlers } from './rpc-method-handlers';
 import { useWalletState } from '@/contexts/WalletStateContext';
 import { useToast } from '@/components/ui/use-toast';
 import { AlertTriangle, Copy, Wallet } from 'lucide-react';
 import { get } from 'lodash';
+import { TESTNET_INDIA_BET_BLUEPRINT_ID } from '@/components/snaps/constants';
 
 /**
  * RPC Tester component - A polished interface for testing RPC calls through WalletConnect
@@ -21,7 +28,7 @@ import { get } from 'lodash';
  */
 export const RpcTester: React.FC = () => {
   const { client, session } = useWalletConnectClient();
-  const { walletState, updateAddress, updateNetwork, updateBalance } = useWalletState();
+  const { walletState, updateAddress, updateNetwork, updateBalance, updateBlueprint, updateBetNanoContract } = useWalletState();
   const { toast } = useToast();
   const [isExecutingMethod, setIsExecutingMethod] = useState<boolean>(false);
   const [balanceTokens, setBalanceTokens] = useState<string[]>(['00']);
@@ -42,6 +49,39 @@ export const RpcTester: React.FC = () => {
     melt_authority_address: '',
     allow_external_melt_authority_address: false,
     data: []
+  });
+
+  // Bet-related states
+  const [initializeBetParams, setInitializeBetParams] = useState<InitializeBetParams>({
+    blueprintId: TESTNET_INDIA_BET_BLUEPRINT_ID,
+    oracleAddress: '',
+    token: '00',
+    deadline: new Date(Date.now() + 3600 * 1000), // 1 hour from now
+    push_tx: false,
+  });
+
+  const [betParams, setBetParams] = useState<BetParams>({
+    ncId: '',
+    betChoice: '1x0',
+    amount: 1,
+    address: '',
+    token: '00',
+    push_tx: false,
+  });
+
+  const [setBetResultParams, setSetBetResultParams] = useState<SetResultParams>({
+    ncId: '',
+    oracle: '',
+    result: '1x0',
+    push_tx: false,
+  });
+
+  const [withdrawBetPrizeParams, setWithdrawBetPrizeParams] = useState<WithdrawBetPrizeParams>({
+    ncId: '',
+    address: '',
+    amount: 100,
+    token: '00',
+    push_tx: false,
   });
 
   const isConnected = !!session;
@@ -121,6 +161,10 @@ export const RpcTester: React.FC = () => {
   const getRpcSignOracleData = wrapWithErrorHandler(rpcHandlers.getRpcSignOracleData);
   const getRpcSendTransaction = wrapWithErrorHandler(rpcHandlers.getRpcSendTransaction);
   const getRpcCreateToken = wrapWithErrorHandler(rpcHandlers.getRpcCreateToken);
+  const getRpcInitializeBet = wrapWithErrorHandler(rpcHandlers.getRpcInitializeBet);
+  const getRpcBet = wrapWithErrorHandler(rpcHandlers.getRpcBet);
+  const getRpcSetResult = wrapWithErrorHandler(rpcHandlers.getRpcSetResult);
+  const getRpcWithdrawBetPrize = wrapWithErrorHandler(rpcHandlers.getRpcWithdrawBetPrize);
 
   const handleCopyAddress = () => {
     if (sessionInfo.address) {
@@ -253,6 +297,78 @@ export const RpcTester: React.FC = () => {
               createTokenParams={createTokenParams}
               setCreateTokenParams={setCreateTokenParams}
               walletState={walletState}
+            />
+          </div>
+        </section>
+
+        {/* Test Bet Blueprint Section */}
+        <section>
+          <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Test Bet Blueprint</h2>
+          <Card className="p-4 mb-4 bg-red-900/10 border border-red-500/30">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-yellow-200">
+                <span className="font-semibold">Warning:</span>{' '}
+                Only the address at index 0 will be used to sign ANY Nano Contract transaction when using RPC methods.
+              </div>
+            </div>
+          </Card>
+
+          {/* Blueprint ID Configuration */}
+          <Card className="p-4 mb-4 bg-gray-900/30 border-gray-700">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-hathor-yellow-500">Blueprint ID</Label>
+                <Input
+                  value={walletState.blueprint?.blueprintId || ''}
+                  onChange={(e) => updateBlueprint({ blueprintId: e.target.value })}
+                  placeholder="Enter blueprint ID (e.g., 0000019865eda743812c566ce6ad3ac49c5f90796b73aa2792a09b7655ac5a5e)"
+                  className="bg-gray-900/50 border-gray-700 text-sm font-mono"
+                />
+                <p className="text-xs text-gray-400">
+                  This blueprint ID will be used across all nano contract operations below.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-hathor-yellow-500">Bet Nano Contract ID</Label>
+                <Input
+                  value={walletState.betNanoContract?.ncId || ''}
+                  onChange={(e) => updateBetNanoContract({ ncId: e.target.value, hash: e.target.value })}
+                  placeholder="Nano contract ID (automatically filled after Initialize)"
+                  className="bg-gray-900/50 border-gray-700 text-sm font-mono"
+                />
+                <p className="text-xs text-gray-400">
+                  This nano contract ID will be used for bet, set result, and withdraw operations. Automatically populated when you initialize a bet.
+                </p>
+              </div>
+            </div>
+          </Card>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <RpcInitializeBetCard
+              onExecute={getRpcInitializeBet}
+              disabled={isExecutingMethod || !isConnected}
+              createBetParams={initializeBetParams}
+              setCreateBetParams={setInitializeBetParams}
+            />
+            <RpcBetCard
+              onExecute={getRpcBet}
+              disabled={isExecutingMethod || !isConnected}
+              betParams={betParams}
+              setBetParams={setBetParams}
+            />
+            <RpcSetBetResultCard
+              onExecute={getRpcSetResult}
+              disabled={isExecutingMethod || !isConnected}
+              setResultParams={setBetResultParams}
+              setSetResultParams={setSetBetResultParams}
+            />
+            <RpcWithdrawBetPrizeCard
+              onExecute={getRpcWithdrawBetPrize}
+              disabled={isExecutingMethod || !isConnected}
+              withdrawBetPrizeParams={withdrawBetPrizeParams}
+              setWithdrawBetPrizeParams={setWithdrawBetPrizeParams}
             />
           </div>
         </section>

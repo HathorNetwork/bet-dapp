@@ -8,8 +8,13 @@
 import { HATHOR_TESTNET_CHAIN } from '@/constants';
 import { saveKnownToken } from '@/lib/tokenStorage';
 import { convertBigIntToString } from '@/lib/jsonUtils';
+import { getOracleBuffer } from '@/lib/utils';
 import { SendTxParams } from './rpc-send-tx-card';
 import { CreateTokenParams } from './rpc-create-token-card';
+import { InitializeBetParams } from './rpc-initialize-bet-card';
+import { BetParams } from './rpc-bet-card';
+import { SetResultParams } from './rpc-set-bet-result-card';
+import { WithdrawBetPrizeParams } from './rpc-withdraw-bet-prize-card';
 
 export interface RpcHandlerDependencies {
   client: any;
@@ -342,6 +347,240 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
 
       const requestParams = {
         method: 'htr_createToken',
+        params: invokeParams
+      };
+
+      try {
+        // Make the RPC request
+        const response = await client.request({
+          topic: session.topic,
+          chainId: HATHOR_TESTNET_CHAIN,
+          request: requestParams
+        });
+
+        // Return both request and response (with BigInt converted to string)
+        return {
+          request: requestParams,
+          response: convertBigIntToString(response)
+        };
+      } catch (error) {
+        // Attach request params to the error so the UI can display them
+        const errorWithRequest = error as any;
+        errorWithRequest.requestParams = requestParams;
+        throw errorWithRequest;
+      }
+    },
+
+    /**
+     * Initialize Bet
+     * Initialize a new bet nano contract
+     */
+    getRpcInitializeBet: async (params: InitializeBetParams) => {
+      if (!session || !client) {
+        throw new Error('WalletConnect session not available');
+      }
+
+      // Convert oracle address to buffer hex string
+      const oracleBuffer = getOracleBuffer(params.oracleAddress);
+
+      // Convert Date to unix timestamp (seconds)
+      const timestamp = Math.floor(params.deadline.getTime() / 1000);
+
+      const invokeParams: any = {
+        network: DEFAULT_NETWORK,
+        method: 'initialize',
+        blueprint_id: params.blueprintId,
+        actions: [],
+        args: [
+          oracleBuffer,
+          params.token,
+          timestamp,
+        ],
+        push_tx: params.push_tx,
+        nc_id: null,
+      };
+
+      const requestParams = {
+        method: 'htr_sendNanoContractTx',
+        params: invokeParams
+      };
+
+      try {
+        // Make the RPC request
+        const response = await client.request({
+          topic: session.topic,
+          chainId: HATHOR_TESTNET_CHAIN,
+          request: requestParams
+        });
+
+        // Return both request and response (with BigInt converted to string)
+        return {
+          request: requestParams,
+          response: convertBigIntToString(response)
+        };
+      } catch (error) {
+        // Attach request params to the error so the UI can display them
+        const errorWithRequest = error as any;
+        errorWithRequest.requestParams = requestParams;
+        throw errorWithRequest;
+      }
+    },
+
+    /**
+     * Place Bet
+     * Place a bet on an existing bet nano contract
+     */
+    getRpcBet: async (params: BetParams) => {
+      if (!session || !client) {
+        throw new Error('WalletConnect session not available');
+      }
+
+      const invokeParams: any = {
+        network: DEFAULT_NETWORK,
+        method: 'bet',
+        nc_id: params.ncId,
+        actions: [{
+          type: 'deposit',
+          token: params.token,
+          amount: params.amount.toString(),
+          changeAddress: params.address,
+        }],
+        args: [
+          params.address,
+          params.betChoice,
+        ],
+        push_tx: params.push_tx,
+      };
+
+      const requestParams = {
+        method: 'htr_sendNanoContractTx',
+        params: invokeParams
+      };
+
+      try {
+        // Make the RPC request
+        const response = await client.request({
+          topic: session.topic,
+          chainId: HATHOR_TESTNET_CHAIN,
+          request: requestParams
+        });
+
+        // Return both request and response (with BigInt converted to string)
+        return {
+          request: requestParams,
+          response: convertBigIntToString(response)
+        };
+      } catch (error) {
+        // Attach request params to the error so the UI can display them
+        const errorWithRequest = error as any;
+        errorWithRequest.requestParams = requestParams;
+        throw errorWithRequest;
+      }
+    },
+
+    /**
+     * Set Result
+     * Set the result for a bet nano contract (oracle action)
+     */
+    getRpcSetResult: async (params: SetResultParams) => {
+      if (!session || !client) {
+        throw new Error('WalletConnect session not available');
+      }
+
+      // First, sign the oracle data
+      const signRequestParams = {
+        method: 'htr_signOracleData',
+        params: {
+          network: DEFAULT_NETWORK,
+          nc_id: params.ncId,
+          data: params.result,
+          oracle: params.oracle
+        }
+      };
+
+      let signedData: string;
+      try {
+        const signResponse = await client.request({
+          topic: session.topic,
+          chainId: HATHOR_TESTNET_CHAIN,
+          request: signRequestParams
+        });
+
+        // Parse the signed data from the response
+        if (signResponse && signResponse.signedData) {
+          signedData = signResponse.signedData;
+        } else {
+          throw new Error('Failed to extract signed data from oracle signature response');
+        }
+      } catch (error) {
+        console.error('Failed to sign oracle data:', error);
+        const errorWithRequest = error as any;
+        errorWithRequest.requestParams = signRequestParams;
+        throw errorWithRequest;
+      }
+
+      // Now send the set_result transaction with the signed data
+      const invokeParams: any = {
+        network: DEFAULT_NETWORK,
+        method: 'set_result',
+        nc_id: params.ncId,
+        actions: [],
+        args: [signedData],
+        push_tx: params.push_tx,
+      };
+
+      const requestParams = {
+        method: 'htr_sendNanoContractTx',
+        params: invokeParams
+      };
+
+      try {
+        // Make the RPC request
+        const response = await client.request({
+          topic: session.topic,
+          chainId: HATHOR_TESTNET_CHAIN,
+          request: requestParams
+        });
+
+        // Return both request and response (with BigInt converted to string)
+        return {
+          request: requestParams,
+          response: convertBigIntToString(response)
+        };
+      } catch (error) {
+        // Attach request params to the error so the UI can display them
+        const errorWithRequest = error as any;
+        errorWithRequest.requestParams = requestParams;
+        throw errorWithRequest;
+      }
+    },
+
+    /**
+     * Withdraw Bet Prize
+     * Withdraw prize from a bet nano contract
+     */
+    getRpcWithdrawBetPrize: async (params: WithdrawBetPrizeParams) => {
+      if (!session || !client) {
+        throw new Error('WalletConnect session not available');
+      }
+
+      const invokeParams: any = {
+        network: DEFAULT_NETWORK,
+        method: 'withdraw',
+        nc_id: params.ncId,
+        actions: [{
+          type: 'withdrawal',
+          address: params.address,
+          amount: params.amount.toString(),
+          token: params.token,
+          changeAddress: params.address,
+        }],
+        args: [],
+        push_tx: params.push_tx,
+      };
+
+      const requestParams = {
+        method: 'htr_sendNanoContractTx',
         params: invokeParams
       };
 
