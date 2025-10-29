@@ -3,6 +3,7 @@ import { useWalletConnectClient } from '@/contexts/WalletConnectClientContext';
 import { RpcMethodCard } from './rpc-method-card';
 import { RpcGetBalanceCard } from './rpc-get-balance-card';
 import { RpcSignWithAddressCard } from './rpc-sign-with-address-card';
+import { RpcSignOracleDataCard } from './rpc-sign-oracle-data-card';
 import { RpcWalletConnect } from './rpc-walletconnect';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -97,6 +98,7 @@ export const RpcTester: React.FC = () => {
   const getRpcWalletInformation = wrapWithErrorHandler(rpcHandlers.getRpcWalletInformation);
   const getRpcBalance = wrapWithErrorHandler(rpcHandlers.getRpcBalance);
   const getRpcSignWithAddress = wrapWithErrorHandler(rpcHandlers.getRpcSignWithAddress);
+  const getRpcSignOracleData = wrapWithErrorHandler(rpcHandlers.getRpcSignOracleData);
 
   const handleCopyAddress = () => {
     if (sessionInfo.address) {
@@ -201,6 +203,11 @@ export const RpcTester: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <RpcSignWithAddressCard
               onExecute={getRpcSignWithAddress}
+              disabled={isExecutingMethod || !isConnected}
+              walletState={walletState}
+            />
+            <RpcSignOracleDataCard
+              onExecute={getRpcSignOracleData}
               disabled={isExecutingMethod || !isConnected}
               walletState={walletState}
             />

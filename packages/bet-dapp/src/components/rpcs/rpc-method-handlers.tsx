@@ -161,6 +161,39 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
       // Return both request and response (with BigInt converted to string)
       return {
         request: requestParams,
+        response
+      };
+    },
+
+    /**
+     * Sign Oracle Data
+     * Signs oracle data for nano contract
+     */
+    getRpcSignOracleData: async (ncId: string, data: string, oracle: string) => {
+      if (!session || !client) {
+        throw new Error('WalletConnect session not available');
+      }
+
+      const requestParams = {
+        method: 'htr_signOracleData',
+        params: {
+          network: DEFAULT_NETWORK,
+          nc_id: ncId,
+          data,
+          oracle
+        }
+      };
+
+      // Make the RPC request
+      const response = await client.request({
+        topic: session.topic,
+        chainId: HATHOR_TESTNET_CHAIN,
+        request: requestParams
+      });
+
+      // Return both request and response (with BigInt converted to string)
+      return {
+        request: requestParams,
         response: convertBigIntToString(response)
       };
     },
