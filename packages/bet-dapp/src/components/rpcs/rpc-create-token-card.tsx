@@ -3,7 +3,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Plus, Minus, Copy, CheckCircle2, XCircle } from 'lucide-react';
+import { Loader2, Plus, Minus, Copy, CheckCircle2, XCircle, ExternalLink } from 'lucide-react';
+import { TESTNET_INDIA_EXPLORER_BASE_URL } from '@/components/snaps/constants';
 import { WalletState } from '@/contexts/WalletStateContext';
 import { useToast } from '@/components/ui/use-toast';
 import { AddressSelector } from './address-selector';
@@ -338,7 +339,7 @@ export const RpcCreateTokenCard: React.FC<RpcCreateTokenCardProps> = ({
         </div>
 
         {/* Token Hash Display (if available) */}
-        {result && result.hash && (
+        {result?.response?.hash && (
           <div className="mt-4 p-4 bg-green-900/20 border border-green-700/50 rounded-lg space-y-3">
             <div className="flex items-center gap-2 text-green-400 font-medium">
               <CheckCircle2 className="h-5 w-5" />
@@ -431,21 +432,34 @@ export const RpcCreateTokenCard: React.FC<RpcCreateTokenCardProps> = ({
               >
                 {expanded ? '▼' : '▶'} {error ? 'Error Details' : 'Raw Result'}
               </button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  const textToCopy = result ? JSON.stringify(result, null, 2) : error || '';
-                  navigator.clipboard.writeText(textToCopy);
-                  toast({
-                    title: 'Copied',
-                    description: 'Result copied to clipboard',
-                  });
-                }}
-                className="h-8 w-8 p-0"
-              >
-                <Copy className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-1">
+                {result?.response?.hash && (
+                  <a
+                    href={`${TESTNET_INDIA_EXPLORER_BASE_URL}/transaction/${result.hash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Open in Explorer"
+                    className="h-8 w-8 p-0 flex items-center justify-center hover:bg-gray-800 rounded transition-colors"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5 text-gray-400 hover:text-hathor-yellow-400" />
+                  </a>
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const textToCopy = result ? JSON.stringify(result, null, 2) : error || '';
+                    navigator.clipboard.writeText(textToCopy);
+                    toast({
+                      title: 'Copied',
+                      description: 'Result copied to clipboard',
+                    });
+                  }}
+                  className="h-8 w-8 p-0"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
 
             {expanded && (
