@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useWalletConnectClient } from '@/contexts/WalletConnectClientContext';
 import { RpcMethodCard } from './rpc-method-card';
 import { RpcGetBalanceCard } from './rpc-get-balance-card';
@@ -39,6 +39,34 @@ export const RpcTester: React.FC = () => {
       address: address || null,
     };
   }, [session]);
+
+  // Populate wallet state from session when connected
+  useEffect(() => {
+    if (!sessionInfo.address || !sessionInfo.network) {
+      return;
+    }
+
+    // Check if network needs updating
+    const currentNetwork = walletState.network?.network;
+    if (currentNetwork !== sessionInfo.network) {
+      updateNetwork({
+        network: sessionInfo.network,
+        genesisHash: '',
+      });
+      console.log('[RPC Tester] Network updated in wallet state:', sessionInfo.network);
+    }
+
+    // Check if address 0 needs updating
+    const currentAddress = walletState.addresses.get(0);
+    if (!currentAddress || currentAddress.address !== sessionInfo.address) {
+      updateAddress({
+        address: sessionInfo.address,
+        index: 0,
+        addressPath: "m/44'/280'/0'/0/0",
+      });
+      console.log('[RPC Tester] Address 0 updated in wallet state:', sessionInfo.address);
+    }
+  }, [sessionInfo.address, sessionInfo.network, walletState.network, walletState.addresses]);
 
   // Create RPC handlers
   const rpcHandlers = createRpcHandlers({
