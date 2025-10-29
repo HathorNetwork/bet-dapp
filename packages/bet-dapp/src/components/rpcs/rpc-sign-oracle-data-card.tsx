@@ -135,10 +135,17 @@ export const RpcSignOracleDataCard: React.FC<RpcSignOracleDataCardProps> = ({
       setError(errorMessage);
       setExpanded(true);
 
+      // Capture request params from error if available
+      if (err.requestParams) {
+        setRequestInfo(err.requestParams);
+        setRequestExpanded(true);
+      }
+
       // Log full error to console for debugging
       console.error(`[RPC Error] Sign Oracle Data`, {
         message: errorMessage,
         error: err,
+        requestParams: err.requestParams,
       });
 
       toast({

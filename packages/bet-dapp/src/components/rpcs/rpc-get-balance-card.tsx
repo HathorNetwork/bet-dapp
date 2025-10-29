@@ -84,10 +84,17 @@ export const RpcGetBalanceCard: React.FC<RpcGetBalanceCardProps> = ({
       setError(errorMessage);
       setExpanded(true);
 
+      // Capture request params from error if available
+      if (err.requestParams) {
+        setRequestInfo(err.requestParams);
+        setRequestExpanded(true);
+      }
+
       // Log full error to console for debugging
       console.error(`[RPC Error] Get Balance`, {
         message: errorMessage,
         error: err,
+        requestParams: err.requestParams,
       });
 
       toast({

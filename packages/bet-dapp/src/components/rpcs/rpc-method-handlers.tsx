@@ -40,41 +40,48 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
         params: []
       };
 
-      // Make the RPC request
-      const response = await client.request({
-        topic: session.topic,
-        chainId: HATHOR_TESTNET_CHAIN,
-        request: requestParams
-      });
+      try {
+        // Make the RPC request
+        const response = await client.request({
+          topic: session.topic,
+          chainId: HATHOR_TESTNET_CHAIN,
+          request: requestParams
+        });
 
-      // Update context if handlers are provided
-      if (response && updateNetwork && updateAddress) {
-        try {
-          // The response structure should match the snap response
-          if (response.network) {
-            updateNetwork({
-              network: response.network,
-              genesisHash: ''
-            });
-          }
+        // Update context if handlers are provided
+        if (response && updateNetwork && updateAddress) {
+          try {
+            // The response structure should match the snap response
+            if (response.network) {
+              updateNetwork({
+                network: response.network,
+                genesisHash: ''
+              });
+            }
 
-          if (response.address0) {
-            updateAddress({
-              address: response.address0,
-              index: 0,
-              addressPath: `m/44'/280'/0'/0/0`
-            });
+            if (response.address0) {
+              updateAddress({
+                address: response.address0,
+                index: 0,
+                addressPath: `m/44'/280'/0'/0/0`
+              });
+            }
+          } catch (e) {
+            console.error('Failed to update context with wallet information:', e);
           }
-        } catch (e) {
-          console.error('Failed to update context with wallet information:', e);
         }
-      }
 
-      // Return both request and response (with BigInt converted to string)
-      return {
-        request: requestParams,
-        response: convertBigIntToString(response)
-      };
+        // Return both request and response (with BigInt converted to string)
+        return {
+          request: requestParams,
+          response: convertBigIntToString(response)
+        };
+      } catch (error) {
+        // Attach request params to the error so the UI can display them
+        const errorWithRequest = error as any;
+        errorWithRequest.requestParams = requestParams;
+        throw errorWithRequest;
+      }
     },
 
     /**
@@ -96,42 +103,49 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
         }
       };
 
-      // Make the RPC request
-      const response = await client.request({
-        topic: session.topic,
-        chainId: HATHOR_TESTNET_CHAIN,
-        request: requestParams
-      });
+      try {
+        // Make the RPC request
+        const response = await client.request({
+          topic: session.topic,
+          chainId: HATHOR_TESTNET_CHAIN,
+          request: requestParams
+        });
 
-      // Update context if handlers are provided
-      if (response && updateBalance && Array.isArray(response)) {
-        try {
-          response.forEach((balanceItem: any) => {
-            updateBalance({
-              token: balanceItem.token,
-              balance: balanceItem.balance,
-              tokenAuthorities: balanceItem.tokenAuthorities,
-              transactions: balanceItem.transactions,
-              lockExpires: balanceItem.lockExpires,
-            });
+        // Update context if handlers are provided
+        if (response && updateBalance && Array.isArray(response)) {
+          try {
+            response.forEach((balanceItem: any) => {
+              updateBalance({
+                token: balanceItem.token,
+                balance: balanceItem.balance,
+                tokenAuthorities: balanceItem.tokenAuthorities,
+                transactions: balanceItem.transactions,
+                lockExpires: balanceItem.lockExpires,
+              });
 
-            // Save token metadata to localStorage
-            saveKnownToken({
-              id: balanceItem.token.id,
-              name: balanceItem.token.name,
-              symbol: balanceItem.token.symbol,
+              // Save token metadata to localStorage
+              saveKnownToken({
+                id: balanceItem.token.id,
+                name: balanceItem.token.name,
+                symbol: balanceItem.token.symbol,
+              });
             });
-          });
-        } catch (e) {
-          console.error('Failed to update context with balance data:', e);
+          } catch (e) {
+            console.error('Failed to update context with balance data:', e);
+          }
         }
-      }
 
-      // Return both request and response (with BigInt converted to string)
-      return {
-        request: requestParams,
-        response: convertBigIntToString(response)
-      };
+        // Return both request and response (with BigInt converted to string)
+        return {
+          request: requestParams,
+          response: convertBigIntToString(response)
+        };
+      } catch (error) {
+        // Attach request params to the error so the UI can display them
+        const errorWithRequest = error as any;
+        errorWithRequest.requestParams = requestParams;
+        throw errorWithRequest;
+      }
     },
 
     /**
@@ -152,18 +166,25 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
         }
       };
 
-      // Make the RPC request
-      const response = await client.request({
-        topic: session.topic,
-        chainId: HATHOR_TESTNET_CHAIN,
-        request: requestParams
-      });
+      try {
+        // Make the RPC request
+        const response = await client.request({
+          topic: session.topic,
+          chainId: HATHOR_TESTNET_CHAIN,
+          request: requestParams
+        });
 
-      // Return both request and response (with BigInt converted to string)
-      return {
-        request: requestParams,
-        response
-      };
+        // Return both request and response (with BigInt converted to string)
+        return {
+          request: requestParams,
+          response
+        };
+      } catch (error) {
+        // Attach request params to the error so the UI can display them
+        const errorWithRequest = error as any;
+        errorWithRequest.requestParams = requestParams;
+        throw errorWithRequest;
+      }
     },
 
     /**
@@ -185,18 +206,25 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
         }
       };
 
-      // Make the RPC request
-      const response = await client.request({
-        topic: session.topic,
-        chainId: HATHOR_TESTNET_CHAIN,
-        request: requestParams
-      });
+      try {
+        // Make the RPC request
+        const response = await client.request({
+          topic: session.topic,
+          chainId: HATHOR_TESTNET_CHAIN,
+          request: requestParams
+        });
 
-      // Return both request and response (with BigInt converted to string)
-      return {
-        request: requestParams,
-        response: convertBigIntToString(response)
-      };
+        // Return both request and response (with BigInt converted to string)
+        return {
+          request: requestParams,
+          response: convertBigIntToString(response)
+        };
+      } catch (error) {
+        // Attach request params to the error so the UI can display them
+        const errorWithRequest = error as any;
+        errorWithRequest.requestParams = requestParams;
+        throw errorWithRequest;
+      }
     },
 
     /**
@@ -250,18 +278,25 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
         params: invokeParams
       };
 
-      // Make the RPC request
-      const response = await client.request({
-        topic: session.topic,
-        chainId: HATHOR_TESTNET_CHAIN,
-        request: requestParams
-      });
+      try {
+        // Make the RPC request
+        const response = await client.request({
+          topic: session.topic,
+          chainId: HATHOR_TESTNET_CHAIN,
+          request: requestParams
+        });
 
-      // Return both request and response (with BigInt converted to string)
-      return {
-        request: requestParams,
-        response: convertBigIntToString(response)
-      };
+        // Return both request and response (with BigInt converted to string)
+        return {
+          request: requestParams,
+          response: convertBigIntToString(response)
+        };
+      } catch (error) {
+        // Attach request params to the error so the UI can display them
+        const errorWithRequest = error as any;
+        errorWithRequest.requestParams = requestParams;
+        throw errorWithRequest;
+      }
     },
   };
 };
