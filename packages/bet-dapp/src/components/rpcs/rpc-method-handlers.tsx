@@ -111,16 +111,16 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
 
       try {
         // Make the RPC request
-        const response = await client.request({
+        const result = await client.request({
           topic: session.topic,
           chainId: HATHOR_TESTNET_CHAIN,
           request: requestParams
         });
 
         // Update context if handlers are provided
-        if (response && updateBalance && Array.isArray(response)) {
+        if (result && updateBalance && result.response && Array.isArray(result.response)) {
           try {
-            response.forEach((balanceItem: any) => {
+            result.response.forEach((balanceItem: any) => {
               updateBalance({
                 token: balanceItem.token,
                 balance: balanceItem.balance,
@@ -144,7 +144,7 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
         // Return both request and response (with BigInt converted to string)
         return {
           request: requestParams,
-          response: convertBigIntToString(response)
+          response: convertBigIntToString(result)
         };
       } catch (error) {
         // Attach request params to the error so the UI can display them

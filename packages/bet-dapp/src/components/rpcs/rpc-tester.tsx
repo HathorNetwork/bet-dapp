@@ -18,9 +18,11 @@ import { Label } from '@/components/ui/label';
 import { createRpcHandlers } from './rpc-method-handlers';
 import { useWalletState } from '@/contexts/WalletStateContext';
 import { useToast } from '@/components/ui/use-toast';
-import { AlertTriangle, Copy, Wallet } from 'lucide-react';
+import { AlertTriangle, Copy, Wallet, X } from 'lucide-react';
 import { get } from 'lodash';
 import { TESTNET_INDIA_BET_BLUEPRINT_ID } from '@/components/snaps/constants';
+import { getKnownTokens, removeKnownToken } from '@/lib/tokenStorage';
+import type { KnownToken } from '@/lib/tokenStorage';
 import Link from 'next/link';
 
 /**
@@ -84,6 +86,27 @@ export const RpcTester: React.FC = () => {
     token: '00',
     push_tx: false,
   });
+
+  // Token storage editor state
+  const [knownTokens, setKnownTokens] = useState<KnownToken[]>([]);
+
+  // Load known tokens from localStorage on mount
+  useEffect(() => {
+    try {
+      setKnownTokens(getKnownTokens());
+    } catch (err) {
+      console.error('Failed to load known tokens for editor:', err);
+    }
+  }, [balanceTokens]);
+
+  const handleRemoveKnownToken = (tokenId: string) => {
+    try {
+      removeKnownToken(tokenId);
+      setKnownTokens(getKnownTokens());
+    } catch (err) {
+      console.error('Failed to remove known token:', err);
+    }
+  };
 
   const isConnected = !!session;
 
@@ -386,6 +409,55 @@ export const RpcTester: React.FC = () => {
               setWithdrawBetPrizeParams={setWithdrawBetPrizeParams}
             />
           </div>
+        </section>
+
+        {/* Known Tokens Section */}
+        <section>
+          <h2 className="text-2xl font-bold mb-4 text-hathor-yellow-500">Token Management</h2>
+          <Card className="p-4">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold mb-1">Known Tokens</h3>
+                <p className="text-sm text-gray-400">See and remove remembered known tokens between sessions</p>
+              </div>
+            </div>
+            <div className="space-y-3 mt-4">
+              {knownTokens.length === 0 ? (
+                <div className="text-sm text-gray-400">No known tokens stored in localStorage.</div>
+              ) : (
+                knownTokens.map((t) => (
+                  <div key={t.id} className="flex items-center justify-between bg-gray-900/50 border border-gray-700 rounded p-2">
+                    <div className="min-w-0">
+                      <div className="text-sm font-mono text-gray-300 truncate">{t.symbol} — {t.name}</div>
+                      <div className="text-xs font-mono text-gray-500 break-all flex items-center">
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(t.id);
+                            toast({ title: 'Copied', description: 'Token ID copied to clipboard' });
+                          }}
+                          className="text-gray-400 hover:text-hathor-yellow-400 transition-colors flex-shrink-0 mr-1"
+                          title="Copy to clipboard"
+                        >
+                          <Copy className="h-3 w-3" />
+                        </button>
+                        {t.id}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-red-400 hover:text-red-300"
+                        onClick={() => handleRemoveKnownToken(t.id)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </Card>
         </section>
       </div>
     </>
