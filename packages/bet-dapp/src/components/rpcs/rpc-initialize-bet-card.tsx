@@ -318,7 +318,7 @@ export const RpcInitializeBetCard: React.FC<RpcInitializeBetCardProps> = ({
                 {expanded ? '▼' : '▶'} {error ? 'Error Details' : 'Raw Result'}
               </button>
               <div className="flex items-center gap-1">
-                {result.response?.hash && (
+                {result?.response?.hash && (
                   <a
                     href={`${TESTNET_INDIA_EXPLORER_BASE_URL}/transaction/${result.response.hash}`}
                     target="_blank"
