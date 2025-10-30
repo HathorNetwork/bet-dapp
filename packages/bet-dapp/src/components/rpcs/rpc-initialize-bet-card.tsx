@@ -224,7 +224,7 @@ export const RpcInitializeBetCard: React.FC<RpcInitializeBetCardProps> = ({
         </div>
 
         {/* NC ID Display (if available) */}
-        {result && result.nc_id && (
+        {result?.response?.hash && (
           <div className="mt-4 p-4 bg-green-900/20 border border-green-700/50 rounded-lg space-y-3">
             <div className="flex items-center gap-2 text-green-400 font-medium">
               <CheckCircle2 className="h-5 w-5" />
@@ -237,7 +237,7 @@ export const RpcInitializeBetCard: React.FC<RpcInitializeBetCardProps> = ({
                   <Label className="text-xs text-gray-400">Nano Contract ID</Label>
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText(result.nc_id);
+                      navigator.clipboard.writeText(result.response.hash);
                       toast({ title: 'Copied', description: 'Nano contract ID copied to clipboard' });
                     }}
                     className="text-gray-500 hover:text-hathor-yellow-400 transition-colors"
@@ -247,7 +247,7 @@ export const RpcInitializeBetCard: React.FC<RpcInitializeBetCardProps> = ({
                   </button>
                 </div>
                 <div className="mt-1 p-2 bg-gray-900/50 rounded border border-gray-700 font-mono text-xs text-gray-200 break-all">
-                  {result.nc_id}
+                  {result.response.hash}
                 </div>
               </div>
             </div>
@@ -318,9 +318,9 @@ export const RpcInitializeBetCard: React.FC<RpcInitializeBetCardProps> = ({
                 {expanded ? '▼' : '▶'} {error ? 'Error Details' : 'Raw Result'}
               </button>
               <div className="flex items-center gap-1">
-                {result && result.nc_id && (
+                {result.response?.hash && (
                   <a
-                    href={`${TESTNET_INDIA_EXPLORER_BASE_URL}/transaction/${result.nc_id}`}
+                    href={`${TESTNET_INDIA_EXPLORER_BASE_URL}/transaction/${result.response.hash}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     title="Open in Explorer"

@@ -21,6 +21,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { AlertTriangle, Copy, Wallet } from 'lucide-react';
 import { get } from 'lodash';
 import { TESTNET_INDIA_BET_BLUEPRINT_ID } from '@/components/snaps/constants';
+import Link from 'next/link';
 
 /**
  * RPC Tester component - A polished interface for testing RPC calls through WalletConnect
@@ -179,6 +180,20 @@ export const RpcTester: React.FC = () => {
   return (
     <>
       <div className="flex-1 p-6 space-y-6">
+        {/* Top quick links */}
+        <div className="flex items-center justify-end gap-3">
+          <Link href="/rpc" passHref>
+            <Button asChild variant="secondary" size="sm">
+              <a className="text-sm font-medium" target="_blank">Open raw RPC sender</a>
+            </Button>
+          </Link>
+          <a href="https://staging.betting.hathor.network/rpc" target="_blank" rel="noopener noreferrer">
+            <Button variant="secondary" size="sm">
+              staging version
+            </Button>
+          </a>
+        </div>
+
         {/* WalletConnect Connection Widget */}
         <div className="flex justify-between items-center">
           <div>
