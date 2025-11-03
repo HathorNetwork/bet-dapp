@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Copy, CheckCircle2, XCircle } from 'lucide-react';
+import { Loader2, Copy, CheckCircle2, XCircle, FlaskConical } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 export interface RpcMethodInput {
@@ -22,6 +22,7 @@ export interface RpcMethodCardProps {
   disabled?: boolean;
   method?: string; // RPC method name for display
   params?: any; // RPC params for display
+  isDryRun?: boolean; // Flag indicating if we're in dry-run mode
 }
 
 export const RpcMethodCard: React.FC<RpcMethodCardProps> = ({
@@ -33,6 +34,7 @@ export const RpcMethodCard: React.FC<RpcMethodCardProps> = ({
   disabled = false,
   method,
   params,
+  isDryRun = false,
 }) => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
@@ -80,8 +82,8 @@ export const RpcMethodCard: React.FC<RpcMethodCardProps> = ({
       console.log(`[RPC Success] ${title}`, response);
 
       toast({
-        title: 'Success',
-        description: `${title} executed successfully`,
+        title: isDryRun ? 'Dry Run Complete' : 'Success',
+        description: isDryRun ? 'Request generated (not sent to RPC)' : `${title} executed successfully`,
       });
     } catch (err: any) {
       const errorMessage = err.message || 'An error occurred';
@@ -194,7 +196,15 @@ export const RpcMethodCard: React.FC<RpcMethodCardProps> = ({
       <div className="flex flex-col space-y-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <h3 className="text-lg font-semibold mb-1">{title}</h3>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-lg font-semibold">{title}</h3>
+              {isDryRun && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-purple-900/30 text-purple-400 border border-purple-500/30">
+                  <FlaskConical className="h-3 w-3" />
+                  DRY RUN
+                </span>
+              )}
+            </div>
             <p className="text-sm text-gray-400">{description}</p>
           </div>
         </div>
@@ -321,7 +331,19 @@ export const RpcMethodCard: React.FC<RpcMethodCardProps> = ({
                       <CheckCircle2 className="h-4 w-4" />
                       <span className="text-sm font-medium">Success</span>
                     </div>
-                    {renderResult()}
+                    {isDryRun && result === null ? (
+                      <div className="bg-purple-900/20 border border-purple-500/50 rounded p-3">
+                        <div className="flex items-center gap-2 text-purple-400">
+                          <FlaskConical className="h-4 w-4" />
+                          <span className="text-sm font-medium">Dry Run Mode</span>
+                        </div>
+                        <p className="text-sm text-purple-300 mt-2">
+                          The request was generated but not sent to the RPC. Check the Request section above to see the parameters that would be sent.
+                        </p>
+                      </div>
+                    ) : (
+                      renderResult()
+                    )}
                   </div>
                 )}
               </div>

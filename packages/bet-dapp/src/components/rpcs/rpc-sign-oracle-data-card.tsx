@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Copy, CheckCircle2, XCircle } from 'lucide-react';
+import { Loader2, Copy, CheckCircle2, XCircle, FlaskConical } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { WalletState } from '@/contexts/WalletStateContext';
 
@@ -13,12 +13,14 @@ export interface RpcSignOracleDataCardProps {
   onExecute: (ncId: string, data: string, oracle: string) => Promise<any>;
   disabled?: boolean;
   walletState: WalletState;
+  isDryRun?: boolean;
 }
 
 export const RpcSignOracleDataCard: React.FC<RpcSignOracleDataCardProps> = ({
   onExecute,
   disabled = false,
   walletState,
+  isDryRun = false,
 }) => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
@@ -127,8 +129,8 @@ export const RpcSignOracleDataCard: React.FC<RpcSignOracleDataCardProps> = ({
       console.log(`[RPC Success] Sign Oracle Data`, response);
 
       toast({
-        title: 'Success',
-        description: 'Oracle data signed successfully',
+        title: isDryRun ? 'Dry Run Complete' : 'Success',
+        description: isDryRun ? 'Request generated (not sent to RPC)' : 'Oracle data signed successfully',
       });
     } catch (err: any) {
       const errorMessage = err.message || 'An error occurred';
@@ -207,7 +209,15 @@ export const RpcSignOracleDataCard: React.FC<RpcSignOracleDataCardProps> = ({
       <div className="flex flex-col space-y-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <h3 className="text-lg font-semibold mb-1">Sign Oracle Data</h3>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-lg font-semibold">Sign Oracle Data</h3>
+              {isDryRun && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-purple-900/30 text-purple-400 border border-purple-500/30">
+                  <FlaskConical className="h-3 w-3" />
+                  DRY RUN
+                </span>
+              )}
+            </div>
             <p className="text-sm text-gray-400">Sign oracle data for nano contract</p>
           </div>
         </div>
@@ -488,18 +498,32 @@ export const RpcSignOracleDataCard: React.FC<RpcSignOracleDataCardProps> = ({
 
             {expanded && (
               <div className="relative">
-                {error ? (
-                  <div className="flex items-start space-x-2 p-3 bg-red-900/20 border border-red-500/50 rounded">
-                    <XCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-red-200 mb-1">Error occurred</p>
-                      <p className="text-sm text-red-300">{error}</p>
+                {isDryRun && result === null ? (
+                  <div className="bg-purple-900/20 border border-purple-500/50 rounded p-3">
+                    <div className="flex items-center gap-2 text-purple-400">
+                      <FlaskConical className="h-4 w-4" />
+                      <span className="text-sm font-medium">Dry Run Mode</span>
                     </div>
+                    <p className="text-sm text-purple-300 mt-2">
+                      The request was generated but not sent to the RPC. Check the Request section above to see the parameters that would be sent.
+                    </p>
                   </div>
                 ) : (
-                  <div className="bg-hathor-yellow-900/20 border border-hathor-yellow-500/50 rounded">
-                    {renderResult()}
-                  </div>
+                  <>
+                    {error ? (
+                      <div className="flex items-start space-x-2 p-3 bg-red-900/20 border border-red-500/50 rounded">
+                        <XCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-red-200 mb-1">Error occurred</p>
+                          <p className="text-sm text-red-300">{error}</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="bg-hathor-yellow-900/20 border border-hathor-yellow-500/50 rounded">
+                        {renderResult()}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             )}

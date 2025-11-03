@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label';
 import { createRpcHandlers } from './rpc-method-handlers';
 import { useWalletState } from '@/contexts/WalletStateContext';
 import { useToast } from '@/components/ui/use-toast';
-import { AlertTriangle, Copy, Wallet, X } from 'lucide-react';
+import { AlertTriangle, Copy, Wallet, X, FlaskConical } from 'lucide-react';
 import { get } from 'lodash';
 import { TESTNET_INDIA_BET_BLUEPRINT_ID } from '@/components/snaps/constants';
 import { getKnownTokens, removeKnownToken } from '@/lib/tokenStorage';
@@ -34,6 +34,7 @@ export const RpcTester: React.FC = () => {
   const { walletState, updateAddress, updateNetwork, updateBalance, updateBlueprint, updateBetNanoContract } = useWalletState();
   const { toast } = useToast();
   const [isExecutingMethod, setIsExecutingMethod] = useState<boolean>(false);
+  const [isDryRun, setIsDryRun] = useState<boolean>(false);
   const [balanceTokens, setBalanceTokens] = useState<string[]>(['00']);
   const [sendTxParams, setSendTxParams] = useState<SendTxParams>({
     outputs: [{ type: 'address', address: '', value: '1', token: '' }],
@@ -161,6 +162,7 @@ export const RpcTester: React.FC = () => {
     updateNetwork,
     updateBalance,
     balanceTokens,
+    dryRun: isDryRun,
   });
 
   // Wrap RPC methods with error handler
@@ -228,6 +230,32 @@ export const RpcTester: React.FC = () => {
           <RpcWalletConnect />
         </div>
 
+        {/* Dry Run Mode Toggle */}
+        <Card className={`p-4 transition-colors ${isDryRun ? 'bg-purple-900/10 border-purple-500/30' : 'bg-gray-900/30 border-gray-700'}`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <FlaskConical className={`h-5 w-5 ${isDryRun ? 'text-purple-400' : 'text-gray-400'}`} />
+              <div>
+                <h3 className="text-sm font-semibold">Dry Run Mode</h3>
+                <p className="text-xs text-gray-400">
+                  {isDryRun ? 'Requests will be generated but NOT sent to the RPC' : 'Execute will send actual RPC requests'}
+                </p>
+              </div>
+            </div>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isDryRun}
+                onChange={(e) => setIsDryRun(e.target.checked)}
+                className="h-5 w-5 rounded border-gray-700 bg-gray-900 text-purple-500 focus:ring-purple-500 focus:ring-offset-0 cursor-pointer"
+              />
+              <span className="text-sm font-medium text-gray-300">
+                {isDryRun ? 'Enabled' : 'Disabled'}
+              </span>
+            </label>
+          </div>
+        </Card>
+
         {/* Wallet Information Visualization */}
         {isConnected && sessionInfo.address && (
           <Card className="p-4 bg-blue-900/10 border-blue-500/30">
@@ -291,12 +319,14 @@ export const RpcTester: React.FC = () => {
               disabled={true || isExecutingMethod || !isConnected}
               method="htr_getWalletInformation"
               params={[]}
+              isDryRun={isDryRun}
             />
             <RpcGetBalanceCard
               onExecute={getRpcBalance}
               disabled={isExecutingMethod || !isConnected}
               balanceTokens={balanceTokens}
               setBalanceTokens={setBalanceTokens}
+              isDryRun={isDryRun}
             />
           </div>
         </section>
@@ -309,11 +339,13 @@ export const RpcTester: React.FC = () => {
               onExecute={getRpcSignWithAddress}
               disabled={isExecutingMethod || !isConnected}
               walletState={walletState}
+              isDryRun={isDryRun}
             />
             <RpcSignOracleDataCard
               onExecute={getRpcSignOracleData}
               disabled={isExecutingMethod || !isConnected}
               walletState={walletState}
+              isDryRun={isDryRun}
             />
           </div>
         </section>
@@ -328,6 +360,7 @@ export const RpcTester: React.FC = () => {
               sendTxParams={sendTxParams}
               setSendTxParams={setSendTxParams}
               walletState={walletState}
+              isDryRun={isDryRun}
             />
             <RpcCreateTokenCard
               onExecute={getRpcCreateToken}
@@ -335,6 +368,7 @@ export const RpcTester: React.FC = () => {
               createTokenParams={createTokenParams}
               setCreateTokenParams={setCreateTokenParams}
               walletState={walletState}
+              isDryRun={isDryRun}
             />
           </div>
         </section>
@@ -389,24 +423,28 @@ export const RpcTester: React.FC = () => {
               disabled={isExecutingMethod || !isConnected}
               createBetParams={initializeBetParams}
               setCreateBetParams={setInitializeBetParams}
+              isDryRun={isDryRun}
             />
             <RpcBetCard
               onExecute={getRpcBet}
               disabled={isExecutingMethod || !isConnected}
               betParams={betParams}
               setBetParams={setBetParams}
+              isDryRun={isDryRun}
             />
             <RpcSetBetResultCard
               onExecute={getRpcSetResult}
               disabled={isExecutingMethod || !isConnected}
               setResultParams={setBetResultParams}
               setSetResultParams={setSetBetResultParams}
+              isDryRun={isDryRun}
             />
             <RpcWithdrawBetPrizeCard
               onExecute={getRpcWithdrawBetPrize}
               disabled={isExecutingMethod || !isConnected}
               withdrawBetPrizeParams={withdrawBetPrizeParams}
               setWithdrawBetPrizeParams={setWithdrawBetPrizeParams}
+              isDryRun={isDryRun}
             />
           </div>
         </section>

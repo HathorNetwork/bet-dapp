@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Loader2, Copy, CheckCircle2, XCircle, ExternalLink } from 'lucide-react';
+import { Loader2, Copy, CheckCircle2, XCircle, ExternalLink, FlaskConical } from 'lucide-react';
 import { TESTNET_INDIA_EXPLORER_BASE_URL } from '@/components/snaps/constants';
 import { AddressSelector } from './address-selector';
 import { TokenSelector } from './token-selector';
@@ -23,6 +23,7 @@ export interface RpcInitializeBetCardProps {
   disabled?: boolean;
   createBetParams: InitializeBetParams;
   setCreateBetParams: (params: InitializeBetParams) => void;
+  isDryRun?: boolean;
 }
 
 export const RpcInitializeBetCard: React.FC<RpcInitializeBetCardProps> = ({
@@ -30,6 +31,7 @@ export const RpcInitializeBetCard: React.FC<RpcInitializeBetCardProps> = ({
   disabled = false,
   createBetParams,
   setCreateBetParams,
+  isDryRun = false,
 }) => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
@@ -73,8 +75,8 @@ export const RpcInitializeBetCard: React.FC<RpcInitializeBetCardProps> = ({
       console.log(`[RPC Success] Initialize Bet`, response);
 
       toast({
-        title: 'Success',
-        description: 'Bet initialized successfully',
+        title: isDryRun ? 'Dry Run Complete' : 'Success',
+        description: isDryRun ? 'Request generated (not sent to RPC)' : 'Bet initialized successfully',
       });
     } catch (err: any) {
       const errorMessage = err.message || 'An error occurred';
@@ -152,7 +154,15 @@ export const RpcInitializeBetCard: React.FC<RpcInitializeBetCardProps> = ({
       <div className="flex flex-col space-y-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <h3 className="text-lg font-semibold mb-1">Initialize Bet</h3>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-lg font-semibold">Initialize Bet</h3>
+              {isDryRun && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-purple-900/30 text-purple-400 border border-purple-500/30">
+                  <FlaskConical className="h-3 w-3" />
+                  DRY RUN
+                </span>
+              )}
+            </div>
             <p className="text-sm text-gray-400">Initialize a new bet nano contract</p>
           </div>
         </div>
@@ -359,7 +369,19 @@ export const RpcInitializeBetCard: React.FC<RpcInitializeBetCardProps> = ({
                   </div>
                 ) : (
                   <div className="bg-hathor-yellow-900/20 border border-hathor-yellow-500/50 rounded">
-                    {renderResult()}
+                    {isDryRun && result === null ? (
+                      <div className="bg-purple-900/20 border border-purple-500/50 rounded p-3 m-3">
+                        <div className="flex items-center gap-2 text-purple-400">
+                          <FlaskConical className="h-4 w-4" />
+                          <span className="text-sm font-medium">Dry Run Mode</span>
+                        </div>
+                        <p className="text-sm text-purple-300 mt-2">
+                          The request was generated but not sent to the RPC. Check the Request section above to see the parameters that would be sent.
+                        </p>
+                      </div>
+                    ) : (
+                      renderResult()
+                    )}
                   </div>
                 )}
               </div>

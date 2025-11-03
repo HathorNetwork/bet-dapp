@@ -23,12 +23,13 @@ export interface RpcHandlerDependencies {
   updateNetwork?: (data: any) => void;
   updateBalance?: (data: any) => void;
   balanceTokens?: string[];
+  dryRun?: boolean;
 }
 
 const DEFAULT_NETWORK = 'testnet';
 
 export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
-  const { client, session, updateAddress, updateNetwork, updateBalance, balanceTokens = ['00'] } = deps;
+  const { client, session, updateAddress, updateNetwork, updateBalance, balanceTokens = ['00'], dryRun = false } = deps;
 
   return {
     /**
@@ -47,12 +48,19 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
       };
 
       try {
-        // Make the RPC request
-        const response = await client.request({
-          topic: session.topic,
-          chainId: HATHOR_TESTNET_CHAIN,
-          request: requestParams
-        });
+        let response;
+
+        if (dryRun) {
+          // In dry-run mode, return null response without making the actual RPC call
+          response = null;
+        } else {
+          // Make the RPC request
+          response = await client.request({
+            topic: session.topic,
+            chainId: HATHOR_TESTNET_CHAIN,
+            request: requestParams
+          });
+        }
 
         // Update context if handlers are provided
         if (response && updateNetwork && updateAddress) {
@@ -110,12 +118,19 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
       };
 
       try {
-        // Make the RPC request
-        const result = await client.request({
-          topic: session.topic,
-          chainId: HATHOR_TESTNET_CHAIN,
-          request: requestParams
-        });
+        let result;
+
+        if (dryRun) {
+          // In dry-run mode, return null response without making the actual RPC call
+          result = null;
+        } else {
+          // Make the RPC request
+          result = await client.request({
+            topic: session.topic,
+            chainId: HATHOR_TESTNET_CHAIN,
+            request: requestParams
+          });
+        }
 
         // Update context if handlers are provided
         if (result && updateBalance && result.response && Array.isArray(result.response)) {
@@ -173,12 +188,19 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
       };
 
       try {
-        // Make the RPC request
-        const response = await client.request({
-          topic: session.topic,
-          chainId: HATHOR_TESTNET_CHAIN,
-          request: requestParams
-        });
+        let response;
+
+        if (dryRun) {
+          // In dry-run mode, return null response without making the actual RPC call
+          response = null;
+        } else {
+          // Make the RPC request
+          response = await client.request({
+            topic: session.topic,
+            chainId: HATHOR_TESTNET_CHAIN,
+            request: requestParams
+          });
+        }
 
         // Return both request and response (with BigInt converted to string)
         return {
@@ -213,12 +235,19 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
       };
 
       try {
-        // Make the RPC request
-        const response = await client.request({
-          topic: session.topic,
-          chainId: HATHOR_TESTNET_CHAIN,
-          request: requestParams
-        });
+        let response;
+
+        if (dryRun) {
+          // In dry-run mode, return null response without making the actual RPC call
+          response = null;
+        } else {
+          // Make the RPC request
+          response = await client.request({
+            topic: session.topic,
+            chainId: HATHOR_TESTNET_CHAIN,
+            request: requestParams
+          });
+        }
 
         // Return both request and response (with BigInt converted to string)
         return {
@@ -285,12 +314,19 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
       };
 
       try {
-        // Make the RPC request
-        const response = await client.request({
-          topic: session.topic,
-          chainId: HATHOR_TESTNET_CHAIN,
-          request: requestParams
-        });
+        let response;
+
+        if (dryRun) {
+          // In dry-run mode, return null response without making the actual RPC call
+          response = null;
+        } else {
+          // Make the RPC request
+          response = await client.request({
+            topic: session.topic,
+            chainId: HATHOR_TESTNET_CHAIN,
+            request: requestParams
+          });
+        }
 
         // Return both request and response (with BigInt converted to string)
         return {
@@ -351,12 +387,19 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
       };
 
       try {
-        // Make the RPC request
-        const response = await client.request({
-          topic: session.topic,
-          chainId: HATHOR_TESTNET_CHAIN,
-          request: requestParams
-        });
+        let response;
+
+        if (dryRun) {
+          // In dry-run mode, return null response without making the actual RPC call
+          response = null;
+        } else {
+          // Make the RPC request
+          response = await client.request({
+            topic: session.topic,
+            chainId: HATHOR_TESTNET_CHAIN,
+            request: requestParams
+          });
+        }
 
         // Return both request and response (with BigInt converted to string)
         return {
@@ -406,12 +449,19 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
       };
 
       try {
-        // Make the RPC request
-        const response = await client.request({
-          topic: session.topic,
-          chainId: HATHOR_TESTNET_CHAIN,
-          request: requestParams
-        });
+        let response;
+
+        if (dryRun) {
+          // In dry-run mode, return null response without making the actual RPC call
+          response = null;
+        } else {
+          // Make the RPC request
+          response = await client.request({
+            topic: session.topic,
+            chainId: HATHOR_TESTNET_CHAIN,
+            request: requestParams
+          });
+        }
 
         // Return both request and response (with BigInt converted to string)
         return {
@@ -458,12 +508,19 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
       };
 
       try {
-        // Make the RPC request
-        const response = await client.request({
-          topic: session.topic,
-          chainId: HATHOR_TESTNET_CHAIN,
-          request: requestParams
-        });
+        let response;
+
+        if (dryRun) {
+          // In dry-run mode, return null response without making the actual RPC call
+          response = null;
+        } else {
+          // Make the RPC request
+          response = await client.request({
+            topic: session.topic,
+            chainId: HATHOR_TESTNET_CHAIN,
+            request: requestParams
+          });
+        }
 
         // Return both request and response (with BigInt converted to string)
         return {
@@ -500,17 +557,22 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
 
       let signedData: string;
       try {
-        const signResponse = await client.request({
-          topic: session.topic,
-          chainId: HATHOR_TESTNET_CHAIN,
-          request: signRequestParams
-        });
-
-        // Parse the signed data from the response
-        if (signResponse?.response?.signedData) {
-          signedData = signResponse.response.signedData;
+        if (dryRun) {
+          // In dry-run mode, use a placeholder signed data
+          signedData = '<signed_oracle_data_placeholder>';
         } else {
-          throw new Error('Failed to extract signed data from oracle signature response');
+          const signResponse = await client.request({
+            topic: session.topic,
+            chainId: HATHOR_TESTNET_CHAIN,
+            request: signRequestParams
+          });
+
+          // Parse the signed data from the response
+          if (signResponse?.response?.signedData) {
+            signedData = signResponse.response.signedData;
+          } else {
+            throw new Error('Failed to extract signed data from oracle signature response');
+          }
         }
       } catch (error) {
         console.error('Failed to sign oracle data:', error);
@@ -535,12 +597,19 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
       };
 
       try {
-        // Make the RPC request
-        const response = await client.request({
-          topic: session.topic,
-          chainId: HATHOR_TESTNET_CHAIN,
-          request: requestParams
-        });
+        let response;
+
+        if (dryRun) {
+          // In dry-run mode, return null response without making the actual RPC call
+          response = null;
+        } else {
+          // Make the RPC request
+          response = await client.request({
+            topic: session.topic,
+            chainId: HATHOR_TESTNET_CHAIN,
+            request: requestParams
+          });
+        }
 
         // Return both request and response (with BigInt converted to string)
         return {
@@ -585,12 +654,19 @@ export const createRpcHandlers = (deps: RpcHandlerDependencies) => {
       };
 
       try {
-        // Make the RPC request
-        const response = await client.request({
-          topic: session.topic,
-          chainId: HATHOR_TESTNET_CHAIN,
-          request: requestParams
-        });
+        let response;
+
+        if (dryRun) {
+          // In dry-run mode, return null response without making the actual RPC call
+          response = null;
+        } else {
+          // Make the RPC request
+          response = await client.request({
+            topic: session.topic,
+            chainId: HATHOR_TESTNET_CHAIN,
+            request: requestParams
+          });
+        }
 
         // Return both request and response (with BigInt converted to string)
         return {

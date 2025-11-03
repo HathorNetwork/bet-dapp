@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Copy, CheckCircle2, XCircle } from 'lucide-react';
+import { Loader2, Copy, CheckCircle2, XCircle, FlaskConical } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { WalletState } from '@/contexts/WalletStateContext';
 
@@ -13,12 +13,14 @@ export interface RpcSignWithAddressCardProps {
   onExecute: (message: string, addressIndex: number) => Promise<any>;
   disabled?: boolean;
   walletState: WalletState;
+  isDryRun?: boolean;
 }
 
 export const RpcSignWithAddressCard: React.FC<RpcSignWithAddressCardProps> = ({
   onExecute,
   disabled = false,
   walletState,
+  isDryRun = false,
 }) => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
@@ -105,8 +107,8 @@ export const RpcSignWithAddressCard: React.FC<RpcSignWithAddressCardProps> = ({
       console.log(`[RPC Success] Sign with Address`, response);
 
       toast({
-        title: 'Success',
-        description: 'Message signed successfully',
+        title: isDryRun ? 'Dry Run Complete' : 'Success',
+        description: isDryRun ? 'Request generated (not sent to RPC)' : 'Message signed successfully',
       });
     } catch (err: any) {
       const errorMessage = err.message || 'An error occurred';
@@ -184,7 +186,15 @@ export const RpcSignWithAddressCard: React.FC<RpcSignWithAddressCardProps> = ({
       <div className="flex flex-col space-y-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <h3 className="text-lg font-semibold mb-1">Sign with Address</h3>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-lg font-semibold">Sign with Address</h3>
+              {isDryRun && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-purple-900/30 text-purple-400 border border-purple-500/30">
+                  <FlaskConical className="h-3 w-3" />
+                  DRY RUN
+                </span>
+              )}
+            </div>
             <p className="text-sm text-gray-400">Sign a message using a specific address</p>
           </div>
         </div>
@@ -453,19 +463,33 @@ export const RpcSignWithAddressCard: React.FC<RpcSignWithAddressCardProps> = ({
 
             {expanded && (
               <div className="relative">
-                {error ? (
-                  <div className="flex items-start space-x-2 p-3 bg-red-900/20 border border-red-500/50 rounded">
-                    <XCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-red-400 break-words">{error}</p>
+                {isDryRun && result === null ? (
+                  <div className="bg-purple-900/20 border border-purple-500/50 rounded p-3">
+                    <div className="flex items-center gap-2 text-purple-400">
+                      <FlaskConical className="h-4 w-4" />
+                      <span className="text-sm font-medium">Dry Run Mode</span>
+                    </div>
+                    <p className="text-sm text-purple-300 mt-2">
+                      The request was generated but not sent to the RPC. Check the Request section above to see the parameters that would be sent.
+                    </p>
                   </div>
                 ) : (
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2 text-green-500">
-                      <CheckCircle2 className="h-4 w-4" />
-                      <span className="text-sm font-medium">Success</span>
-                    </div>
-                    {renderResult()}
-                  </div>
+                  <>
+                    {error ? (
+                      <div className="flex items-start space-x-2 p-3 bg-red-900/20 border border-red-500/50 rounded">
+                        <XCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+                        <p className="text-sm text-red-400 break-words">{error}</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2 text-green-500">
+                          <CheckCircle2 className="h-4 w-4" />
+                          <span className="text-sm font-medium">Success</span>
+                        </div>
+                        {renderResult()}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             )}
