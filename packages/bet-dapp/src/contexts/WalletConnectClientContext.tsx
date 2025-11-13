@@ -152,7 +152,6 @@ export function WalletConnectClientContextProvider({
               'htr_sendNanoContractTx',
 	            'htr_createToken',
 	            'htr_signOracleData',
-	            // 'htr_sendTransaction',
             ],
             chains: ['hathor:testnet'],
             events: [],
@@ -166,6 +165,7 @@ export function WalletConnectClientContextProvider({
               'htr_createNanoContractCreateTokenTx',
               'htr_getWalletInformation',
               // 'htr_getConnectedNetwork',
+	            // 'htr_sendTransaction',
               'htr_getBalance'
             ],
             chains: ['hathor:testnet'],
