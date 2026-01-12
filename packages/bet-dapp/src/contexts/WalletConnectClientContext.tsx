@@ -164,9 +164,11 @@ export function WalletConnectClientContextProvider({
             methods: [
               'htr_createNanoContractCreateTokenTx',
               'htr_getWalletInformation',
-              // 'htr_getConnectedNetwork',
-	            // 'htr_sendTransaction',
-              'htr_getBalance'
+              'htr_getConnectedNetwork',
+	            'htr_sendTransaction',
+              'htr_getBalance',
+              'htr_getAddress',
+              'htr_getUtxos',
             ],
             chains: ['hathor:testnet'],
             events: [],
