@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Commands
 
-- `npm run dev` - Start development server at http://localhost:3000
+- `npm run dev` - Start development server at http://localhost:3003
 - `npm run build` - Build the application for production (uses experimental build mode)
 - `npm run start` - Start the production server
 - `npm run lint` - Run ESLint to check code quality

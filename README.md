@@ -35,9 +35,9 @@ yarn workspace bet-dapp run dev
 ```
 
 ### Snap Tester
-To run the Snaps QA, you need to activate the `SNAP_TEST` environment variable:
+To run the Snaps QA, you need to activate the `TEST_ENV` environment variable:
 ```sh
-$ SNAP_TEST=true yarn workspace bet-dapp run dev
+$ TEST_ENV=true yarn workspace bet-dapp run dev
 ```
 
-And then navigate to `http://localhost:3000/snaps-test`.
+And then navigate to `http://localhost:3003/snaps-test`.
