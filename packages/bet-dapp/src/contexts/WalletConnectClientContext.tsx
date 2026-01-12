@@ -144,16 +144,31 @@ export function WalletConnectClientContextProvider({
       }
 
       try {
+        // Core methods that are essential for basic functionality
         const requiredNamespaces = {
           'hathor': {
             methods: [
               'htr_signWithAddress',
               'htr_sendNanoContractTx',
+	            'htr_createToken',
+	            'htr_signOracleData',
+            ],
+            chains: ['hathor:testnet'],
+            events: [],
+          }
+        };
+
+        // Optional methods for enhanced features - wallets can approve partially
+        const optionalNamespaces = {
+          'hathor': {
+            methods: [
               'htr_createNanoContractCreateTokenTx',
-              'htr_createToken',
-              // 'htr_getConnectedNetwork',
-              // 'htr_sendTransaction',
-              'htr_signOracleData'
+              'htr_getWalletInformation',
+              'htr_getConnectedNetwork',
+	            'htr_sendTransaction',
+              'htr_getBalance',
+              'htr_getAddress',
+              'htr_getUtxos',
             ],
             chains: ['hathor:testnet'],
             events: [],
@@ -163,6 +178,7 @@ export function WalletConnectClientContextProvider({
         const { uri, approval } = await client.connect({
           pairingTopic: pairing?.topic,
           requiredNamespaces,
+          optionalNamespaces,
         });
 
         console.log({
