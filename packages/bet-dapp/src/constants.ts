@@ -7,7 +7,7 @@ export const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || '';
 export const URL = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
 // export const FULLNODE_URL = /*process.env.NEXT_PUBLIC_FULLNODE_URL || */ 'http://hathorplay.nano-testnet.hathor.network/v1a/';
 // export const FULLNODE_URL = /*process.env.NEXT_PUBLIC_FULLNODE_URL || */ 'http://fullnode.localhost:1337/v1a/';
-export const FULLNODE_URL = /*process.env.NEXT_PUBLIC_FULLNODE_URL || */ 'https://hathorplay.bravo.nano-testnet.hathor.network/v1a/';
+export const FULLNODE_URL = /*process.env.NEXT_PUBLIC_FULLNODE_URL || */ 'https://node1.india.testnet.hathor.network/v1a/';
 
 export const DEFAULT_LOGGER = 'debug';
 
@@ -28,7 +28,7 @@ export enum DEFAULT_HATHOR_EVENTS { }
 export const BET_BLUEPRINT = '0000015ec35e6fa7b333644281eaf42068edac9b4a87149bc837ec6b769c7e2c';
 export const NETWORK = 'testnet';
 
-export const EXPLORER_URL = 'https://explorer.bravo.nano-testnet.hathor.network/';
+export const EXPLORER_URL = 'https://explorer.india.testnet.hathor.network/';
 // export const EXPLORER_URL = 'https://explorer.hackaton.hathor.network/';
 
 /*

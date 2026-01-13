@@ -34,7 +34,7 @@ This is a Next.js 14 betting dApp that integrates with the Hathor blockchain thr
 
 ### Important Configuration
 - **Network**: Hathor testnet (`NETWORK = 'testnet'`)
-- **Fullnode URL**: `https://hathorplay.bravo.nano-testnet.hathor.network/v1a/`
+- **Fullnode URL**: `https://node1.india.testnet.hathor.network/v1a/`
 - **Bet Blueprint**: `0000015ec35e6fa7b333644281eaf42068edac9b4a87149bc837ec6b769c7e2c`
 - **Default Token**: HTR (EVENT_TOKEN = '00')
 
