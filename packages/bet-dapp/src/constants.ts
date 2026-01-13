@@ -25,7 +25,7 @@ export enum DEFAULT_HATHOR_METHODS {
 
 export enum DEFAULT_HATHOR_EVENTS { }
 
-export const BET_BLUEPRINT = '0000015ec35e6fa7b333644281eaf42068edac9b4a87149bc837ec6b769c7e2c';
+export const BET_BLUEPRINT = '0000019865eda743812c566ce6ad3ac49c5f90796b73aa2792a09b7655ac5a5e';
 export const NETWORK = 'testnet';
 
 export const EXPLORER_URL = 'https://explorer.india.testnet.hathor.network/';
