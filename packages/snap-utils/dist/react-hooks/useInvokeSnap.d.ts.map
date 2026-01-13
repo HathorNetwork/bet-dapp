@@ -1,0 +1,1 @@
+{"version":3,"file":"useInvokeSnap.d.ts","sourceRoot":"","sources":["../../src/react-hooks/useInvokeSnap.ts"],"names":[],"mappings":"AAGA,MAAM,MAAM,gBAAgB,GAAG;IAC7B,MAAM,EAAE,MAAM,CAAC;IACf,MAAM,CAAC,EAAE,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,CAAC;CAClC,CAAC;AAEF;;;;;;GAMG;AACH,eAAO,MAAM,aAAa,4CAWsB,gBAAgB,qBAU/D,CAAC"}

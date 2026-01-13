@@ -8459,12 +8459,12 @@ __metadata:
 
 "snap-utils@file:../../../hathor-rpc-lib/packages/snap-utils/::locator=bet-dapp%40workspace%3Apackages%2Fbet-dapp":
   version: 0.1.0
-  resolution: "snap-utils@file:../../../hathor-rpc-lib/packages/snap-utils/#../../../hathor-rpc-lib/packages/snap-utils/::hash=0371eb&locator=bet-dapp%40workspace%3Apackages%2Fbet-dapp"
+  resolution: "snap-utils@file:../../../hathor-rpc-lib/packages/snap-utils/#../../../hathor-rpc-lib/packages/snap-utils/::hash=aac429&locator=bet-dapp%40workspace%3Apackages%2Fbet-dapp"
   dependencies:
     "@metamask/providers": "npm:16.1.0"
   peerDependencies:
     react: ^18.2.0
-  checksum: 10c0/eee8a7f1d39fd7e227838d752c2bb2f5f8fa0b5a686d02ec81d820ed8a9db06fee0b570b844a314b7cb743ff3c009080161ff331ffbbb30456fa040257187bfc
+  checksum: 10c0/295338e45b2dfbf2292292c8bbcb5bd291cc036367877f62dce6dcb202384bb4a9f0087023c84339a8c0c4f6a754bbe2fc0422272b1fc65a2636241fea62f339
   languageName: node
   linkType: hard
 
