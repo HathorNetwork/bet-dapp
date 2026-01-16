@@ -12,7 +12,7 @@ import { initializeClient } from '@/contexts/WalletConnectClient';
 import React, { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import StyledComponentsRegistry from '@/lib/registry';
-import { MetaMaskProvider } from 'snap-utils';
+import { MetaMaskProvider } from '@hathor/snap-utils';
 
 
 config.setServerUrl(FULLNODE_URL);

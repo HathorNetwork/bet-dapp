@@ -8,9 +8,6 @@ FROM base AS builder
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Move directories needed for installing dependencies
-COPY packages/snap-utils ./packages/snap-utils
-
 # Install dependencies based on the preferred package manager
 COPY package.json yarn.lock* .yarnrc.yml ./
 COPY packages/bet-dapp/package.json ./packages/bet-dapp/
