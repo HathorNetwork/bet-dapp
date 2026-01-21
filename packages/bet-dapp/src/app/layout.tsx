@@ -9,9 +9,11 @@ import { JsonRpcContextProvider } from "@/contexts/JsonRpcContext";
 import { FULLNODE_URL, NETWORK } from '@/constants';
 import { config } from '@hathor/wallet-lib';
 import { initializeClient } from '@/contexts/WalletConnectClient';
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
-import StyledComponentsRegistry from '@/lib/registry'
+import StyledComponentsRegistry from '@/lib/registry';
+import { MetaMaskProvider } from '@hathor/snap-utils';
+
 
 config.setServerUrl(FULLNODE_URL);
 config.setNetwork(NETWORK);
@@ -53,8 +55,10 @@ export default function RootLayout({
         { walletConnectConnected && (
           <WalletConnectClientContextProvider>
             <JsonRpcContextProvider>
-              <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
-              <Toaster />
+              <MetaMaskProvider>
+                <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
+                <Toaster />
+              </MetaMaskProvider>
             </JsonRpcContextProvider>
           </WalletConnectClientContextProvider>
         )}
