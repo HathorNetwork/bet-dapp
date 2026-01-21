@@ -4,7 +4,7 @@ import { WalletConnect } from './walletconnect';
 import Link from 'next/link';
 import { BASE_PATH } from '@/constants';
 import { Button } from './ui/button';
-import { useRequestSnap, useInvokeSnap } from 'snap-utils';
+import { useRequestSnap, useInvokeSnap } from '@hathor/snap-utils';
 import { Loader2 } from 'lucide-react';
 
 export interface HeaderProps {

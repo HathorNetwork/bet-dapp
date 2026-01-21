@@ -778,6 +778,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hathor/snap-utils@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@hathor/snap-utils@npm:0.1.0"
+  dependencies:
+    "@metamask/providers": "npm:16.1.0"
+  peerDependencies:
+    react: ^18.2.0
+  checksum: 10c0/303e5f986746fa1f42f5c5c7f0a32deeee6208087a1b5187b52a395069985836a894ac2bcb59cb477435d21dcfe6333be3e321f06211c057f608000c301a6379
+  languageName: node
+  linkType: hard
+
 "@hathor/wallet-lib@npm:2.5.1":
   version: 2.5.1
   resolution: "@hathor/wallet-lib@npm:2.5.1"
@@ -3798,6 +3809,7 @@ __metadata:
     "@aws-sdk/client-dynamodb": "npm:^3.637.0"
     "@aws-sdk/lib-dynamodb": "npm:^3.637.0"
     "@hathor/hathor-rpc-handler": "npm:^2.2.0"
+    "@hathor/snap-utils": "npm:^0.1.0"
     "@hookform/resolvers": "npm:^3.9.0"
     "@radix-ui/react-aspect-ratio": "npm:^1.1.0"
     "@radix-ui/react-icons": "npm:^1.3.0"
@@ -3837,7 +3849,6 @@ __metadata:
     react-hook-form: "npm:^7.52.2"
     react-syntax-highlighter: "npm:^15.5.0"
     sharp: "npm:^0.33.5"
-    snap-utils: "file:../../../hathor-rpc-lib/packages/snap-utils/"
     styled-components: "npm:^6.1.14"
     tailwind-merge: "npm:^2.5.2"
     tailwindcss: "npm:^3.4.1"
@@ -8454,17 +8465,6 @@ __metadata:
   version: 4.2.0
   resolution: "smart-buffer@npm:4.2.0"
   checksum: 10c0/a16775323e1404dd43fabafe7460be13a471e021637bc7889468eb45ce6a6b207261f454e4e530a19500cc962c4cc5348583520843b363f4193cee5c00e1e539
-  languageName: node
-  linkType: hard
-
-"snap-utils@file:../../../hathor-rpc-lib/packages/snap-utils/::locator=bet-dapp%40workspace%3Apackages%2Fbet-dapp":
-  version: 0.1.0
-  resolution: "snap-utils@file:../../../hathor-rpc-lib/packages/snap-utils/#../../../hathor-rpc-lib/packages/snap-utils/::hash=6f33a5&locator=bet-dapp%40workspace%3Apackages%2Fbet-dapp"
-  dependencies:
-    "@metamask/providers": "npm:16.1.0"
-  peerDependencies:
-    react: ^18.2.0
-  checksum: 10c0/5b0797416013524566d4c23e4f5681281e81ea71ff97f53a577fdf633904a477902148f2b9a8ae774ebc5dbc796d40e058234ac12ebf33bc6a7224eb94b27c17
   languageName: node
   linkType: hard
 
