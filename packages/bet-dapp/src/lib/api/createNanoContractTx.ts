@@ -1,5 +1,4 @@
 import NanoContract from '@hathor/wallet-lib/lib/nano_contracts/nano_contract';
-import { URL } from '@/constants';
 
 export const createNanoContractTx = async (
   nanoContract: NanoContract,
@@ -12,7 +11,7 @@ export const createNanoContractTx = async (
   createdAt: number,
   options: string[],
 ) => {
-  const response: Response = await fetch(`${URL}/api/nano_contracts`, {
+  const response: Response = await fetch('/api/nano_contracts', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

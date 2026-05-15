@@ -3,7 +3,7 @@ export const HATHOR_TESTNET_CHAIN = 'hathor:testnet';
 
 export const DEFAULT_PROJECT_ID = process.env.NEXT_PUBLIC_PROJECT_ID || '8264fff563181da658ce64ee80e80458';
 export const DEFAULT_RELAY_URL = process.env.NEXT_PUBLIC_RELAY_URL || 'wss://relay.walletconnect.com';
-export const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || '';
+export const BASE_PATH = '';
 export const URL = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
 // export const FULLNODE_URL = /*process.env.NEXT_PUBLIC_FULLNODE_URL || */ 'http://hathorplay.nano-testnet.hathor.network/v1a/';
 // export const FULLNODE_URL = /*process.env.NEXT_PUBLIC_FULLNODE_URL || */ 'http://fullnode.localhost:1337/v1a/';
