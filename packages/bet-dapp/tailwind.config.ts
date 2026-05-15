@@ -1,5 +1,6 @@
 import type { Config } from 'tailwindcss';
 import { fontFamily } from 'tailwindcss/defaultTheme';
+import { BASE_PATH } from './src/constants';
 
 const config = {
   darkMode: ['class'],
@@ -24,7 +25,12 @@ const config = {
         xs: '2px',
       },
       backgroundImage: {
-        'hathor-pattern': 'url("/pattern.svg")',
+        'papyrus-background': `url("${BASE_PATH}/papyrus-background.png")`,
+        'home-background': `url("${BASE_PATH}/open-screen-background.png")`,
+        'desert-background': `url("${BASE_PATH}/background.png")`,
+        'hathor-pattern': `url("${BASE_PATH}/pattern.svg")`,
+        'hathor-introduction': `url("${BASE_PATH}/introduction.png")`,
+        'pharaoh-quest': `url("${BASE_PATH}/pharaohs_quest.png")`
       },
       fontFamily: {
         sans: ['var(--font-sans)', ...fontFamily.sans],
@@ -38,6 +44,10 @@ const config = {
           500: '#8C46FF',
           600: '#542A99',
           700: '#2A154D',
+        },
+        'hathor-yellow': {
+          500: '#FFC107',
+          600: '#FFCD38',
         },
         'hathor-green': {
           100: '#EEFBEB',

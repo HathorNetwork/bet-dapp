@@ -1,40 +1,182 @@
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { BASE_PATH } from '@/constants';
+import { Suspense } from 'react';
 
-export default function Home() {
+interface CharacterCardProps {
+  src: string;
+  alt: string;
+  className?: string;
+}
+
+interface Character {
+  src: string;
+  alt: string;
+}
+
+interface IconBarProps {
+  BASE_PATH: string;
+}
+
+const CharacterCard: React.FC<CharacterCardProps> = ({ src, alt, className = "" }) => (
+ <div className={`relative overflow-hidden rounded-2xl bg-gray-950 border-1 border-gray-800 ${className}`}>
+   <Image
+     src={src}
+     alt={alt}
+     fill
+     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+     className="object-cover"
+     priority
+   />
+   <div className="absolute inset-0 rounded-2xl ring-2 ring-white/30 shadow-[inset_0_0_15px_rgba(255,255,255,0.15)]" />
+   
+   <div className="absolute inset-0 rounded-2xl shadow-[inset_0_2px_8px_rgba(0,0,0,0.9)]" />
+ </div>
+);
+
+const CharacterGrid: React.FC<{ BASE_PATH: string }> = ({ BASE_PATH }) => {
+  const characters: Character[] = [
+    { src: `${BASE_PATH}/opening_screen_guilds_1.png`, alt: 'Character' },
+    { src: `${BASE_PATH}/opening_screen_guilds_2.png`, alt: 'Character' },
+    { src: `${BASE_PATH}/opening_screen_guilds_3.png`, alt: 'Character' },
+    { src: `${BASE_PATH}/opening_screen_guilds_4.png`, alt: 'Character' },
+    { src: `${BASE_PATH}/opening_screen_guilds_5.png`, alt: 'Character' },
+  ];
+
   return (
-    <main className="flex min-h-screen items-center justify-center p-6 flex-col">
+    <div className="flex-1 w-full max-w-xl ml-auto px-4">
+      <div className="space-y-4">
+        {/* Top 4 characters */}
+        <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-4 justify-end">
+          {characters.slice(0, 4).map((char, index) => (
+            <div 
+              key={index} 
+              className="w-32 lg:w-full ml-auto"
+            >
+              <CharacterCard
+                src={char.src}
+                alt={char.alt}
+                className="aspect-square w-full h-full"
+              />
+            </div>
+          ))}
+        </div>
+        
+        {/* Bottom wide character */}
+        <div className="hidden lg:block w-full ml-auto"> {/* Changed mx-auto to ml-auto */}
+          <CharacterCard 
+            src={characters[4].src}
+            alt={characters[4].alt}
+            className="aspect-[3/1.2] w-full"
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
 
-      <div className="relative flex items-center bg-cover bg-center rounded-lg shadow-lg max-w-6xl w-full h-[800px] p-6 sm:p-12 lg:p-16 bg-[url('/introduction.png')] border border-gray-800">
+const EgyptianIconBar: React.FC<IconBarProps> = ({ BASE_PATH }) => {
+  const icons = [
+    { src: '/visual-elements/03_Opening-Screen_Icon-God.png', alt: 'God Icon' },
+    { src: '/visual-elements/04_Opening-Screen_Icon-Pharao.png', alt: 'Pharao Icon' },
+    { src: '/visual-elements/05_Opening-Screen_Icon-Priest.png', alt: 'Priest Icon' },
+    { src: '/visual-elements/06_Opening-Screen_Icon-Noble.png', alt: 'Noble Icon' },
+    { src: '/visual-elements/07_Opening-Screen_Icon-Artisan.png', alt: 'Artisan Icon' },
+    { src: '/visual-elements/07_Opening-Screen_Icon-Scribe.png', alt: 'Scribe Icon' },
+    { src: '/visual-elements/09_Opening-Screen_Icon-Builder.png', alt: 'Builder Icon' },
+    { src: '/visual-elements/10_Opening-Screen_Icon-Servent.png', alt: 'Servent Icon' },
+  ];
+
+  return (
+    <div className="flex flex-col items-center mt-24">
+      {icons.map((icon, index) => (
+        <div 
+          key={index}
+          className="w-20 h-20 relative transition-transform duration-300"
+        >
+          <Image
+            src={`${BASE_PATH}${icon.src}`}
+            alt={icon.alt}
+            fill
+            className="object-contain"
+          />
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export function Home() {
+  return (
+    <main className="bg-desert-background bg-cover flex min-h-screen items-center justify-center p-6 flex-col">
+  <div className="relative flex items-center bg-cover bg-center rounded-md shadow-lg max-w-6xl w-full px-8 py-4 bg-home-background border border-gray-800">
         <div className="absolute inset-0 bg-black opacity-10 rounded-lg"></div>
+        
+        {/* Left Content */}
+        <div className="relative z-10 w-full md:w-3/4 lg:w-1/2 pr-8">
 
-        <div className="relative z-10 text-center lg:text-left max-w-xl text-white text-left">
-          <div className="mb-6">
-            <Image alt="Hathor" width={150} height={100} src="/logo-hathor.svg" />
+          <div className="mb-4">
+            <Image 
+              alt="Lettering Pharaohs Quest" 
+              width={400} 
+              height={80} 
+              src={`${BASE_PATH}/lettering-pharaohs-quest.png`}
+              className="mb-2 ml-8" 
+            />
+            <Image 
+              alt="Lettering Nanos" 
+              width={400} 
+              height={80} 
+              src={`${BASE_PATH}/lettering-nanos.png`} 
+            />
           </div>
-
-          <h1 className="text-4xl text-left font-semibold bg-gradient-to-r from-hathor-purple-700 via-hathor-purple-400 to-hathor-green-500 text-transparent bg-clip-text mb-4">
-            Welcome to <br /> Hathor Play DEMO!
-          </h1>
-
-          <p className="text-base leading-relaxed mb-6 text-left">
-            Here you will easily create your own 1 to 1 <br />
-            <b>Betting Nano Contract</b> in just a few minutes! <br /><br />
-            See how easy, fast, and secure it is and then: <br />
-            <span className="font-bold">play to win thousands of HTRs!</span>
-          </p>
-
-          <div className="text-left">
-            <Button className="rounded-sm bg-hathor-purple-500 text-white px-6 py-3">
-              Start now!
+          
+          <div className="mt-6 ml-16 mr-2">
+            <p className="text-white text-base leading-relaxed mb-4">
+              Step into the realm of Hathor, where the sands of fortune await your command. Here, you have the power to craft your own betting contracts and join the legendary wagers of the ancients.
+            </p>
+            <p className="text-white">
+              Embark on the Pharaoh&apos;s Quest and Play to Qualify for <span className="font-bold">HTR Airdrops!</span>
+            </p>
+            <Button className="rounded-sm text-white px-6 py-3 h-12 text-lg mt-6 mb-8 bg-hathor-yellow-500 hover:bg-hathor-yellow-600">
+              <Link href='/create'>
+                Start now!
+              </Link>
             </Button>
           </div>
         </div>
-      </div>
 
+        {/* Right Content */}
+        <div className="hidden md:flex relative z-10 w-1/4 lg:w-1/2 gap-4 mb-12">
+          <div className="flex-1 flex-col items-end mr-2">
+            <div className='flex items-end mt-8 mb-12 mr-4'>
+              <div className='w-full'></div>
+              <Image alt="Hathor" width={150} height={50} src={`${BASE_PATH}/logo_white.svg`}/>
+            </div>
+            <CharacterGrid BASE_PATH={BASE_PATH} />
+          </div>
+          <div className="w-12">
+            <EgyptianIconBar BASE_PATH={BASE_PATH} />
+          </div>
+        </div>
+      </div>
+      
       <span className="mt-4 text-sm text-hathor-purple-500">
-        v0.3.0
+        v0.4.0
       </span>
     </main>
+  );
+};
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={
+      <div className="fixed inset-0 flex items-center justify-center z-50">
+        <div className="animate-spin rounded-full h-24 w-24 border-t-2 border-b-2 border-hathor-yellow-500" />
+      </div>
+    }>
+      <Home />
+    </Suspense>
   );
 }
