@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Image from 'next/image';
+import { WalletConnect } from './walletconnect';
 import Link from 'next/link';
 import { BASE_PATH } from '@/constants';
 
