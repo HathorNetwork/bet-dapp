@@ -28,6 +28,7 @@ import { Label } from "@/components/ui/label";
 import { DateTimePicker } from '@/components/ui/datetime-picker';
 import NanoContract from '@hathor/wallet-lib/lib/nano_contracts/nano_contract';
 import { useToast } from '@/components/ui/use-toast';
+import { Transaction } from '@hathor/wallet-lib';
 
 function formatLocalDateTime(date: Date): string {
   return format(date, 'yyyy-MM-dd\'T\'HH:mm');
@@ -90,9 +91,9 @@ export default function CreateNanoContractPage() {
     const firstAddress = getFirstAddress();
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
-      
+
       // Wrap createNc in a promise we can reject
-      const nc = await new Promise<NanoContract>((resolve, reject) => {
+      const nc = await new Promise<Transaction>((resolve, reject) => {
         createPromiseRef.current = { reject };
 
         // Generate a random tx hash for tracking
@@ -118,7 +119,7 @@ export default function CreateNanoContractPage() {
               description: "Your transaction was accepted in the wallet. Click here to see the status.",
               duration: 10000, // 10 seconds
               action: (
-                <Button 
+                <Button
                   onClick={(e) => {
                     e.preventDefault();
                     dismiss();
@@ -153,7 +154,7 @@ export default function CreateNanoContractPage() {
             description: "Your transaction was accepted in the wallet. Click here to see the status.",
             duration: 10000, // 10 seconds
             action: (
-              <Button 
+              <Button
                 onClick={(e) => {
                   e.preventDefault();
                   dismiss();
@@ -210,7 +211,7 @@ export default function CreateNanoContractPage() {
   return (
     <main className="flex min-h-screen items-center justify-center p-6 flex-col bg-cover bg-papyrus-background">
       <Header logo={true} />
-      { error && (
+      {error && (
         <ResultError
           title='Error during confirmation'
           description='The connection was not approved on your phone. Please, try again.'
@@ -220,13 +221,13 @@ export default function CreateNanoContractPage() {
           onCancel={onCancel}
         />
       )}
-      { waitingConfirmation && (
+      {waitingConfirmation && (
         <WaitInput title='Waiting Network Confirmation' description='Waiting for a block to confirm this transaction.' onCancel={onCancel} />
       )}
-      { waitingApproval && (
+      {waitingApproval && (
         <WaitInput title='Waiting Approval' description='Please, approve this transaction on your phone' onCancel={onCancel} />
       )}
-      { (!error && !waitingApproval && !waitingConfirmation) && (
+      {(!error && !waitingApproval && !waitingConfirmation) && (
         <Card className="relative flex items-start bg-cover bg-center rounded-lg shadow-lg max-w-4xl w-full h-auto p-8 sm:p-12 lg:p-16 border border-gray-800">
           <CardContent className="w-full">
             <div className="text-center mb-16">
@@ -281,7 +282,7 @@ export default function CreateNanoContractPage() {
                               </FormControl>
                             </div>
                             {index >= 2 && (
-                              <Button 
+                              <Button
                                 type="button"
                                 variant="ghost"
                                 onClick={() => remove(index)}
@@ -384,7 +385,7 @@ export default function CreateNanoContractPage() {
         </Card>
       )}
       <Link href="/" className='flex justify-between mt-24'>
-        <Image alt="Hathor" width={100} height={25} src={`${BASE_PATH}/logo.svg`}/>
+        <Image alt="Hathor" width={100} height={25} src={`${BASE_PATH}/logo.svg`} />
       </Link>
     </main>
   );

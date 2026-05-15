@@ -4,7 +4,7 @@ import {
   SignOracleDataRpcRequest,
   sendNanoContractTxRpcRequest,
   signOracleDataRpcRequest
-} from 'hathor-rpc-handler-test';
+} from '@hathor/hathor-rpc-handler';
 import { BET_BLUEPRINT, NETWORK } from '@/constants';
 
 export const setResult = async (
@@ -17,16 +17,18 @@ export const setResult = async (
     NETWORK,
     result,
     oracle,
+    ncId,
   );
 
   const oracleData: SignOracleDataResponse = await hathorRpc.signOracleData(signOracleDataRpcReq);
-  const { signature } = oracleData.response;
+  const { signedData } = oracleData.response;
+
 
   const setResultNcTx = sendNanoContractTxRpcRequest(
     'set_result',
     BET_BLUEPRINT,
     [],
-    [signature],
+    [signedData],
     true,
     ncId,
   );

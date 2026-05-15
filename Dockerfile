@@ -64,7 +64,6 @@ RUN chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/packages/bet-dapp/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/packages/bet-dapp/public ./packages/bet-dapp/public/public
 COPY --from=builder --chown=nextjs:nodejs /app/packages/bet-dapp/.next/static ./packages/bet-dapp/.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/classic-level ./node_modules/classic-level
 
 USER nextjs
 

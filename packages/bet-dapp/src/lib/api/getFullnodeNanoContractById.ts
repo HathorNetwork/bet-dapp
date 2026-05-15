@@ -10,8 +10,8 @@ export const getFullnodeNanoContractById = async (ncId: string, address?: string
 
   const calls = [];
   if (address) {
-    calls.push(`get_max_withdrawal("a'${address}'")`);
-    fields.push(`address_details.a'${address}'`);
+    calls.push(`get_max_withdrawal("${address}")`);
+    fields.push(`address_details.${address}`);
   }
 
   if (options && options.length > 0) {

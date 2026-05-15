@@ -5,7 +5,7 @@ import {
   SendNanoContractTxResponse,
   SignOracleDataResponse,
   SignOracleDataRpcRequest,
-} from 'hathor-rpc-handler-test';
+} from '@hathor/hathor-rpc-handler';
 import { HATHOR_TESTNET_CHAIN } from '../constants';
 
 

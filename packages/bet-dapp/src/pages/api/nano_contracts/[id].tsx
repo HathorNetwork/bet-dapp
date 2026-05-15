@@ -22,7 +22,7 @@ export default async function handler(
   switch (method) {
     case 'GET':
       return getNanoContract(req, res);
-    default: 
+    default:
       res.setHeader('Allow', ['GET']);
       res.status(405).json({
         error: { message: `Method ${method} Not Allowed` },

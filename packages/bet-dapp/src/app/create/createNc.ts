@@ -1,9 +1,9 @@
 import { IHathorRpc } from '@/contexts/JsonRpcContext';
-import { SendNanoContractRpcRequest, SendNanoContractTxResponse, sendNanoContractTxRpcRequest } from 'hathor-rpc-handler-test';
+import { SendNanoContractRpcRequest, SendNanoContractTxResponse, sendNanoContractTxRpcRequest } from '@hathor/hathor-rpc-handler';
 import { BET_BLUEPRINT } from '@/constants';
-import { getOracleBuffer, waitForTransactionConfirmation } from '@/lib/utils';
-import NanoContract from '@hathor/wallet-lib/lib/nano_contracts/nano_contract';
+import { getOracleBuffer } from '@/lib/utils';
 import { createNanoContractTx } from '@/lib/api/createNanoContractTx';
+import { Transaction } from '@hathor/wallet-lib';
 
 export const createNc = async (
   hathorRpc: IHathorRpc,
@@ -15,7 +15,7 @@ export const createNc = async (
   token: string,
   creatorAddress: string,
   options: string[],
-): Promise<NanoContract> => {
+): Promise<Transaction> => {
   const ncTxRpcReq: SendNanoContractRpcRequest = sendNanoContractTxRpcRequest(
     'initialize',
     BET_BLUEPRINT,
@@ -29,9 +29,10 @@ export const createNc = async (
     null,
   );
 
+  console.log(ncTxRpcReq);
+
   const result: SendNanoContractTxResponse = await hathorRpc.sendNanoContractTx(ncTxRpcReq);
-  console.log('Got result from rpc', result);
-  const nanoContract = result.response as unknown as NanoContract;
+  const nanoContract = result.response as unknown as Transaction;
 
   if (!nanoContract.timestamp) {
     throw new Error('No timestamp received in transaction');
