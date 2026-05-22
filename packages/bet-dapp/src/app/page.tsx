@@ -1,8 +1,8 @@
 import Image from 'next/image';
-import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { Suspense, type FC } from 'react';
+import { Button } from '@/components/ui/button';
 import { BASE_PATH } from '@/constants';
-import { Suspense } from 'react';
 
 interface CharacterCardProps {
   src: string;
@@ -19,7 +19,7 @@ interface IconBarProps {
   BASE_PATH: string;
 }
 
-const CharacterCard: React.FC<CharacterCardProps> = ({ src, alt, className = "" }) => (
+const CharacterCard: FC<CharacterCardProps> = ({ src, alt, className = "" }) => (
  <div className={`relative overflow-hidden rounded-2xl bg-gray-950 border-1 border-gray-800 ${className}`}>
    <Image
      src={src}
@@ -35,7 +35,7 @@ const CharacterCard: React.FC<CharacterCardProps> = ({ src, alt, className = "" 
  </div>
 );
 
-const CharacterGrid: React.FC<{ BASE_PATH: string }> = ({ BASE_PATH }) => {
+const CharacterGrid: FC<{ BASE_PATH: string }> = ({ BASE_PATH }) => {
   const characters: Character[] = [
     { src: `${BASE_PATH}/opening_screen_guilds_1.png`, alt: 'Character' },
     { src: `${BASE_PATH}/opening_screen_guilds_2.png`, alt: 'Character' },
@@ -76,7 +76,7 @@ const CharacterGrid: React.FC<{ BASE_PATH: string }> = ({ BASE_PATH }) => {
   );
 };
 
-const EgyptianIconBar: React.FC<IconBarProps> = ({ BASE_PATH }) => {
+const EgyptianIconBar: FC<IconBarProps> = ({ BASE_PATH }) => {
   const icons = [
     { src: '/visual-elements/03_Opening-Screen_Icon-God.png', alt: 'God Icon' },
     { src: '/visual-elements/04_Opening-Screen_Icon-Pharao.png', alt: 'Pharao Icon' },
@@ -110,12 +110,11 @@ const EgyptianIconBar: React.FC<IconBarProps> = ({ BASE_PATH }) => {
 export function Home() {
   return (
     <main className="bg-desert-background bg-cover flex min-h-screen items-center justify-center p-6 flex-col">
-  <div className="relative flex items-center bg-cover bg-center rounded-md shadow-lg max-w-6xl w-full px-8 py-4 bg-home-background border border-gray-800">
+      <div className="relative flex items-center bg-cover bg-center rounded-md shadow-lg max-w-6xl w-full px-8 py-4 bg-home-background border border-gray-800">
         <div className="absolute inset-0 bg-black opacity-10 rounded-lg"></div>
         
         {/* Left Content */}
         <div className="relative z-10 w-full md:w-3/4 lg:w-1/2 pr-8">
-
           <div className="mb-4">
             <Image 
               alt="Lettering Pharaohs Quest" 
@@ -139,8 +138,8 @@ export function Home() {
             <p className="text-white">
               Embark on the Pharaoh&apos;s Quest and Play to Qualify for <span className="font-bold">HTR Airdrops!</span>
             </p>
-            <Button className="rounded-sm text-white px-6 py-3 h-12 text-lg mt-6 mb-8 bg-hathor-yellow-500 hover:bg-hathor-yellow-600">
-              <Link href='/create'>
+            <Button asChild className="rounded-sm text-white px-6 py-3 h-12 text-lg mt-6 mb-8 bg-hathor-yellow-500 hover:bg-hathor-yellow-600">
+              <Link href="/create">
                 Start now!
               </Link>
             </Button>
