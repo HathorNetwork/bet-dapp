@@ -58,7 +58,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aws-sdk/client-dynamodb@npm:^3.637.0":
+"@aws-sdk/client-dynamodb@npm:3.637.0":
   version: 3.637.0
   resolution: "@aws-sdk/client-dynamodb@npm:3.637.0"
   dependencies:
@@ -393,7 +393,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aws-sdk/lib-dynamodb@npm:^3.637.0":
+"@aws-sdk/lib-dynamodb@npm:3.637.0":
   version: 3.637.0
   resolution: "@aws-sdk/lib-dynamodb@npm:3.637.0"
   dependencies:
@@ -919,7 +919,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hathor/hathor-rpc-handler@npm:^2.2.0":
+"@hathor/hathor-rpc-handler@npm:2.2.0":
   version: 2.2.0
   resolution: "@hathor/hathor-rpc-handler@npm:2.2.0"
   dependencies:
@@ -947,7 +947,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hookform/resolvers@npm:^3.9.0":
+"@hookform/resolvers@npm:3.9.0":
   version: 3.9.0
   resolution: "@hookform/resolvers@npm:3.9.0"
   peerDependencies:
@@ -1879,7 +1879,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-aspect-ratio@npm:^1.1.0":
+"@radix-ui/react-aspect-ratio@npm:1.1.0":
   version: 1.1.0
   resolution: "@radix-ui/react-aspect-ratio@npm:1.1.0"
   dependencies:
@@ -2087,7 +2087,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-icons@npm:^1.3.0":
+"@radix-ui/react-icons@npm:1.3.0":
   version: 1.3.0
   resolution: "@radix-ui/react-icons@npm:1.3.0"
   peerDependencies:
@@ -2111,7 +2111,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-label@npm:^2.1.0":
+"@radix-ui/react-label@npm:2.1.0":
   version: 2.1.0
   resolution: "@radix-ui/react-label@npm:2.1.0"
   dependencies:
@@ -2130,7 +2130,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-popover@npm:^1.1.4":
+"@radix-ui/react-popover@npm:1.1.4":
   version: 1.1.4
   resolution: "@radix-ui/react-popover@npm:1.1.4"
   dependencies:
@@ -2309,7 +2309,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-scroll-area@npm:^1.1.0":
+"@radix-ui/react-scroll-area@npm:1.1.0":
   version: 1.1.0
   resolution: "@radix-ui/react-scroll-area@npm:1.1.0"
   dependencies:
@@ -2336,7 +2336,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-select@npm:^2.1.4":
+"@radix-ui/react-select@npm:2.1.4":
   version: 2.1.4
   resolution: "@radix-ui/react-select@npm:2.1.4"
   dependencies:
@@ -2390,7 +2390,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-slot@npm:1.1.1, @radix-ui/react-slot@npm:^1.1.1":
+"@radix-ui/react-slot@npm:1.1.1":
   version: 1.1.1
   resolution: "@radix-ui/react-slot@npm:1.1.1"
   dependencies:
@@ -2405,7 +2405,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-toast@npm:^1.2.1":
+"@radix-ui/react-toast@npm:1.2.1":
   version: 1.2.1
   resolution: "@radix-ui/react-toast@npm:1.2.1"
   dependencies:
@@ -3255,7 +3255,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-table@npm:^8.20.5":
+"@tanstack/react-table@npm:8.20.5":
   version: 8.20.5
   resolution: "@tanstack/react-table@npm:8.20.5"
   dependencies:
@@ -3314,14 +3314,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4":
+"@types/lodash@npm:4.17.7":
   version: 4.17.7
   resolution: "@types/lodash@npm:4.17.7"
   checksum: 10c0/40c965b5ffdcf7ff5c9105307ee08b782da228c01b5c0529122c554c64f6b7168fc8f11dc79aa7bae4e67e17efafaba685dc3a47e294dbf52a65ed2b67100561
   languageName: node
   linkType: hard
 
-"@types/node@npm:^20":
+"@types/node@npm:20.16.1":
   version: 20.16.1
   resolution: "@types/node@npm:20.16.1"
   dependencies:
@@ -3337,7 +3337,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:^18":
+"@types/react-dom@npm:18.3.0":
   version: 18.3.0
   resolution: "@types/react-dom@npm:18.3.0"
   dependencies:
@@ -3346,7 +3346,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-syntax-highlighter@npm:^15":
+"@types/react-syntax-highlighter@npm:15.5.13":
   version: 15.5.13
   resolution: "@types/react-syntax-highlighter@npm:15.5.13"
   dependencies:
@@ -3365,7 +3365,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:^18":
+"@types/react@npm:18.3.27":
   version: 18.3.27
   resolution: "@types/react@npm:18.3.27"
   dependencies:
@@ -3375,7 +3375,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/styled-components@npm:^5.1.34":
+"@types/styled-components@npm:5.1.34":
   version: 5.1.34
   resolution: "@types/styled-components@npm:5.1.34"
   dependencies:
@@ -3542,7 +3542,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/core@npm:2.15.1, @walletconnect/core@npm:^2.15.1":
+"@walletconnect/core@npm:2.15.1":
   version: 2.15.1
   resolution: "@walletconnect/core@npm:2.15.1"
   dependencies:
@@ -3687,7 +3687,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/modal@npm:^2.7.0":
+"@walletconnect/modal@npm:2.7.0":
   version: 2.7.0
   resolution: "@walletconnect/modal@npm:2.7.0"
   dependencies:
@@ -3729,7 +3729,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/sign-client@npm:^2.15.1":
+"@walletconnect/sign-client@npm:2.15.1":
   version: 2.15.1
   resolution: "@walletconnect/sign-client@npm:2.15.1"
   dependencies:
@@ -3755,7 +3755,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/types@npm:2.15.1, @walletconnect/types@npm:^2.15.1":
+"@walletconnect/types@npm:2.15.1":
   version: 2.15.1
   resolution: "@walletconnect/types@npm:2.15.1"
   dependencies:
@@ -3820,7 +3820,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@web3modal/standalone@npm:^2.4.3":
+"@web3modal/standalone@npm:2.4.3":
   version: 2.4.3
   resolution: "@web3modal/standalone@npm:2.4.3"
   dependencies:
@@ -4259,54 +4259,54 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "bet-dapp@workspace:packages/bet-dapp"
   dependencies:
-    "@aws-sdk/client-dynamodb": "npm:^3.637.0"
-    "@aws-sdk/lib-dynamodb": "npm:^3.637.0"
-    "@hathor/hathor-rpc-handler": "npm:^2.2.0"
-    "@hookform/resolvers": "npm:^3.9.0"
-    "@radix-ui/react-aspect-ratio": "npm:^1.1.0"
-    "@radix-ui/react-icons": "npm:^1.3.0"
-    "@radix-ui/react-label": "npm:^2.1.0"
-    "@radix-ui/react-popover": "npm:^1.1.4"
-    "@radix-ui/react-scroll-area": "npm:^1.1.0"
-    "@radix-ui/react-select": "npm:^2.1.4"
-    "@radix-ui/react-slot": "npm:^1.1.1"
-    "@radix-ui/react-toast": "npm:^1.2.1"
-    "@tanstack/react-table": "npm:^8.20.5"
-    "@types/lodash": "npm:^4"
-    "@types/node": "npm:^20"
-    "@types/react": "npm:^18"
-    "@types/react-dom": "npm:^18"
-    "@types/react-syntax-highlighter": "npm:^15"
-    "@types/styled-components": "npm:^5.1.34"
-    "@walletconnect/core": "npm:^2.15.1"
-    "@walletconnect/modal": "npm:^2.7.0"
-    "@walletconnect/sign-client": "npm:^2.15.1"
-    "@walletconnect/types": "npm:^2.15.1"
-    "@web3modal/standalone": "npm:^2.4.3"
-    class-variance-authority: "npm:^0.7.0"
-    clsx: "npm:^2.1.1"
-    date-fns: "npm:^4.1.0"
-    eslint: "npm:^9.18.0"
+    "@aws-sdk/client-dynamodb": "npm:3.637.0"
+    "@aws-sdk/lib-dynamodb": "npm:3.637.0"
+    "@hathor/hathor-rpc-handler": "npm:2.2.0"
+    "@hookform/resolvers": "npm:3.9.0"
+    "@radix-ui/react-aspect-ratio": "npm:1.1.0"
+    "@radix-ui/react-icons": "npm:1.3.0"
+    "@radix-ui/react-label": "npm:2.1.0"
+    "@radix-ui/react-popover": "npm:1.1.4"
+    "@radix-ui/react-scroll-area": "npm:1.1.0"
+    "@radix-ui/react-select": "npm:2.1.4"
+    "@radix-ui/react-slot": "npm:1.1.1"
+    "@radix-ui/react-toast": "npm:1.2.1"
+    "@tanstack/react-table": "npm:8.20.5"
+    "@types/lodash": "npm:4.17.7"
+    "@types/node": "npm:20.16.1"
+    "@types/react": "npm:18.3.27"
+    "@types/react-dom": "npm:18.3.0"
+    "@types/react-syntax-highlighter": "npm:15.5.13"
+    "@types/styled-components": "npm:5.1.34"
+    "@walletconnect/core": "npm:2.15.1"
+    "@walletconnect/modal": "npm:2.7.0"
+    "@walletconnect/sign-client": "npm:2.15.1"
+    "@walletconnect/types": "npm:2.15.1"
+    "@web3modal/standalone": "npm:2.4.3"
+    class-variance-authority: "npm:0.7.0"
+    clsx: "npm:2.1.1"
+    date-fns: "npm:4.1.0"
+    eslint: "npm:9.39.4"
     eslint-config-next: "npm:16.2.5"
-    highlight.js: "npm:^11.10.0"
-    lodash: "npm:^4.17.21"
-    lucide-react: "npm:^0.435.0"
-    marked: "npm:^14.1.0"
+    highlight.js: "npm:11.10.0"
+    lodash: "npm:4.17.21"
+    lucide-react: "npm:0.435.0"
+    marked: "npm:14.1.0"
     next: "npm:16.2.5"
-    node-pre-gyp: "npm:^0.17.0"
-    postcss: "npm:^8"
-    react: "npm:^18"
+    node-pre-gyp: "npm:0.17.0"
+    postcss: "npm:8.4.41"
+    react: "npm:18.3.1"
     react-day-picker: "npm:8.10.1"
-    react-dom: "npm:^18"
-    react-hook-form: "npm:^7.52.2"
-    react-syntax-highlighter: "npm:^15.5.0"
-    sharp: "npm:^0.33.5"
-    styled-components: "npm:^6.1.14"
-    tailwind-merge: "npm:^2.5.2"
-    tailwindcss: "npm:^3.4.1"
-    tailwindcss-animate: "npm:^1.0.7"
-    typescript: "npm:^5"
-    zod: "npm:^3.23.8"
+    react-dom: "npm:18.3.1"
+    react-hook-form: "npm:7.52.2"
+    react-syntax-highlighter: "npm:15.5.0"
+    sharp: "npm:0.33.5"
+    styled-components: "npm:6.1.14"
+    tailwind-merge: "npm:2.5.2"
+    tailwindcss: "npm:3.4.10"
+    tailwindcss-animate: "npm:1.0.7"
+    typescript: "npm:5.5.4"
+    zod: "npm:3.25.76"
   peerDependencies:
     "@hathor/wallet-lib": 2.5.1
   languageName: unknown
@@ -4679,7 +4679,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"class-variance-authority@npm:^0.7.0":
+"class-variance-authority@npm:0.7.0":
   version: 0.7.0
   resolution: "class-variance-authority@npm:0.7.0"
   dependencies:
@@ -4731,7 +4731,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clsx@npm:^2.1.1":
+"clsx@npm:2.1.1":
   version: 2.1.1
   resolution: "clsx@npm:2.1.1"
   checksum: 10c0/c4c8eb865f8c82baab07e71bfa8897c73454881c4f99d6bc81585aecd7c441746c1399d08363dc096c550cceaf97bd4ce1e8854e1771e9998d9f94c4fe075839
@@ -4999,7 +4999,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"date-fns@npm:^4.1.0":
+"date-fns@npm:4.1.0":
   version: 4.1.0
   resolution: "date-fns@npm:4.1.0"
   checksum: 10c0/b79ff32830e6b7faa009590af6ae0fb8c3fd9ffad46d930548fbb5acf473773b4712ae887e156ba91a7b3dc30591ce0f517d69fd83bd9c38650fdc03b4e0bac8
@@ -5777,7 +5777,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^9.18.0":
+"eslint@npm:9.39.4":
   version: 9.39.4
   resolution: "eslint@npm:9.39.4"
   dependencies:
@@ -6588,17 +6588,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"highlight.js@npm:11.10.0":
+  version: 11.10.0
+  resolution: "highlight.js@npm:11.10.0"
+  checksum: 10c0/cd8bf7ef06cbd72ddb83580ecabe769f08f062be8bb82d2eb492d31c17f7480d1f8d14a66fc81deee0601645435f19f04c470510563f847242a41ccff0ab873e
+  languageName: node
+  linkType: hard
+
 "highlight.js@npm:^10.4.1, highlight.js@npm:~10.7.0":
   version: 10.7.3
   resolution: "highlight.js@npm:10.7.3"
   checksum: 10c0/073837eaf816922427a9005c56c42ad8786473dc042332dfe7901aa065e92bc3d94ebf704975257526482066abb2c8677cc0326559bb8621e046c21c5991c434
-  languageName: node
-  linkType: hard
-
-"highlight.js@npm:^11.10.0":
-  version: 11.10.0
-  resolution: "highlight.js@npm:11.10.0"
-  checksum: 10c0/cd8bf7ef06cbd72ddb83580ecabe769f08f062be8bb82d2eb492d31c17f7480d1f8d14a66fc81deee0601645435f19f04c470510563f847242a41ccff0ab873e
   languageName: node
   linkType: hard
 
@@ -7609,7 +7609,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.17.21, lodash@npm:^4.17.20, lodash@npm:^4.17.21":
+"lodash@npm:4.17.21, lodash@npm:^4.17.20":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: 10c0/d8cbea072bb08655bb4c989da418994b073a608dffa608b09ac04b43a791b12aeae7cd7ad919aa4c925f33b48490b5cfe6c1f71d827956071dae2e7bb3a6b74c
@@ -7653,7 +7653,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lucide-react@npm:^0.435.0":
+"lucide-react@npm:0.435.0":
   version: 0.435.0
   resolution: "lucide-react@npm:0.435.0"
   peerDependencies:
@@ -7682,7 +7682,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"marked@npm:^14.1.0":
+"marked@npm:14.1.0":
   version: 14.1.0
   resolution: "marked@npm:14.1.0"
   bin:
@@ -8169,7 +8169,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-pre-gyp@npm:^0.17.0":
+"node-pre-gyp@npm:0.17.0":
   version: 0.17.0
   resolution: "node-pre-gyp@npm:0.17.0"
   dependencies:
@@ -8813,7 +8813,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8, postcss@npm:^8.4.23":
+"postcss@npm:8.4.41, postcss@npm:^8.4.23":
   version: 8.4.41
   resolution: "postcss@npm:8.4.41"
   dependencies:
@@ -8997,7 +8997,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:^18":
+"react-dom@npm:18.3.1":
   version: 18.3.1
   resolution: "react-dom@npm:18.3.1"
   dependencies:
@@ -9009,7 +9009,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-hook-form@npm:^7.52.2":
+"react-hook-form@npm:7.52.2":
   version: 7.52.2
   resolution: "react-hook-form@npm:7.52.2"
   peerDependencies:
@@ -9093,7 +9093,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-syntax-highlighter@npm:^15.5.0":
+"react-syntax-highlighter@npm:15.5.0":
   version: 15.5.0
   resolution: "react-syntax-highlighter@npm:15.5.0"
   dependencies:
@@ -9108,7 +9108,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:^18":
+"react@npm:18.3.1":
   version: 18.3.1
   resolution: "react@npm:18.3.1"
   dependencies:
@@ -9538,7 +9538,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sharp@npm:^0.33.5":
+"sharp@npm:0.33.5":
   version: 0.33.5
   resolution: "sharp@npm:0.33.5"
   dependencies:
@@ -10125,7 +10125,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"styled-components@npm:^6.1.14":
+"styled-components@npm:6.1.14":
   version: 6.1.14
   resolution: "styled-components@npm:6.1.14"
   dependencies:
@@ -10209,14 +10209,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tailwind-merge@npm:^2.5.2":
+"tailwind-merge@npm:2.5.2":
   version: 2.5.2
   resolution: "tailwind-merge@npm:2.5.2"
   checksum: 10c0/e43a9a468f7ba4ed5b4a399558d96d6270a3d8131dca111cccc803e71cc23885060d18d721f312a24fff0a75c567dbb30b2a87c18aba25eb4255df197d8170ab
   languageName: node
   linkType: hard
 
-"tailwindcss-animate@npm:^1.0.7":
+"tailwindcss-animate@npm:1.0.7":
   version: 1.0.7
   resolution: "tailwindcss-animate@npm:1.0.7"
   peerDependencies:
@@ -10225,7 +10225,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tailwindcss@npm:^3.4.1":
+"tailwindcss@npm:3.4.10":
   version: 3.4.10
   resolution: "tailwindcss@npm:3.4.10"
   dependencies:
@@ -10514,7 +10514,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^5":
+"typescript@npm:5.5.4":
   version: 5.5.4
   resolution: "typescript@npm:5.5.4"
   bin:
@@ -10524,7 +10524,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A^5#optional!builtin<compat/typescript>":
+"typescript@patch:typescript@npm%3A5.5.4#optional!builtin<compat/typescript>":
   version: 5.5.4
   resolution: "typescript@patch:typescript@npm%3A5.5.4#optional!builtin<compat/typescript>::version=5.5.4&hash=b45daf"
   bin:
@@ -11131,7 +11131,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod@npm:^3.23.8":
+"zod@npm:3.25.76":
   version: 3.25.76
   resolution: "zod@npm:3.25.76"
   checksum: 10c0/5718ec35e3c40b600316c5b4c5e4976f7fee68151bc8f8d90ec18a469be9571f072e1bbaace10f1e85cf8892ea12d90821b200e980ab46916a6166a4260a983c

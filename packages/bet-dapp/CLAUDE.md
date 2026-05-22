@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Project Directives
+
+- **All dependency versions in package.json must be pinned (exact versions, no `^` or `~` ranges).** This prevents unintended upgrades. When adding a new dependency, install with `yarn add <package> --exact` (or `-E` flag) to pin the version. When updating, manually change the version in package.json and run `yarn install`.
+
 ## Development Commands
 
 - `npm run dev` - Start development server at http://localhost:3000
