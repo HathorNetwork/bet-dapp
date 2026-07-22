@@ -6,20 +6,24 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { HATHOR_TESTNET_CHAIN } from '@/constants';
+import { HATHOR_TESTNET_CHAIN, NETWORK } from '@/constants';
 
+// Shape expected by the htr_sendTransaction handler: `params` is an object, `network`
+// is required and output values are decimal strings (coerced to bigint by the handler).
 const DEFAULT_REQUEST = {
   method: "htr_sendTransaction",
-  params: [{
+  params: {
+    network: NETWORK,
     outputs: [{
       address: "WewDeXWyvHP79xWtqmYdaS1Y4m4Y5the2N",
-      value: 100,
+      value: "100",
       token: "00"
     }],
-    inputs: [],
-    change_address: "WewDeXWyvHP79xWtqmYdaS1Y4m4Y5the2N"
-  }]
+    changeAddress: "WewDeXWyvHP79xWtqmYdaS1Y4m4Y5the2N"
+  }
 };
+
+const DEFAULT_REQUEST_JSON = JSON.stringify(DEFAULT_REQUEST, null, 2);
 
 // Custom JSON serializer that handles BigInt
 const jsonStringify = (obj: any) => {
@@ -30,7 +34,7 @@ const jsonStringify = (obj: any) => {
 };
 
 export default function RpcPage() {
-  const [requestJson, setRequestJson] = useState(JSON.stringify(DEFAULT_REQUEST, null, 2));
+  const [requestJson, setRequestJson] = useState(DEFAULT_REQUEST_JSON);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const { client, session, connect } = useWalletConnectClient();
@@ -82,21 +86,8 @@ export default function RpcPage() {
               placeholder="Enter your JSON request"
               required
             />
-            <p className="text-sm text-gray-500 mt-2">
-              Example format:
-              {`
-{
-  "method": "htr_sendTransaction",
-  "params": [{
-    "outputs": [{
-      "address": "WewDeXWyvHP79xWtqmYdaS1Y4m4Y5the2N",
-      "value": 100,
-      "token": "00"
-    }],
-    "inputs": [],
-    "change_address": "WewDeXWyvHP79xWtqmYdaS1Y4m4Y5the2N"
-  }]
-}`}
+            <p className="text-sm text-gray-500 mt-2 whitespace-pre-wrap">
+              {`Example format:\n${DEFAULT_REQUEST_JSON}`}
             </p>
           </div>
 

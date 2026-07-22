@@ -1,7 +1,7 @@
 import { IHathorRpc } from '@/contexts/JsonRpcContext';
 import { SendNanoContractRpcRequest, sendNanoContractTxRpcRequest } from '@hathor/hathor-rpc-handler';
 import { SendNanoContractTxResponse } from '@hathor/hathor-rpc-handler';
-import { BET_BLUEPRINT, EVENT_TOKEN } from '@/constants';
+import { BET_BLUEPRINT, EVENT_TOKEN, NETWORK } from '@/constants';
 import { NanoContractActionType } from '@hathor/wallet-lib/lib/nano_contracts/types';
 import { getAddressHex } from '@/lib/utils';
 
@@ -13,6 +13,7 @@ export const createBet = async (
   amount: number,
 ) => {
   const ncTxRpcReq: SendNanoContractRpcRequest = sendNanoContractTxRpcRequest(
+    NETWORK,
     'bet',
     BET_BLUEPRINT, [{
       type: NanoContractActionType.DEPOSIT,

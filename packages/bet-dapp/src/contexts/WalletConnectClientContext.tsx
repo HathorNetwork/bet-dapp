@@ -151,9 +151,20 @@ export function WalletConnectClientContextProvider({
               'htr_sendNanoContractTx',
               'htr_createNanoContractCreateTokenTx',
               'htr_createToken',
-              // 'htr_getConnectedNetwork',
-              // 'htr_sendTransaction',
               'htr_signOracleData'
+            ],
+            chains: ['hathor:testnet'],
+            events: [],
+          }
+        };
+
+        // Requested as optional so wallets that don't implement them can still approve
+        // the session instead of rejecting the whole connection.
+        const optionalNamespaces = {
+          'hathor': {
+            methods: [
+              'htr_sendTransaction',
+              'htr_getConnectedNetwork',
             ],
             chains: ['hathor:testnet'],
             events: [],
@@ -163,6 +174,7 @@ export function WalletConnectClientContextProvider({
         const { uri, approval } = await client.connect({
           pairingTopic: pairing?.topic,
           requiredNamespaces,
+          optionalNamespaces,
         });
 
         console.log({
