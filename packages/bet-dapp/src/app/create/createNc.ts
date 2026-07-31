@@ -1,6 +1,6 @@
 import { IHathorRpc } from '@/contexts/JsonRpcContext';
 import { SendNanoContractRpcRequest, SendNanoContractTxResponse, sendNanoContractTxRpcRequest } from '@hathor/hathor-rpc-handler';
-import { BET_BLUEPRINT } from '@/constants';
+import { BET_BLUEPRINT, NETWORK } from '@/constants';
 import { getOracleBuffer } from '@/lib/utils';
 import { createNanoContractTx } from '@/lib/api/createNanoContractTx';
 import { Transaction } from '@hathor/wallet-lib';
@@ -17,6 +17,7 @@ export const createNc = async (
   options: string[],
 ): Promise<Transaction> => {
   const ncTxRpcReq: SendNanoContractRpcRequest = sendNanoContractTxRpcRequest(
+    NETWORK,
     'initialize',
     BET_BLUEPRINT,
     [],

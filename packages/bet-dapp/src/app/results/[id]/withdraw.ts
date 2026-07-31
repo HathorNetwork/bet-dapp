@@ -2,7 +2,7 @@ import { IHathorRpc } from '@/contexts/JsonRpcContext';
 import {
   sendNanoContractTxRpcRequest,
 } from '@hathor/hathor-rpc-handler';
-import { BET_BLUEPRINT } from '@/constants';
+import { BET_BLUEPRINT, NETWORK } from '@/constants';
 import { NanoContractActionType } from '@hathor/wallet-lib/lib/nano_contracts/types';
 
 export const withdraw = async (
@@ -13,6 +13,7 @@ export const withdraw = async (
   token: string,
 ) => {
   const setResultNcTx = sendNanoContractTxRpcRequest(
+    NETWORK,
     'withdraw',
     BET_BLUEPRINT,
     [{

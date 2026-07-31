@@ -25,6 +25,7 @@ export const setResult = async (
 
 
   const setResultNcTx = sendNanoContractTxRpcRequest(
+    NETWORK,
     'set_result',
     BET_BLUEPRINT,
     [],
