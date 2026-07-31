@@ -169,6 +169,8 @@ export function WalletConnectClientContextProvider({
               'htr_getBalance',
               'htr_getWalletInformation',
               'htr_getConnectedNetwork',
+              'htr_getXpub',
+              'htr_changeNetwork',
             ],
             chains: ['hathor:testnet'],
             events: [],
