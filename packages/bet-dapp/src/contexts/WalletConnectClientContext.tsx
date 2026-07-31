@@ -164,6 +164,10 @@ export function WalletConnectClientContextProvider({
           'hathor': {
             methods: [
               'htr_sendTransaction',
+              'htr_getUtxos',
+              'htr_getAddress',
+              'htr_getBalance',
+              'htr_getWalletInformation',
               'htr_getConnectedNetwork',
             ],
             chains: ['hathor:testnet'],
